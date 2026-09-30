@@ -246,16 +246,80 @@ otp_expiry = 3600
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
 
-# Uncomment to customize email template
-# [auth.email.template.invite]
-# subject = "You have been invited"
-# content_path = "./supabase/templates/invite.html"
+# Email templates ------------------------------------------------------------
+#
+# Every auth email Easy Quiz sends, styled to match the app. The HTML lives in
+# `supabase/templates/` and is rendered from one shared shell by
+# `scripts/generate-emails.mjs` (`npm run emails:gen`) — that script is the
+# place to edit a template, not the generated file.
+#
+# `content_path` is relative to the project root, i.e. where `supabase start`
+# is run. Restart the stack after changing anything here.
+#
+# These apply to LOCAL development only. The hosted project cannot read these
+# files: after editing a template, copy the rendered HTML into the dashboard's
+# Email Templates page (or PATCH it via the Management API), subjects included.
 
-# Uncomment to customize notification email template
-# [auth.email.notification.password_changed]
-# enabled = true
-# subject = "Your password has been changed"
-# content_path = "./supabase/templates/password_changed_notification.html"
+[auth.email.template.confirmation]
+subject = "Xác nhận email của bạn — Easy Quiz"
+content_path = "./supabase/templates/confirmation.html"
+
+[auth.email.template.invite]
+subject = "Bạn được mời tham gia Easy Quiz"
+content_path = "./supabase/templates/invite.html"
+
+[auth.email.template.magic_link]
+subject = "Liên kết đăng nhập của bạn — Easy Quiz"
+content_path = "./supabase/templates/magic_link.html"
+
+[auth.email.template.recovery]
+subject = "Đặt lại mật khẩu Easy Quiz"
+content_path = "./supabase/templates/recovery.html"
+
+[auth.email.template.email_change]
+subject = "Xác nhận địa chỉ email mới — Easy Quiz"
+content_path = "./supabase/templates/email_change.html"
+
+[auth.email.template.reauthentication]
+subject = "Mã xác thực của bạn — Easy Quiz"
+content_path = "./supabase/templates/reauthentication.html"
+
+# Security notifications. These are opt-in: without `enabled = true` GoTrue
+# sends nothing when a password, email, phone or sign-in method changes.
+[auth.email.notification.password_changed]
+enabled = true
+subject = "Mật khẩu của bạn đã được thay đổi — Easy Quiz"
+content_path = "./supabase/templates/password_changed_notification.html"
+
+[auth.email.notification.email_changed]
+enabled = true
+subject = "Địa chỉ email của bạn đã được thay đổi — Easy Quiz"
+content_path = "./supabase/templates/email_changed_notification.html"
+
+[auth.email.notification.phone_changed]
+enabled = true
+subject = "Số điện thoại của bạn đã được thay đổi — Easy Quiz"
+content_path = "./supabase/templates/phone_changed_notification.html"
+
+[auth.email.notification.mfa_factor_enrolled]
+enabled = true
+subject = "Đã thêm một phương thức xác thực — Easy Quiz"
+content_path = "./supabase/templates/mfa_factor_enrolled_notification.html"
+
+[auth.email.notification.mfa_factor_unenrolled]
+enabled = true
+subject = "Đã gỡ một phương thức xác thực — Easy Quiz"
+content_path = "./supabase/templates/mfa_factor_unenrolled_notification.html"
+
+[auth.email.notification.identity_linked]
+enabled = true
+subject = "Đã liên kết một cách đăng nhập — Easy Quiz"
+content_path = "./supabase/templates/identity_linked_notification.html"
+
+[auth.email.notification.identity_unlinked]
+enabled = true
+subject = "Đã gỡ một cách đăng nhập — Easy Quiz"
+content_path = "./supabase/templates/identity_unlinked_notification.html"
 
 [auth.sms]
 # Allow/disallow new user signups via SMS to your project.

@@ -18,7 +18,8 @@
     "fn:serve": "supabase functions serve --env-file supabase/functions/.env",
     "types:gen": "node scripts/generate-types.mjs",
     "sitemap:gen": "node scripts/generate-sitemap.mjs",
-    "og:image": "node scripts/generate-og-image.mjs"
+    "og:image": "node scripts/generate-og-image.mjs",
+    "emails:gen": "node scripts/generate-emails.mjs"
   },
   "dependencies": {
     "@remotion/google-fonts": "^4.0.530",
