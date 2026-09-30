@@ -180,17 +180,32 @@ and returns validated questions:
 ```
 
 - The provider key lives **only** in the function's environment — never in the client bundle.
-- `AI_PROVIDER` selects `gemini`, `openai`, or `mock`. The `mock` adapter keeps the whole flow
+- `AI_PROVIDER` selects `gemini`, `openai`, `deepseek`, or `mock`. Gemini uses its own API;
+  the other two share one OpenAI-compatible `/chat/completions` adapter, so
+  `OPENAI_BASE_URL` turns `openai` into a generic escape hatch for anything that speaks that
+  dialect (OpenRouter, Together, Groq, vLLM, Ollama…). The `mock` adapter keeps the whole flow
   working without a key, and is also the automatic fallback when a provider errors, so a dead
-  API never dead-ends a teacher mid-lesson.
+  API never dead-ends a teacher mid-lesson. A *missing key* is not an outage, though: that is
+  reported as an error rather than masked with placeholder questions.
 - The function verifies the JWT **and** re-checks the caller's role through `is_teacher()`, so an
   anonymous session cannot spend your provider quota.
 
 To use a real model, edit `supabase/functions/.env`:
 
 ```bash
+# Gemini
 AI_PROVIDER=gemini
 GEMINI_API_KEY=your-key
+
+# DeepSeek (OpenAI-compatible)
+AI_PROVIDER=deepseek
+DEEPSEEK_API_KEY=your-key
+
+# Any other OpenAI-compatible endpoint
+AI_PROVIDER=openai
+OPENAI_API_KEY=your-key
+OPENAI_MODEL=your-model
+OPENAI_BASE_URL=https://your-endpoint/v1
 ```
 
 then `npm run fn:serve`, or restart the stack.

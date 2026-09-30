@@ -20,7 +20,7 @@ export interface AiQuestion {
 
 export interface AiGenerateResult {
   questions: AiQuestion[]
-  /** e.g. `gemini:gemini-2.5-flash`, `mock`, `mock:fallback`. */
+  /** e.g. `gemini:gemini-2.5-flash`, `deepseek:deepseek-chat`, `mock`, `mock:fallback`. */
   provider: string
 }
 
@@ -75,8 +75,12 @@ export async function generateQuestions(input: AiGenerateInput): Promise<AiGener
 
 /** Human-readable label for the provider badge in the UI. */
 export function describeProvider(provider: string): string {
-  if (provider.startsWith('gemini')) return `Gemini · ${provider.split(':')[1] ?? ''}`
-  if (provider.startsWith('openai')) return `OpenAI · ${provider.split(':')[1] ?? ''}`
+  const model = provider.split(':')[1] ?? ''
+
+  if (provider.startsWith('openai-compatible')) return `Tương thích OpenAI · ${model}`
+  if (provider.startsWith('deepseek')) return `DeepSeek · ${model}`
+  if (provider.startsWith('gemini')) return `Gemini · ${model}`
+  if (provider.startsWith('openai')) return `OpenAI · ${model}`
   if (provider === 'mock:fallback') return 'Mẫu (AI không phản hồi)'
   return 'Mẫu ngoại tuyến'
 }

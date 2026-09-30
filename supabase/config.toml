@@ -396,8 +396,9 @@ deno_version = 2
 # cannot spend provider quota.
 #
 # Secrets live in `supabase/functions/.env` (see supabase/.env.example):
-#   AI_PROVIDER=mock | gemini | openai
-#   GEMINI_API_KEY=…  /  OPENAI_API_KEY=…
+#   AI_PROVIDER=mock | gemini | openai | deepseek
+#   GEMINI_API_KEY=…  /  OPENAI_API_KEY=…  /  DEEPSEEK_API_KEY=…
+#   OPENAI_BASE_URL=… points the openai adapter at any compatible endpoint.
 # ---------------------------------------------------------------------------
 [functions.ai-quiz]
 verify_jwt = true
