@@ -1,0 +1,482 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------ *
+ * Easy Quiz design tokens
+ *
+ * Inherited from the AiTechX house style (ink / neon / violet-glow /
+ * magenta) with one addition of our own: `spark`, the warm amber that
+ * marks correct answers, streaks and anything worth celebrating. The
+ * brand stays cool; the quiz runs hot.
+ * ------------------------------------------------------------------ */
+@theme {
+  --color-ink-50: #eef1f8;
+  --color-ink-100: #d5daea;
+  --color-ink-200: #a9b2cc;
+  --color-ink-300: #7d88a8;
+  --color-ink-400: #5a658a;
+  --color-ink-500: #3c4665;
+  --color-ink-600: #262e49;
+  --color-ink-700: #171d32;
+  --color-ink-800: #0d1224;
+  --color-ink-900: #080b18;
+  --color-ink-950: #04060f;
+
+  --color-neon-300: #67e8f9;
+  --color-neon-400: #22d3ee;
+  --color-neon-500: #06b6d4;
+  --color-neon-600: #0891b2;
+
+  --color-violet-glow-300: #c4b5fd;
+  --color-violet-glow-400: #a78bfa;
+  --color-violet-glow-500: #8b5cf6;
+  --color-violet-glow-600: #7c3aed;
+
+  --color-magenta-400: #f472b6;
+  --color-magenta-500: #ec4899;
+
+  --color-lime-neon-400: #a3e635;
+
+  /* Easy Quiz flavour ------------------------------------------------ */
+  --color-spark-300: #fcd34d;
+  --color-spark-400: #fbbf24;
+  --color-spark-500: #f59e0b;
+
+  --color-correct-300: #6ee7b7;
+  --color-correct-400: #34d399;
+  --color-correct-500: #10b981;
+
+  --color-wrong-300: #fda4af;
+  --color-wrong-400: #fb7185;
+  --color-wrong-500: #f43f5e;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, sans-serif;
+  --font-display: "Space Grotesk", "Inter", ui-sans-serif, system-ui,
+    sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --shadow-glow-neon: 0 0 0 1px rgb(34 211 238 / 0.35),
+    0 0 24px -4px rgb(34 211 238 / 0.55);
+  --shadow-glow-violet: 0 0 0 1px rgb(139 92 246 / 0.35),
+    0 0 28px -4px rgb(139 92 246 / 0.55);
+  --shadow-glow-spark: 0 0 0 1px rgb(251 191 36 / 0.4),
+    0 0 26px -4px rgb(251 191 36 / 0.6);
+  --shadow-glow-correct: 0 0 0 1px rgb(52 211 153 / 0.45),
+    0 0 30px -6px rgb(52 211 153 / 0.7);
+  --shadow-glow-wrong: 0 0 0 1px rgb(251 113 133 / 0.45),
+    0 0 30px -6px rgb(251 113 133 / 0.65);
+  --shadow-panel: 0 24px 60px -28px rgb(0 0 0 / 0.85);
+
+  --animate-float: float 7s ease-in-out infinite;
+  --animate-float-slow: float 11s ease-in-out infinite;
+  --animate-marquee: marquee 42s linear infinite;
+  --animate-blink: blink 1.05s step-end infinite;
+  --animate-shimmer: shimmer 2.6s linear infinite;
+  --animate-aurora: aurora 18s ease infinite;
+  --animate-spin-slow: spin 26s linear infinite;
+  --animate-pulse-ring: pulse-ring 2.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-scan: scan 4.5s ease-in-out infinite;
+
+  /* Quiz feedback motions -------------------------------------------- */
+  --animate-pop: pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  --animate-rise: rise 560ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-shake: shake 460ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  --animate-drift-up: drift-up 1.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-sheen: sheen 2.4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -18px, 0);
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes aurora {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.7;
+  }
+  70% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+@keyframes scan {
+  0%,
+  100% {
+    transform: translateY(-110%);
+    opacity: 0;
+  }
+  40% {
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(110%);
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.86);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes rise {
+  0% {
+    transform: translate3d(0, 22px, 0);
+    opacity: 0;
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes shake {
+  10%,
+  90% {
+    transform: translate3d(-2px, 0, 0);
+  }
+  20%,
+  80% {
+    transform: translate3d(4px, 0, 0);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translate3d(-6px, 0, 0);
+  }
+  40%,
+  60% {
+    transform: translate3d(6px, 0, 0);
+  }
+}
+
+@keyframes drift-up {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.9);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, -68px, 0) scale(1.1);
+    opacity: 0;
+  }
+}
+
+@keyframes sheen {
+  0% {
+    background-position: -120% 0;
+  }
+  100% {
+    background-position: 220% 0;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Base
+ * ------------------------------------------------------------------ */
+@layer base {
+  :root {
+    color-scheme: dark;
+    --page-bg: var(--color-ink-950);
+  }
+
+  * {
+    border-color: color-mix(in oklab, var(--color-ink-600) 65%, transparent);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--page-bg);
+    color: var(--color-ink-100);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.022em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-neon-400) 35%, transparent);
+    color: white;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-neon-400);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-ink-950);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--color-ink-500) 80%, transparent);
+    border-radius: 999px;
+    border: 2px solid var(--color-ink-950);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in oklab, var(--color-neon-600) 80%, transparent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Component-level helpers
+ * ------------------------------------------------------------------ */
+@layer components {
+  .container-page {
+    width: 100%;
+    margin-inline: auto;
+    max-width: 80rem;
+    padding-inline: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .container-page {
+      padding-inline: 2rem;
+    }
+  }
+
+  .text-gradient {
+    background-image: linear-gradient(
+      100deg,
+      var(--color-neon-300) 0%,
+      var(--color-violet-glow-300) 45%,
+      var(--color-magenta-400) 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: var(--animate-aurora);
+  }
+
+  /* The Easy Quiz signature: brand gradient cooling into our amber spark. */
+  .text-gradient-spark {
+    background-image: linear-gradient(
+      100deg,
+      var(--color-neon-300) 0%,
+      var(--color-violet-glow-300) 38%,
+      var(--color-magenta-400) 66%,
+      var(--color-spark-300) 100%
+    );
+    background-size: 220% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: var(--animate-aurora);
+  }
+
+  .glass-panel {
+    background:
+      linear-gradient(
+        145deg,
+        color-mix(in oklab, var(--color-ink-800) 92%, transparent) 0%,
+        color-mix(in oklab, var(--color-ink-900) 88%, transparent) 100%
+      );
+    border: 1px solid color-mix(in oklab, var(--color-ink-600) 70%, transparent);
+    backdrop-filter: blur(14px);
+  }
+
+  .hairline-gradient {
+    position: relative;
+  }
+
+  .hairline-gradient::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      130deg,
+      color-mix(in oklab, var(--color-neon-400) 60%, transparent),
+      transparent 35%,
+      transparent 65%,
+      color-mix(in oklab, var(--color-violet-glow-500) 60%, transparent)
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 320ms ease;
+    pointer-events: none;
+  }
+
+  .hairline-gradient:hover::before,
+  .hairline-gradient[data-active="true"]::before {
+    opacity: 1;
+  }
+
+  .grid-backdrop {
+    background-image:
+      linear-gradient(
+        to right,
+        color-mix(in oklab, var(--color-ink-500) 28%, transparent) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        to bottom,
+        color-mix(in oklab, var(--color-ink-500) 28%, transparent) 1px,
+        transparent 1px
+      );
+    background-size: 64px 64px;
+  }
+
+  .noise-overlay {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.42'/%3E%3C/svg%3E");
+  }
+
+  .shimmer-text {
+    background: linear-gradient(
+      90deg,
+      color-mix(in oklab, var(--color-ink-200) 80%, transparent) 0%,
+      white 45%,
+      color-mix(in oklab, var(--color-ink-200) 80%, transparent) 90%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: var(--animate-shimmer);
+  }
+
+  /* Answer tiles — the one piece of UI a player looks at most. */
+  .answer-tile {
+    position: relative;
+    width: 100%;
+    text-align: left;
+    border-radius: 1rem;
+    border: 1px solid color-mix(in oklab, var(--color-ink-600) 80%, transparent);
+    background: color-mix(in oklab, var(--color-ink-800) 80%, transparent);
+    transition:
+      transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 220ms ease,
+      background-color 220ms ease,
+      box-shadow 220ms ease;
+  }
+
+  .answer-tile:not(:disabled):hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in oklab, var(--color-neon-400) 65%, transparent);
+    background: color-mix(in oklab, var(--color-ink-700) 85%, transparent);
+  }
+
+  .answer-tile[data-state="correct"] {
+    border-color: color-mix(in oklab, var(--color-correct-400) 75%, transparent);
+    background: color-mix(in oklab, var(--color-correct-500) 14%, var(--color-ink-900));
+    box-shadow: var(--shadow-glow-correct);
+  }
+
+  .answer-tile[data-state="wrong"] {
+    border-color: color-mix(in oklab, var(--color-wrong-400) 75%, transparent);
+    background: color-mix(in oklab, var(--color-wrong-500) 14%, var(--color-ink-900));
+    box-shadow: var(--shadow-glow-wrong);
+  }
+
+  .answer-tile[data-state="dim"] {
+    opacity: 0.5;
+  }
+
+  .scanline {
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      color-mix(in oklab, var(--color-neon-300) 55%, transparent),
+      transparent
+    );
+  }
+}
