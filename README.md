@@ -175,7 +175,8 @@ and returns validated questions:
   "questions": [
     { "prompt": "…", "options": ["…"], "correct_index": 0, "explanation": "…" }
   ],
-  "provider": "gemini:gemini-2.5-flash"
+  "provider": "gemini:gemini-2.5-flash",
+  "credits": 49
 }
 ```
 
@@ -189,6 +190,19 @@ and returns validated questions:
   reported as an error rather than masked with placeholder questions.
 - The function verifies the JWT **and** re-checks the caller's role through `is_teacher()`, so an
   anonymous session cannot spend your provider quota.
+- **AI Assist is metered.** A teacher spends credits from `profiles.ai_credits`; each generation
+  reserves `AI_CREDIT_COST` (default `1`) up front and hands it back if no paid provider actually
+  produced the questions — so `mock` and `mock:fallback` runs are free. Every movement is logged in
+  `ai_credit_ledger`. The UI shows the balance in the editor's AI Assist panel and on the teacher
+  dashboard; the panel is blocked at zero. Both changes go through `apply_ai_credits()` /
+  `grant_ai_credits()` — the balance is never client-writable.
+
+  There is no purchase flow yet, so credits are handed out by editing the database. Run
+  `supabase/snippets/grant-ai-credits.sql` in Studio's SQL editor, or in short:
+
+  ```sql
+  select public.grant_ai_credits('<teacher-uuid>', 100, 'grant');
+  ```
 
 To use a real model, edit `supabase/functions/.env`:
 

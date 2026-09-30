@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Loader2, Sparkles, Wand2 } from 'lucide-react'
+import { Coins, Loader2, Sparkles, Wand2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Badge } from '@/components/ui/badge'
@@ -9,9 +9,11 @@ import { Alert } from '@/components/ui/feedback'
 import {
   generateQuestions,
   describeProvider,
+  AiCreditsExhaustedError,
   type AiGenerateInput,
   type AiQuestion,
 } from '@/features/ai/ai-assist'
+import { useAuth } from '@/features/auth/auth-context'
 import { DIFFICULTY_LABELS } from '@/lib/labels'
 import type { QuizDifficulty } from '@/lib/domain'
 
@@ -44,6 +46,9 @@ export function AiAssistPanel({
   onApply: (questions: AiQuestion[], mode: 'append' | 'replace') => void
   onClose: () => void
 }) {
+  const { profile, refreshProfile } = useAuth()
+  const credits = profile?.ai_credits ?? 0
+
   const [brief, setBrief] = useState<AiBrief>(DEFAULT_BRIEF)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -76,11 +81,17 @@ export function AiAssistPanel({
       const result = await generateQuestions(input)
       setPreview(result)
       toast.success(`AI đã soạn ${result.questions.length} câu hỏi.`)
+      // The server has already spent the credits; pull the new balance so the
+      // header badge reflects it.
+      void refreshProfile()
     } catch (generateError) {
       const message =
         generateError instanceof Error ? generateError.message : 'Không gọi được AI Assist.'
       setError(message)
       toast.error(message)
+      // The local balance may be stale (another tab spent the last credit);
+      // pull the real one so the panel stops offering a doomed retry.
+      if (generateError instanceof AiCreditsExhaustedError) void refreshProfile()
     } finally {
       setLoading(false)
     }
@@ -98,6 +109,12 @@ export function AiAssistPanel({
             Mô tả thứ bạn muốn kiểm tra. AI sẽ soạn câu hỏi kèm đáp án và lời giải — bạn vẫn là
             người duyệt cuối cùng.
           </p>
+
+          <div className="mt-3">
+            <Badge tone={credits > 0 ? 'spark' : 'wrong'} icon={Coins}>
+              {credits > 0 ? `Còn ${credits} credit` : 'Hết credit'}
+            </Badge>
+          </div>
         </div>
 
         <Button variant="ghost" size="sm" onClick={onClose}>
@@ -170,7 +187,7 @@ export function AiAssistPanel({
       </div>
 
       <div className="mt-5 flex flex-wrap items-center gap-3">
-        <Button variant="spark" onClick={handleGenerate} loading={loading}>
+        <Button variant="spark" onClick={handleGenerate} loading={loading} disabled={credits <= 0}>
           {loading ? null : <Wand2 className="size-4" aria-hidden />}
           {loading ? 'Đang soạn…' : 'Soạn câu hỏi'}
         </Button>
@@ -182,6 +199,12 @@ export function AiAssistPanel({
           </span>
         ) : null}
       </div>
+
+      {credits <= 0 ? (
+        <Alert tone="warning" icon={Coins} title="Bạn đã dùng hết credit AI" className="mt-4">
+          Mỗi lần soạn đề tiêu tốn một credit. Hãy nạp thêm credit để tiếp tục dùng AI Assist.
+        </Alert>
+      ) : null}
 
       {error ? (
         <Alert tone="error" title="Không tạo được câu hỏi" className="mt-4">

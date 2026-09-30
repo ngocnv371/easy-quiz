@@ -10,9 +10,13 @@
 // endpoint — so swapping providers, or falling back to the offline generator,
 // is a secret change, not a redeploy of the front end.
 //
+// A teacher's AI Assist allowance is a credit balance (`profiles.ai_credits`).
+// Each generation reserves credits up front and hands them back if no paid
+// provider actually produced the questions, so `mock` runs are free.
+//
 //   POST /functions/v1/ai-quiz
 //   { topic, level?, difficulty?, count?, notes? }
-//   → { questions: [{ prompt, options, correct_index, explanation }], provider }
+//   → { questions: [{ prompt, options, correct_index, explanation }], provider, credits }
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { createClient } from 'npm:@supabase/supabase-js@2'
@@ -60,6 +64,15 @@ function clampCount(value: unknown): number {
   const parsed = typeof value === 'number' ? value : Number.parseInt(String(value ?? ''), 10)
   if (!Number.isFinite(parsed)) return 10
   return Math.min(MAX_COUNT, Math.max(MIN_COUNT, Math.trunc(parsed)))
+}
+
+/**
+ * Credits charged for one generation. Kept in an env var so pricing can move
+ * without redeploying the front end; `0` makes every generation free.
+ */
+function creditCost(): number {
+  const parsed = Number.parseInt(Deno.env.get('AI_CREDIT_COST') ?? '', 10)
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : 1
 }
 
 const DIFFICULTY_LABELS: Record<string, string> = {
@@ -447,10 +460,77 @@ Deno.serve(async (request: Request): Promise<Response> => {
     const count = input.count ?? 10
     const providerSetting = (Deno.env.get('AI_PROVIDER') ?? 'mock').toLowerCase()
     const chatProvider = resolveChatProvider(providerSetting)
+    const usesPaidProvider = providerSetting === 'gemini' || chatProvider !== null
+
+    // ── Credits ────────────────────────────────────────────────────────────
+    // Reserve before the request so a burst of parallel calls cannot each read
+    // the same balance and overspend. Whatever does not end up using a paid
+    // provider is refunded below, so the teacher pays for real work only.
+    const cost = usesPaidProvider ? creditCost() : 0
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    const adminClient = serviceRoleKey
+      ? createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } })
+      : null
+
+    const { data: caller } = await userClient.auth.getUser()
+    const callerId = caller.user?.id ?? null
+
+    let balance: number | null = null
+    let reserved = 0
+
+    if (cost > 0) {
+      const { data: remaining, error: spendError } = await userClient.rpc('apply_ai_credits', {
+        p_delta: -cost,
+        p_reason: 'generation',
+        p_question_count: count,
+        p_provider: providerSetting,
+      })
+
+      if (spendError) {
+        // The function's "hết credit" message is written for the teacher; any
+        // other failure is an operator problem and should not masquerade as a
+        // payment issue.
+        if (/credit/i.test(spendError.message)) {
+          return json({ error: spendError.message, code: 'insufficient_credits' }, 402)
+        }
+
+        return json({ error: `Không trừ được credit AI: ${spendError.message}` }, 500)
+      }
+
+      balance = typeof remaining === 'number' ? remaining : null
+      reserved = cost
+    }
+
+    /**
+     * Hands a reservation back. Best-effort on purpose: a failed refund must
+     * not turn an otherwise working generation into an error for the teacher.
+     */
+    const refund = async (reason: string) => {
+      if (reserved === 0) return
+      reserved = 0
+
+      if (!adminClient || !callerId) {
+        console.error('ai-quiz: cannot refund credits (no service role client or user id)')
+        return
+      }
+
+      const { data: restored, error: refundError } = await adminClient.rpc('grant_ai_credits', {
+        p_user_id: callerId,
+        p_amount: cost,
+        p_reason: reason,
+      })
+
+      if (refundError) {
+        console.error('ai-quiz: credit refund failed:', refundError)
+        return
+      }
+
+      balance = typeof restored === 'number' ? restored : balance
+    }
 
     let result: { questions: GeneratedQuestion[]; provider: string }
 
-    if (providerSetting === 'gemini' || chatProvider) {
+    if (usesPaidProvider) {
       const prompt = buildPrompt(input, count)
 
       try {
@@ -459,21 +539,29 @@ Deno.serve(async (request: Request): Promise<Response> => {
           : await generateWithGemini(prompt, count)
       } catch (providerError) {
         // Bad configuration is the operator's problem, not the teacher's: say
-        // so instead of quietly handing back placeholder questions.
-        if (providerError instanceof ConfigError) throw providerError
+        // so instead of quietly handing back placeholder questions — and do not
+        // charge for work that never happened.
+        if (providerError instanceof ConfigError) {
+          await refund('refund:config')
+          throw providerError
+        }
 
-        // A dead provider should not dead-end the teacher mid-lesson.
+        // A dead provider should not dead-end the teacher mid-lesson. The
+        // placeholder questions it falls back to are not worth a credit.
         console.error('AI provider failed, falling back to mock:', providerError)
         result = {
           questions: generateMock(input, count),
           provider: 'mock:fallback',
         }
+        await refund('refund:fallback')
       }
     } else {
       result = { questions: generateMock(input, count), provider: 'mock' }
     }
 
     if (result.questions.length === 0) {
+      await refund('refund:empty')
+
       return json(
         {
           error:
@@ -486,6 +574,7 @@ Deno.serve(async (request: Request): Promise<Response> => {
     return json({
       questions: result.questions,
       provider: result.provider,
+      credits: balance,
       request: { topic: input.topic, count, difficulty: input.difficulty },
     })
   } catch (error) {

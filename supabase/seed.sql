@@ -87,11 +87,14 @@ begin
   end if;
 
   -- `handle_new_user` already created the profile; make sure the role stuck.
+  -- The credit balance is set here too, so the demo teacher can try AI Assist
+  -- without a manual top-up (see `supabase/snippets/grant-ai-credits.sql`).
   update public.profiles
   set display_name = 'Cô Mai',
       role = 'teacher',
       avatar_emoji = '👩‍🏫',
-      school = 'THCS Nguyễn Du'
+      school = 'THCS Nguyễn Du',
+      ai_credits = 50
   where id = v_user_id;
 end $$;
 

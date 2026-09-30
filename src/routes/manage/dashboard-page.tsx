@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import {
   BarChart3,
   CheckCircle2,
+  Coins,
   FileEdit,
   PlusCircle,
   Sparkles,
@@ -21,7 +22,8 @@ import { isSupabaseConfigured } from '@/lib/supabase'
 import { useAsyncData } from '@/lib/use-async-data'
 
 export function ManageDashboardPage() {
-  const { user, displayName, isConfigured } = useAuth()
+  const { user, profile, displayName, isConfigured } = useAuth()
+  const credits = profile?.ai_credits ?? 0
 
   const quizzes = useAsyncData(
     `manage:quizzes:${user?.id ?? 'none'}`,
@@ -55,9 +57,15 @@ export function ManageDashboardPage() {
       {/* ── Header ─────────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <Badge tone="spark" icon={Sparkles}>
-            Không gian giáo viên
-          </Badge>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge tone="spark" icon={Sparkles}>
+              Không gian giáo viên
+            </Badge>
+
+            <Badge tone={credits > 0 ? 'violet' : 'wrong'} icon={Coins}>
+              {credits > 0 ? `Còn ${credits} credit AI` : 'Hết credit AI'}
+            </Badge>
+          </div>
 
           <h1 className="font-display mt-4 text-2xl font-semibold tracking-tight sm:text-3xl">
             Xin chào, <span className="text-gradient-spark">{displayName}</span>

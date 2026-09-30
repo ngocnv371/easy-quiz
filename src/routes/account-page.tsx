@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { LogOut, Save, Sparkles, Trophy } from 'lucide-react'
+import { LogOut, Coins, Save, Sparkles, Trophy } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { AuroraBackground } from '@/components/brand/aurora-background'
@@ -19,9 +19,19 @@ import { useAsyncData } from '@/lib/use-async-data'
 import { errorMessage } from '@/lib/utils'
 
 export function AccountPage() {
-  const { user, profile, displayName, isGuest, role, updateProfile, signOut, refreshProfile } =
-    useAuth()
+  const {
+    user,
+    profile,
+    displayName,
+    isGuest,
+    isTeacher,
+    role,
+    updateProfile,
+    signOut,
+    refreshProfile,
+  } = useAuth()
   const navigate = useNavigate()
+  const credits = profile?.ai_credits ?? 0
 
   const [name, setName] = useState(displayName)
   const [avatar, setAvatar] = useState(profile?.avatar_emoji ?? '🎓')
@@ -196,6 +206,33 @@ export function AccountPage() {
               </div>
             </form>
           </Card>
+
+          {isTeacher ? (
+            <Card className="p-6 sm:p-7">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h2 className="font-display text-ink-50 inline-flex items-center gap-2 text-lg font-semibold tracking-tight">
+                    <Coins className="text-spark-300 size-4" aria-hidden />
+                    Credit AI Assist
+                  </h2>
+                  <p className="text-ink-400 mt-2 text-sm leading-relaxed">
+                    Mỗi lần soạn đề bằng AI tiêu tốn một credit. Số dư hiện tại của bạn:
+                  </p>
+                </div>
+
+                <span className="font-display text-spark-300 text-3xl font-semibold tabular-nums">
+                  {credits}
+                </span>
+              </div>
+
+              {credits <= 0 ? (
+                <Alert tone="warning" className="mt-4">
+                  Bạn đã dùng hết credit. Việc nạp credit sẽ sớm được mở; trong lúc chờ, hãy liên hệ
+                  quản trị viên để được cấp thêm.
+                </Alert>
+              ) : null}
+            </Card>
+          ) : null}
         </div>
 
         {/* ── Stats + history ──────────────────────────────────────── */}

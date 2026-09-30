@@ -35,7 +35,26 @@ export type Database = {
           }
         },"public": {
           Tables: {
-            "attempt_answers": {
+            "ai_credit_ledger": {
+                  Row: {
+                    "balance_after": number,"created_at": string,"delta": number,"id": string,"provider": string | null,"question_count": number | null,"reason": string,"user_id": string
+                  }
+                  Insert: {
+                    "balance_after": number,"created_at"?: string,"delta": number,"id"?: string,"provider"?: string | null,"question_count"?: number | null,"reason": string,"user_id": string
+                  }
+                  Update: {
+                    "balance_after"?: number,"created_at"?: string,"delta"?: number,"id"?: string,"provider"?: string | null,"question_count"?: number | null,"reason"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "ai_credit_ledger_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"attempt_answers": {
                   Row: {
                     "attempt_id": string,"id": string,"is_correct": boolean,"option_id": string | null,"question_id": string,"time_ms": number
                   }
@@ -124,13 +143,13 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "avatar_emoji": string,"bio": string | null,"created_at": string,"display_name": string,"id": string,"is_guest": boolean,"role": string,"school": string | null,"updated_at": string,"username": string
+                    "ai_credits": number,"avatar_emoji": string,"bio": string | null,"created_at": string,"display_name": string,"id": string,"is_guest": boolean,"role": string,"school": string | null,"updated_at": string,"username": string
                   }
                   Insert: {
-                    "avatar_emoji"?: string,"bio"?: string | null,"created_at"?: string,"display_name": string,"id": string,"is_guest"?: boolean,"role"?: string,"school"?: string | null,"updated_at"?: string,"username": string
+                    "ai_credits"?: number,"avatar_emoji"?: string,"bio"?: string | null,"created_at"?: string,"display_name": string,"id": string,"is_guest"?: boolean,"role"?: string,"school"?: string | null,"updated_at"?: string,"username": string
                   }
                   Update: {
-                    "avatar_emoji"?: string,"bio"?: string | null,"created_at"?: string,"display_name"?: string,"id"?: string,"is_guest"?: boolean,"role"?: string,"school"?: string | null,"updated_at"?: string,"username"?: string
+                    "ai_credits"?: number,"avatar_emoji"?: string,"bio"?: string | null,"created_at"?: string,"display_name"?: string,"id"?: string,"is_guest"?: boolean,"role"?: string,"school"?: string | null,"updated_at"?: string,"username"?: string
                   }
                   Relationships: [
                     
@@ -267,7 +286,10 @@ isOneToOne: false
                 }
           }
           Functions: {
-            "attempt_compute_accuracy":
+            "apply_ai_credits":
+{ Args: { "p_delta": number,"p_provider"?: string,"p_question_count"?: number,"p_reason": string }; Returns: number
+                           },
+"attempt_compute_accuracy":
 { Args: { "p_max": number,"p_score": number }; Returns: number
                            },
 "can_view_quiz":
@@ -275,6 +297,9 @@ isOneToOne: false
                            },
 "get_quiz_for_play":
 { Args: { "p_slug": string }; Returns: Json
+                           },
+"grant_ai_credits":
+{ Args: { "p_amount": number,"p_reason"?: string,"p_user_id": string }; Returns: number
                            },
 "is_admin":
 { Args: { "p_uid"?: string }; Returns: boolean

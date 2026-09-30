@@ -22,7 +22,12 @@ export interface AiGenerateResult {
   questions: AiQuestion[]
   /** e.g. `gemini:gemini-2.5-flash`, `deepseek:deepseek-chat`, `mock`, `mock:fallback`. */
   provider: string
+  /** Credit balance left after this generation, when the server reports it. */
+  credits: number | null
 }
+
+/** Thrown when the teacher's AI credit balance cannot cover the request. */
+export class AiCreditsExhaustedError extends Error {}
 
 /**
  * Calls the `ai-quiz` edge function.
@@ -47,17 +52,20 @@ export async function generateQuestions(input: AiGenerateInput): Promise<AiGener
     // The function returns a helpful Vietnamese message under `error`; dig it
     // out of the response body rather than surfacing a generic HTTP failure.
     let message = errorMessage(error)
+    let outOfCredits = false
     const context = (error as { context?: unknown }).context
 
     if (context instanceof Response) {
       try {
-        const body = (await context.clone().json()) as { error?: unknown }
+        const body = (await context.clone().json()) as { error?: unknown; code?: unknown }
         if (typeof body.error === 'string' && body.error !== '') message = body.error
+        outOfCredits = body.code === 'insufficient_credits'
       } catch {
         // Body was not JSON — keep the original message.
       }
     }
 
+    if (outOfCredits) throw new AiCreditsExhaustedError(message)
     throw new Error(message)
   }
 
@@ -70,6 +78,7 @@ export async function generateQuestions(input: AiGenerateInput): Promise<AiGener
   return {
     questions: payload.questions,
     provider: typeof payload.provider === 'string' ? payload.provider : 'unknown',
+    credits: typeof payload.credits === 'number' ? payload.credits : null,
   }
 }
 
