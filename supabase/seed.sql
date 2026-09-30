@@ -290,7 +290,7 @@ begin
       v_pos := v_pos + 1;
 
       insert into public.questions (quiz_id, position, prompt, explanation, points)
-      values (v_quiz_id, v_pos, v_q ->> 'prompt', v_q ->> 'explanation', 100)
+      values (v_quiz_id, v_pos, v_q ->> 'prompt', v_q ->> 'explanation', 1)
       returning id into v_q_id;
 
       v_idx := 0;
@@ -336,12 +336,13 @@ begin
       q.id,
       null,
       v_row.name,
-      v_row.correct * 100,
+      -- One point per question, matching the questions inserted above.
+      v_row.correct,
       agg.max_score::integer,
       v_row.correct,
       agg.question_count::integer,
       -- `sum()` widens to bigint, and the helper takes integer, so cast on the way in.
-      public.attempt_compute_accuracy(v_row.correct * 100, agg.max_score::integer),
+      public.attempt_compute_accuracy(v_row.correct, agg.max_score::integer),
       v_row.minutes * 60,
       now() - (v_row.minutes || ' hours')::interval
     from public.quizzes q

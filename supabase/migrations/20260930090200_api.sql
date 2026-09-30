@@ -502,7 +502,7 @@ begin
       v_i,
       left(coalesce(nullif(btrim(v_q ->> 'prompt'), ''), 'Câu hỏi ' || v_i), 600),
       nullif(left(btrim(coalesce(v_q ->> 'explanation', '')), 600), ''),
-      greatest(coalesce(nullif(v_q ->> 'points', '')::integer, 100), 0),
+      greatest(coalesce(nullif(v_q ->> 'points', '')::integer, 1), 0),
       nullif(v_q ->> 'time_limit_seconds', '')::integer,
       nullif(btrim(coalesce(v_q ->> 'image_url', '')), '')
     )

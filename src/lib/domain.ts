@@ -319,7 +319,7 @@ export function emptyQuestion(): QuizDraftQuestion {
   return {
     prompt: '',
     explanation: '',
-    points: 100,
+    points: 1,
     time_limit_seconds: null,
     options: [
       { label: '', is_correct: true },

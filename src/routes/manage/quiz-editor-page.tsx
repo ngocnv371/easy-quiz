@@ -51,7 +51,7 @@ function toDraftQuestion(question: AiQuestion): QuizDraftQuestion {
   return {
     prompt: question.prompt,
     explanation: question.explanation,
-    points: 100,
+    points: 1,
     time_limit_seconds: null,
     options: question.options.map((label, index) => ({
       label,

@@ -256,7 +256,7 @@ create table public.questions (
   position           integer not null default 1,
   prompt             text not null check (char_length(btrim(prompt)) > 0),
   explanation        text check (explanation is null or char_length(explanation) <= 600),
-  points             integer not null default 100 check (points >= 0),
+  points             integer not null default 1 check (points >= 0),
   -- Null falls back to the quiz's own limit; 0 means untimed.
   time_limit_seconds integer check (time_limit_seconds is null or time_limit_seconds >= 0),
   image_url          text,
