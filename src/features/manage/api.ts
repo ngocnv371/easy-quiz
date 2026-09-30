@@ -5,6 +5,8 @@ import {
   asStatus,
   asVisibility,
   toQuizCard,
+  type AttemptAnswerRow,
+  type AttemptRow,
   type Json,
   type QuizCard,
   type QuizDraft,
@@ -13,6 +15,7 @@ import {
   type OptionRow,
   type SaveQuizResult,
 } from '@/lib/domain'
+import { buildQuizReport, type QuizReport } from './report'
 
 /** Every quiz the signed-in teacher owns, drafts included. */
 export async function fetchMyQuizzes(ownerId: string): Promise<QuizCard[]> {
@@ -259,4 +262,68 @@ export async function fetchAttemptsForOwner(
     accuracy: row.accuracy ?? 0,
     completed_at: row.completed_at ?? '',
   }))
+}
+
+export interface QuizReportDocument {
+  card: QuizCard
+  report: QuizReport
+}
+
+/**
+ * Everything the performance report needs for one quiz.
+ *
+ * RLS already lets an owner read their own `attempts`, `attempt_answers` and
+ * `questions`, so this is three reads plus the pure aggregation in
+ * `buildQuizReport()`. The answer rows are fetched only for the attempts at
+ * hand, which keeps the payload proportional to the class size.
+ */
+export async function fetchQuizReport(quizId: string): Promise<QuizReportDocument | null> {
+  const supabase = requireSupabase()
+
+  const { data: cardData, error: cardError } = await supabase
+    .from('quiz_cards')
+    .select('*')
+    .eq('id', quizId)
+    .maybeSingle()
+
+  if (cardError) throw new Error(errorMessage(cardError))
+  // The view hides a quiz the caller does not own, which is the honest "not
+  // found" for a report on someone else's quiz.
+  if (!cardData) return null
+
+  const [
+    { data: attemptData, error: attemptError },
+    { data: questionData, error: questionError },
+  ] = await Promise.all([
+    supabase.from('attempts').select('*').eq('quiz_id', quizId),
+    supabase
+      .from('questions')
+      .select('*')
+      .eq('quiz_id', quizId)
+      .order('position', { ascending: true }),
+  ])
+
+  if (attemptError) throw new Error(errorMessage(attemptError))
+  if (questionError) throw new Error(errorMessage(questionError))
+
+  const attempts = (attemptData ?? []) as AttemptRow[]
+  const questions = (questionData ?? []) as QuestionRow[]
+
+  let answers: AttemptAnswerRow[] = []
+  const attemptIds = attempts.map((attempt) => attempt.id)
+
+  if (attemptIds.length > 0) {
+    const { data: answerData, error: answerError } = await supabase
+      .from('attempt_answers')
+      .select('*')
+      .in('attempt_id', attemptIds)
+
+    if (answerError) throw new Error(errorMessage(answerError))
+    answers = (answerData ?? []) as AttemptAnswerRow[]
+  }
+
+  return {
+    card: toQuizCard(cardData),
+    report: buildQuizReport({ attempts, questions, answers }),
+  }
 }

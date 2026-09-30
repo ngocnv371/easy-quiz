@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
+  BarChart3,
   Eye,
   EyeOff,
   ListChecks,
@@ -243,6 +244,14 @@ export function ManageQuizListPage() {
                   >
                     <Pencil className="size-3.5" aria-hidden />
                     Sửa
+                  </Link>
+
+                  <Link
+                    to={`/manage/quizzes/${quiz.id}/report`}
+                    className="border-ink-600 text-ink-200 hover:border-neon-400/60 hover:text-neon-300 inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs transition-colors"
+                  >
+                    <BarChart3 className="size-3.5" aria-hidden />
+                    Thống kê
                   </Link>
 
                   <Button

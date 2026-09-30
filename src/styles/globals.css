@@ -480,3 +480,80 @@
     );
   }
 }
+
+/* ------------------------------------------------------------------ *
+ * Print — the quiz performance report
+ *
+ * The console is a dark UI, which prints as a full-bleed black page and,
+ * with the browser's default "background graphics off", as invisible
+ * charts. A report is paper, so for print the ink ramp is remapped to a
+ * light theme *inside `.report-root` only*: every `text-ink-*` /
+ * `border-ink-*` / `glass-panel` class follows the tokens and flips by
+ * itself. The accent colours (neon / spark / correct / wrong) are left
+ * untouched so the bars keep their meaning, and `print-color-adjust`
+ * forces them to render even when background graphics are disabled.
+ * ------------------------------------------------------------------ */
+@media print {
+  @page {
+    margin: 14mm;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #04060f !important;
+  }
+
+  .report-root {
+    --color-ink-950: #ffffff;
+    --color-ink-900: #ffffff;
+    --color-ink-800: #f2f5fb;
+    --color-ink-700: #e8ecf6;
+    --color-ink-600: #cbd2e4;
+    --color-ink-500: #9aa3bf;
+    --color-ink-400: #5a658a;
+    --color-ink-300: #3c4665;
+    --color-ink-200: #262e49;
+    --color-ink-100: #14192b;
+    --color-ink-50: #04060f;
+
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Flat panels: no glow, no blur, no heavy shadows on paper. */
+  .report-root .glass-panel,
+  .report-root .shadow-panel {
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+
+  /*
+   * The *300 accent shades are tuned for dark backgrounds and wash out on
+   * white. Only the text utilities are darkened — the chart gradients read
+   * `--color-*-300` directly, so the bars keep their vivid colour.
+   */
+  .report-root .text-neon-300 {
+    color: #0e7490;
+  }
+  .report-root .text-violet-glow-300 {
+    color: #6d28d9;
+  }
+  .report-root .text-spark-300 {
+    color: #b45309;
+  }
+  .report-root .text-correct-300 {
+    color: #047857;
+  }
+  .report-root .text-wrong-300 {
+    color: #be123c;
+  }
+
+  /* Never split a card or a question row across a page boundary. */
+  .report-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+

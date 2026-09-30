@@ -359,3 +359,48 @@ begin
   update public.quizzes q
   set play_count = (select count(*) from public.attempts a where a.quiz_id = q.id);
 end $$;
+
+-- ---------------------------------------------------------------------------
+-- Per-question detail for those demo attempts
+--
+-- `submit_attempt()` always writes `attempt_answers`, but the hand-written
+-- attempts above do not go through it. Without this the teacher report would
+-- show every question as "0 lượt sai". Deterministic: the first N questions of
+-- the quiz are answered correctly (N = the attempt's `correct_count`) and the
+-- rest are given a wrong option, keeping the detail consistent with the score
+-- already stored on the attempt.
+-- ---------------------------------------------------------------------------
+do $$
+declare
+  v_attempt record;
+begin
+  for v_attempt in
+    select a.id, a.quiz_id, a.correct_count
+    from public.attempts a
+    where a.user_id is null
+  loop
+    insert into public.attempt_answers (attempt_id, question_id, option_id, is_correct, time_ms)
+    select
+      v_attempt.id,
+      q.id,
+      chosen.id,
+      (q.rn <= v_attempt.correct_count),
+      (4000 + q.rn * 1500)::integer
+    from (
+      select
+        qu.id,
+        row_number() over (order by qu.position) as rn
+      from public.questions qu
+      where qu.quiz_id = v_attempt.quiz_id
+    ) q
+    cross join lateral (
+      -- A correct row wants the key option; a wrong row wants any other one.
+      select o.id
+      from public.options o
+      where o.question_id = q.id
+        and o.is_correct = (q.rn <= v_attempt.correct_count)
+      order by o.position
+      limit 1
+    ) chosen;
+  end loop;
+end $$;

@@ -20,9 +20,10 @@ export function ManageLayout() {
   usePageMeta({ title: 'Trang quản lý', noIndex: true, path: '/manage' })
 
   return (
-    <div className="bg-ink-950 flex min-h-dvh flex-col lg:flex-row">
+    <div className="bg-ink-950 flex min-h-dvh flex-col lg:flex-row print:bg-white">
       {/* ── Sidebar ──────────────────────────────────────────────────── */}
-      <aside className="border-ink-600/60 bg-ink-900/60 shrink-0 border-b backdrop-blur-xl lg:sticky lg:top-0 lg:h-dvh lg:w-72 lg:border-r lg:border-b-0">
+      {/* Hidden when printing a report — only the report body belongs on paper. */}
+      <aside className="border-ink-600/60 bg-ink-900/60 shrink-0 border-b backdrop-blur-xl lg:sticky lg:top-0 lg:h-dvh lg:w-72 lg:border-r lg:border-b-0 print:hidden">
         <div className="flex h-full flex-col gap-6 p-5">
           <Link to="/" aria-label="Easy Quiz — về trang chủ" className="inline-flex">
             <EasyQuizLogo markClassName="size-7" />

@@ -195,10 +195,10 @@ export function ManageDashboardPage() {
           ) : (
             <ul className="divide-ink-600/60 divide-y">
               {list.slice(0, 6).map((quiz) => (
-                <li key={quiz.id}>
+                <li key={quiz.id} className="flex items-center">
                   <Link
                     to={`/manage/quizzes/${quiz.id}`}
-                    className="hover:bg-ink-800/40 flex items-center gap-3 px-5 py-3.5 transition-colors"
+                    className="hover:bg-ink-800/40 flex min-w-0 flex-1 items-center gap-3 px-5 py-3.5 transition-colors"
                   >
                     <span aria-hidden>{quiz.cover_emoji}</span>
 
@@ -212,6 +212,15 @@ export function ManageDashboardPage() {
                     <Badge tone={quiz.status === 'published' ? 'correct' : 'neutral'}>
                       {quiz.status === 'published' ? 'Đã đăng' : quiz.status === 'draft' ? 'Nháp' : 'Lưu trữ'}
                     </Badge>
+                  </Link>
+
+                  <Link
+                    to={`/manage/quizzes/${quiz.id}/report`}
+                    aria-label={`Thống kê ${quiz.title}`}
+                    title="Thống kê"
+                    className="text-ink-400 hover:text-neon-300 mr-3 shrink-0 rounded-lg p-2 transition-colors"
+                  >
+                    <BarChart3 className="size-4" aria-hidden />
                   </Link>
                 </li>
               ))}

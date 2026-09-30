@@ -4,6 +4,7 @@ import {
   ArrowDown,
   ArrowLeft,
   ArrowUp,
+  BarChart3,
   Copy,
   Eye,
   Plus,
@@ -431,6 +432,13 @@ export function ManageQuizEditorPage() {
         </div>
 
         <div className="flex flex-wrap gap-3">
+          {!isNew && draft.id ? (
+            <ButtonLink to={`/manage/quizzes/${draft.id}/report`} variant="outline">
+              <BarChart3 className="size-4" aria-hidden />
+              Thống kê
+            </ButtonLink>
+          ) : null}
+
           <Button
             variant="outline"
             loading={saving}

@@ -85,6 +85,11 @@ const manageQuizEditorPage = () =>
     Component: module.ManageQuizEditorPage,
   }))
 
+const manageQuizReportPage = () =>
+  import('@/routes/manage/quiz-report-page').then((module) => ({
+    Component: module.ManageQuizReportPage,
+  }))
+
 /**
  * Shown while the first lazy chunk resolves. React Router asks for this
  * explicitly on a cold load of a route table that uses `lazy`, so it is spread
@@ -153,6 +158,7 @@ export const router = createBrowserRouter([
       { path: 'quizzes', lazy: manageQuizListPage },
       { path: 'quizzes/new', lazy: manageQuizEditorPage },
       { path: 'quizzes/:quizId', lazy: manageQuizEditorPage },
+      { path: 'quizzes/:quizId/report', lazy: manageQuizReportPage },
     ],
   },
 
