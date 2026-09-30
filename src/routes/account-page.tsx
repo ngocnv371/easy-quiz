@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { LogOut, Coins, Save, Sparkles, Trophy } from 'lucide-react'
+import { LogOut, Coins, LineChart, Save, Sparkles, Trophy } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { AuroraBackground } from '@/components/brand/aurora-background'
@@ -269,13 +269,23 @@ export function AccountPage() {
                   />
                 </dl>
 
-                <Link
-                  to="/leaderboard"
-                  className="text-neon-300 hover:text-neon-200 mt-5 inline-flex items-center gap-1.5 text-sm transition-colors"
-                >
-                  <Trophy className="size-3.5" aria-hidden />
-                  Xem bảng xếp hạng
-                </Link>
+                <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
+                  <Link
+                    to="/progress"
+                    className="text-neon-300 hover:text-neon-200 inline-flex items-center gap-1.5 text-sm transition-colors"
+                  >
+                    <LineChart className="size-3.5" aria-hidden />
+                    Xem tiến độ học tập
+                  </Link>
+
+                  <Link
+                    to="/leaderboard"
+                    className="text-neon-300 hover:text-neon-200 inline-flex items-center gap-1.5 text-sm transition-colors"
+                  >
+                    <Trophy className="size-3.5" aria-hidden />
+                    Xem bảng xếp hạng
+                  </Link>
+                </div>
               </>
             ) : (
               <p className="text-ink-400 mt-3 text-sm leading-relaxed">

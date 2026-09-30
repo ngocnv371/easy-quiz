@@ -1,6 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { ChevronDown, LayoutDashboard, LogOut, Menu, Trophy, User, X } from 'lucide-react'
+import {
+  ChevronDown,
+  LayoutDashboard,
+  LineChart,
+  LogOut,
+  Menu,
+  Trophy,
+  User,
+  X,
+} from 'lucide-react'
 
 import { EasyQuizLogo } from '@/components/brand/logo'
 import { Button, ButtonLink } from '@/components/ui/button'
@@ -129,6 +138,10 @@ export function SiteHeader() {
                       {isGuest ? 'Phiên chơi ẩn danh' : (profile?.username ?? user.email)}
                     </p>
                   </div>
+
+                  <MenuLink to="/progress" icon={LineChart} onClick={() => setMenuOpen(false)}>
+                    Tiến độ học tập
+                  </MenuLink>
 
                   <MenuLink to="/account" icon={User} onClick={() => setMenuOpen(false)}>
                     Tài khoản

@@ -22,6 +22,10 @@ const AccountPage = lazy(() =>
   import('@/routes/account-page').then((module) => ({ default: module.AccountPage })),
 )
 
+const ProgressPage = lazy(() =>
+  import('@/routes/progress-page').then((module) => ({ default: module.ProgressPage })),
+)
+
 const QuizResultPage = lazy(() =>
   import('@/routes/quiz-result-page').then((module) => ({ default: module.QuizResultPage })),
 )
@@ -109,6 +113,16 @@ export const router = createBrowserRouter([
       { path: 'q/:slug', lazy: quizDetailPage },
       { path: 'leaderboard', lazy: leaderboardPage },
       { path: 'u/:username', lazy: profilePage },
+      {
+        path: 'progress',
+        element: (
+          <RequireAuth>
+            <PageSuspense>
+              <ProgressPage />
+            </PageSuspense>
+          </RequireAuth>
+        ),
+      },
     ],
   },
 
