@@ -10,6 +10,7 @@ import { fetchGlobalLeaderboard, fetchMyAttempts } from '@/features/quiz/api'
 import { formatCompact, formatPercent, formatRelative, medalFor } from '@/lib/format'
 import { ROLE_LABELS } from '@/lib/labels'
 import { asRole, type ProfileRow } from '@/lib/domain'
+import { usePageMeta } from '@/lib/seo'
 import { requireSupabase, isSupabaseConfigured } from '@/lib/supabase'
 import { errorMessage } from '@/lib/utils'
 import { useAsyncData } from '@/lib/use-async-data'
@@ -55,6 +56,17 @@ export function ProfilePage() {
       ? { position: index + 1, total: board.data?.length ?? 0, row: (board.data ?? [])[index]! }
       : null
   })()
+
+  usePageMeta({
+    title: profile.data?.display_name ?? 'Hồ sơ người học',
+    description: profile.data
+      ? (profile.data.bio ??
+        `Hồ sơ học tập của ${profile.data.display_name} trên Easy Quiz — điểm số, chuỗi ngày học và thứ hạng.`)
+      : undefined,
+    path: `/u/${username}`,
+    // A username that does not resolve should not be indexed.
+    noIndex: !profile.loading && !profile.data,
+  })
 
   if (profile.loading) {
     return (

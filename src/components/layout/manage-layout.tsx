@@ -3,6 +3,7 @@ import { BarChart3, LayoutList, PlusCircle, Sparkles, ArrowLeft } from 'lucide-r
 
 import { EasyQuizLogo } from '@/components/brand/logo'
 import { useAuth } from '@/features/auth/auth-context'
+import { usePageMeta } from '@/lib/seo'
 import { cn } from '@/lib/utils'
 
 const LINKS = [
@@ -14,6 +15,9 @@ const LINKS = [
 /** Shell for the teacher console: persistent sidebar, routed workspace. */
 export function ManageLayout() {
   const { displayName, profile } = useAuth()
+
+  // The console sits behind auth and has nothing a crawler would want.
+  usePageMeta({ title: 'Trang quản lý', noIndex: true, path: '/manage' })
 
   return (
     <div className="bg-ink-950 flex min-h-dvh flex-col lg:flex-row">

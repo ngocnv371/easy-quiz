@@ -22,8 +22,9 @@ import { Counter } from '@/components/ui/metrics'
 import { Reveal, SectionHeading } from '@/components/ui/reveal'
 import { QuizCardTile } from '@/features/quiz/quiz-card-tile'
 import { fetchQuizCards, fetchTopics } from '@/features/quiz/api'
-import { isSupabaseConfigured } from '@/lib/supabase'
+import { usePageMeta } from '@/lib/seo'
 import { APP_DESCRIPTION, TAGLINE } from '@/lib/site'
+import { isSupabaseConfigured } from '@/lib/supabase'
 import { useAsyncData } from '@/lib/use-async-data'
 
 const PILLARS = [
@@ -69,6 +70,9 @@ const STEPS = [
 ]
 
 export function LandingPage() {
+  // The home page relies on the site-wide title and description.
+  usePageMeta({ path: '/' })
+
   const topics = useAsyncData('landing:topics', fetchTopics, isSupabaseConfigured)
   const popular = useAsyncData(
     'landing:popular',

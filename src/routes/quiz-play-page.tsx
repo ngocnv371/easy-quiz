@@ -29,6 +29,7 @@ import { stashResult } from '@/features/quiz/result-store'
 import { COUNTDOWN_MS, usePlaySession } from '@/features/quiz/use-play-session'
 import { useAuth } from '@/features/auth/auth-context'
 import { formatClock } from '@/lib/format'
+import { usePageMeta } from '@/lib/seo'
 import { useAsyncData } from '@/lib/use-async-data'
 import { cn, errorMessage } from '@/lib/utils'
 
@@ -42,6 +43,14 @@ export function QuizPlayPage() {
     () => fetchPlayPayload(slug),
     isConfigured && slug !== '',
   )
+
+  // The player is a sub-view of the quiz, so the canonical points at the detail
+  // page — the two URLs should not compete in search results.
+  usePageMeta({
+    title: query.data ? `${query.data.quiz.title} — Làm bài` : 'Làm bài trắc nghiệm',
+    description: query.data?.quiz.description ?? undefined,
+    path: `/q/${slug}`,
+  })
 
   // Held in state so the session hook sees a stable object identity.
   const [payload, setPayload] = useState(query.data)

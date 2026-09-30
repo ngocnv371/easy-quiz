@@ -30,6 +30,7 @@ import { clearResult, readResult } from '@/features/quiz/result-store'
 import { useAuth } from '@/features/auth/auth-context'
 import { formatDuration, formatPercent, medalFor } from '@/lib/format'
 import type { ReviewItem } from '@/lib/domain'
+import { usePageMeta } from '@/lib/seo'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import { useAsyncData } from '@/lib/use-async-data'
 import { SITE_URL } from '@/lib/site'
@@ -49,6 +50,13 @@ export function QuizResultPage() {
   )
 
   const attempt = stashed?.attempt ?? attemptQuery.data
+
+  // Personal score sheet — nothing here belongs in a search index.
+  usePageMeta({
+    title: 'Kết quả làm bài',
+    noIndex: true,
+    path: `/q/${slug}/result/${attemptId}`,
+  })
 
   // Only needed when the review is missing — the stash already carries the title.
   const card = useAsyncData(

@@ -3,28 +3,98 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="theme-color" content="#04060f" />
-    <meta name="color-scheme" content="dark" />
+
+    <!--
+      Production head. These tags describe the landing page; `usePageMeta`
+      (src/lib/seo.ts) rewrites the title, description, canonical and social
+      tags on every client-side navigation. Anything a crawler cannot execute
+      JavaScript for gets this honest fallback.
+    -->
     <title>Easy Quiz — Học vui, nhớ lâu | AiTechX</title>
     <meta
       name="description"
       content="Easy Quiz là nền tảng trắc nghiệm của AiTechX: khám phá đề thi theo chủ đề, chơi ngay không cần đăng nhập, và leo bảng xếp hạng sau mỗi lượt chơi. Giáo viên tạo đề nhanh gấp 10 lần với AI Assist."
     />
+    <link rel="canonical" href="https://easyquiz.aitechx.vn/" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="application-name" content="Easy Quiz" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#04060f" />
+    <meta name="color-scheme" content="dark" />
+
+    <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Easy Quiz" />
+    <meta property="og:locale" content="vi_VN" />
     <meta property="og:title" content="Easy Quiz — Học vui, nhớ lâu" />
     <meta
       property="og:description"
       content="Trắc nghiệm thông minh: chơi ngay, có bảng xếp hạng, và AI Assist giúp giáo viên tạo 10 câu hỏi trong vài giây."
     />
-    <meta property="og:locale" content="vi_VN" />
+    <meta property="og:url" content="https://easyquiz.aitechx.vn/" />
+    <meta property="og:image" content="https://easyquiz.aitechx.vn/og-image.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Easy Quiz — Học vui, nhớ lâu. Nền tảng trắc nghiệm của AiTechX."
+    />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Easy Quiz — Học vui, nhớ lâu" />
+    <meta
+      name="twitter:description"
+      content="Trắc nghiệm thông minh: chơi ngay, có bảng xếp hạng, và AI Assist giúp giáo viên tạo 10 câu hỏi trong vài giây."
+    />
+    <meta name="twitter:image" content="https://easyquiz.aitechx.vn/og-image.png" />
+    <meta
+      name="twitter:image:alt"
+      content="Easy Quiz — Học vui, nhớ lâu. Nền tảng trắc nghiệm của AiTechX."
+    />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+
+    <!-- Structured data — the site itself, and the parent organisation. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebApplication",
+            "@id": "https://easyquiz.aitechx.vn/#app",
+            "name": "Easy Quiz",
+            "url": "https://easyquiz.aitechx.vn/",
+            "applicationCategory": "EducationalApplication",
+            "operatingSystem": "Web",
+            "inLanguage": "vi-VN",
+            "description": "Nền tảng trắc nghiệm của AiTechX: khám phá đề thi theo chủ đề, chơi ngay không cần tài khoản, leo bảng xếp hạng, và AI Assist giúp giáo viên tạo đề nhanh gấp mười lần.",
+            "image": "https://easyquiz.aitechx.vn/og-image.png",
+            "isAccessibleForFree": true,
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "VND"
+            },
+            "publisher": { "@id": "https://aitechx.vn/#organization" }
+          },
+          {
+            "@type": "Organization",
+            "@id": "https://aitechx.vn/#organization",
+            "name": "AiTechX",
+            "url": "https://aitechx.vn",
+            "logo": "https://easyquiz.aitechx.vn/og-image.png"
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

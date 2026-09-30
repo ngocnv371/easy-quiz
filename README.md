@@ -276,10 +276,40 @@ no stylesheet.
 | `npm run db:reset`                            | Re-apply migrations and seed                      |
 | `npm run db:push`                             | Push migrations to the linked remote project      |
 | `npm run types:gen`                           | Regenerate `src/lib/database.types.ts`            |
+| `npm run sitemap:gen`                         | Rewrite `public/sitemap.xml` from the published quizzes |
+| `npm run og:image`                            | Render `public/og-image.png` from `scripts/og-image.html` |
 | `npm run fn:serve`                            | Serve edge functions with `supabase/functions/.env` |
 
 > `src/lib/database.types.ts` is generated. Change the schema in `supabase/migrations`, then run
 > `npm run types:gen`.
+
+---
+
+## SEO
+
+The app is a client-rendered SPA, so the document head is assembled in two layers:
+
+- **`index.html`** carries the landing page's tags — title, description, canonical, Open Graph,
+  Twitter card, and a JSON-LD `@graph` describing the app and the AiTechX organisation. This is
+  what a crawler that does not execute JavaScript sees.
+- **`src/lib/seo.ts`** (`usePageMeta`) rewrites those tags on every navigation: per-page title and
+  description, a canonical URL, and `noindex` on the surfaces that should stay out of the index
+  (account, teacher console, a result sheet, 404). A quiz page also emits `Quiz` structured data.
+
+Every URL derives from `VITE_SITE_URL`; `src/lib/site.ts` holds the host and `absoluteUrl()` builds
+full URLs. `.env.production` points it at `https://easyquiz.aitechx.vn`, and `site.ts` falls back to
+that host so a build that forgets the variable does not emit `localhost` canonicals.
+
+Three files are served straight from `public/`:
+
+| File           | Purpose                                                                     |
+| -------------- | --------------------------------------------------------------------------- |
+| `robots.txt`   | Opens the public site; disallows `/manage`, `/account`, play and result URLs |
+| `sitemap.xml`  | Static routes — regenerate with `npm run sitemap:gen` to add the quizzes      |
+| `og-image.png` | 1200×630 share card. Edit `scripts/og-image.html`, then `npm run og:image`    |
+
+The host does a catch-all rewrite to `index.html` for client-side routing. Check that it still
+serves these three files as-is rather than rewriting them too.
 
 ---
 
@@ -299,6 +329,17 @@ no stylesheet.
 2. **Front end** — build with `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` set, and serve
    `dist/` from any static host. The app uses client-side routing, so configure a **catch-all
    rewrite to `index.html`**.
+
+   Before building, refresh the sitemap so the live quizzes are advertised to search engines:
+
+   ```bash
+   npm run sitemap:gen
+   npm run build
+   ```
+
+   Confirm `VITE_SITE_URL` in `.env.production` is the real host, then check the deployed result
+   with the [Rich Results Test](https://search.google.com/test/rich-results) and refresh the card
+   in the [Facebook sharing debugger](https://developers.facebook.com/tools/debug/).
 
 3. **Remotion licensing** — Remotion is free for individuals and small teams, but **companies
    need a paid license**. That is what the console notice refers to; see

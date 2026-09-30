@@ -1,0 +1,19 @@
+# Easy Quiz — https://easyquiz.aitechx.vn
+# Generated surfaces (sitemap.xml) list the public pages worth crawling.
+
+User-agent: *
+Allow: /
+
+# The teacher console and the personal account area sit behind auth and have
+# nothing to offer a crawler.
+Disallow: /manage
+Disallow: /account
+
+# A play session is a step in using a quiz, not a standalone document.
+Disallow: /q/*/play
+Disallow: /q/*/result
+
+# The catch-all; also marked `noindex` at runtime.
+Disallow: /404
+
+Sitemap: https://easyquiz.aitechx.vn/sitemap.xml

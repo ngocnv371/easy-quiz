@@ -13,6 +13,7 @@ import { QuizCardTile } from '@/features/quiz/quiz-card-tile'
 import { fetchQuizCards, fetchTopics, type QuizSort } from '@/features/quiz/api'
 import { DIFFICULTY_LABELS } from '@/lib/labels'
 import type { QuizDifficulty } from '@/lib/domain'
+import { usePageMeta } from '@/lib/seo'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import { useAsyncData } from '@/lib/use-async-data'
 import { cn } from '@/lib/utils'
@@ -24,6 +25,15 @@ const SORTS: { value: QuizSort; label: string }[] = [
 ]
 
 export function ExplorePage() {
+  // Filters live in the query string; the canonical stays on the bare path so
+  // every permutation consolidates onto one URL.
+  usePageMeta({
+    title: 'Thư viện đề thi',
+    description:
+      'Khám phá đề trắc nghiệm theo chủ đề, độ khó và lượt chơi. Mọi đề đều chơi được ngay — không cần tài khoản.',
+    path: '/explore',
+  })
+
   const [params, setParams] = useSearchParams()
 
   const topicSlug = params.get('topic')

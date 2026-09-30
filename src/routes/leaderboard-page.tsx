@@ -15,6 +15,7 @@ import {
 } from '@/features/quiz/api'
 import { formatCompact, formatPercent, formatRelative, medalFor } from '@/lib/format'
 import type { LeaderboardEntry } from '@/lib/domain'
+import { usePageMeta } from '@/lib/seo'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import { useAsyncData } from '@/lib/use-async-data'
 import { cn } from '@/lib/utils'
@@ -45,6 +46,13 @@ export function LeaderboardPage() {
     () => fetchQuizLeaderboard(selectedQuiz!.id, 30),
     isSupabaseConfigured && Boolean(selectedQuiz),
   )
+
+  usePageMeta({
+    title: selectedQuiz ? `Bảng xếp hạng — ${selectedQuiz.title}` : 'Bảng xếp hạng',
+    description:
+      'Bảng xếp hạng Easy Quiz: điểm số, chuỗi ngày học và thứ hạng của người chơi trên toàn hệ thống và theo từng đề thi.',
+    path: '/leaderboard',
+  })
 
   const setQuiz = (slug: string | null) => {
     setParams((previous) => {

@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
 import { AuroraBackground } from '@/components/brand/aurora-background'
 import { BrandCredit } from '@/components/brand/logo'
 import { EasyQuizMark } from '@/components/brand/marks'
+import { usePageMeta } from '@/lib/seo'
 
 /** Shared frame for the sign-in and sign-up screens. */
 export function AuthShell({
@@ -17,6 +18,14 @@ export function AuthShell({
   children: ReactNode
   footer: ReactNode
 }) {
+  const { pathname } = useLocation()
+
+  usePageMeta({
+    title,
+    description: typeof description === 'string' ? description : undefined,
+    path: pathname,
+  })
+
   return (
     <div className="relative flex min-h-dvh flex-col overflow-hidden">
       <AuroraBackground variant="quiz" />

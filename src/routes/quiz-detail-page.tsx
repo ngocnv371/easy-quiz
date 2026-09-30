@@ -26,6 +26,8 @@ import {
 } from '@/features/quiz/api'
 import { useAuth } from '@/features/auth/auth-context'
 import { formatCompact, formatDuration, medalFor } from '@/lib/format'
+import { usePageMeta } from '@/lib/seo'
+import { absoluteUrl } from '@/lib/site'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import { useAsyncData } from '@/lib/use-async-data'
 
@@ -61,6 +63,30 @@ export function QuizDetailPage() {
     () => fetchPersonalBest(card!.id, user!.id),
     Boolean(card?.id && user?.id),
   )
+
+  usePageMeta({
+    title: card?.title ?? 'Đề thi',
+    description: card
+      ? (card.description ??
+        `Đề trắc nghiệm “${card.title}” gồm ${card.question_count} câu${
+          card.topic_name ? ` thuộc chủ đề ${card.topic_name}` : ''
+        }. Chơi ngay trên Easy Quiz — không cần tài khoản.`)
+      : undefined,
+    path: `/q/${slug}`,
+    jsonLd: card
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'Quiz',
+          name: card.title,
+          url: absoluteUrl(`/q/${card.slug}`),
+          inLanguage: 'vi-VN',
+          educationalLevel: card.difficulty,
+          ...(card.description ? { description: card.description } : {}),
+          ...(card.topic_name ? { about: card.topic_name } : {}),
+          ...(card.author_name ? { author: { '@type': 'Person', name: card.author_name } } : {}),
+        }
+      : null,
+  })
 
   if (quiz.loading) return <DetailSkeleton />
 

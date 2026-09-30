@@ -3,8 +3,11 @@ import { Compass, Home, Trophy } from 'lucide-react'
 
 import { AuroraBackground } from '@/components/brand/aurora-background'
 import { ButtonLink } from '@/components/ui/button'
+import { usePageMeta } from '@/lib/seo'
 
 export function NotFoundPage() {
+  usePageMeta({ title: 'Không tìm thấy trang', noIndex: true, path: '/404' })
+
   return (
     <div className="relative flex min-h-dvh items-center justify-center overflow-hidden px-5">
       <AuroraBackground variant="quiz" />

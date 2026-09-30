@@ -14,6 +14,7 @@ import { fetchMyAttempts, fetchGlobalLeaderboard } from '@/features/quiz/api'
 import { useAuth } from '@/features/auth/auth-context'
 import { formatCompact, formatPercent, formatRelative, medalFor } from '@/lib/format'
 import { AVATAR_EMOJIS, ROLE_LABELS } from '@/lib/labels'
+import { usePageMeta } from '@/lib/seo'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import { useAsyncData } from '@/lib/use-async-data'
 import { errorMessage } from '@/lib/utils'
@@ -32,6 +33,9 @@ export function AccountPage() {
   } = useAuth()
   const navigate = useNavigate()
   const credits = profile?.ai_credits ?? 0
+
+  // Behind auth and entirely personal — keep it out of the index.
+  usePageMeta({ title: 'Tài khoản của tôi', noIndex: true, path: '/account' })
 
   const [name, setName] = useState(displayName)
   const [avatar, setAvatar] = useState(profile?.avatar_emoji ?? '🎓')

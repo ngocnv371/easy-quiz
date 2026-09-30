@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <title>Easy Quiz — ảnh chia sẻ (1200×630)</title>
+    <!--
+      Source for `public/og-image.png`, the card that link previews on
+      Facebook, Zalo, X and Discord show.
+
+      Edit here, then render at exactly 1200×630 (the size `og:image:width` and
+      `og:image:height` in index.html declare):
+
+        npm run og:image
+
+      The script drives a headless Chromium over this file. The webfont link
+      below is what makes the wordmark and Vietnamese diacritics match the app;
+      without a network connection the render falls back to system fonts.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+      }
+
+      body {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 56px;
+        padding: 0 76px;
+        background: #04060f;
+        color: #eef1f8;
+        font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+      }
+
+      /* ── Backdrop ─────────────────────────────────────────────────── */
+      .backdrop {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+      }
+
+      .aurora {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(96px);
+        opacity: 0.5;
+      }
+
+      .aurora-a {
+        top: -320px;
+        left: -240px;
+        width: 760px;
+        height: 760px;
+        background: radial-gradient(circle, #22d3ee, transparent 66%);
+      }
+
+      .aurora-b {
+        right: -280px;
+        bottom: -380px;
+        width: 800px;
+        height: 800px;
+        background: radial-gradient(circle, #8b5cf6, transparent 66%);
+      }
+
+      .grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgb(255 255 255 / 0.045) 1px, transparent 1px),
+          linear-gradient(90deg, rgb(255 255 255 / 0.045) 1px, transparent 1px);
+        background-size: 64px 64px;
+        -webkit-mask-image: radial-gradient(circle at 42% 45%, #000 20%, transparent 78%);
+        mask-image: radial-gradient(circle at 42% 45%, #000 20%, transparent 78%);
+      }
+
+      .rule {
+        position: absolute;
+        inset: 0;
+        border: 1px solid rgb(103 232 249 / 0.16);
+        pointer-events: none;
+      }
+      /* ── Left: the message ────────────────────────────────────────── */
+      main {
+        position: relative;
+        z-index: 1;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .mark {
+        display: block;
+        width: 54px;
+        height: 54px;
+      }
+
+      .wordmark {
+        font-family: "Space Grotesk", Inter, sans-serif;
+        font-size: 34px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      }
+
+      h1 {
+        margin-top: 34px;
+        font-family: "Space Grotesk", Inter, sans-serif;
+        font-size: 82px;
+        font-weight: 700;
+        line-height: 1.02;
+        letter-spacing: -0.035em;
+      }
+
+      .lede {
+        max-width: 620px;
+        margin-top: 26px;
+        color: #a9b2cc;
+        font-size: 22px;
+        line-height: 1.5;
+      }
+
+      .url {
+        margin-top: 34px;
+        color: #7d88a8;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 19px;
+        letter-spacing: 0.01em;
+      }
+
+      .gradient {
+        background: linear-gradient(100deg, #67e8f9 0%, #a78bfa 55%, #f472b6 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .spark {
+        background: linear-gradient(100deg, #fcd34d 0%, #fbbf24 55%, #f59e0b 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      /* ── Right: a question mid-answer ─────────────────────────────── */
+      .card {
+        position: relative;
+        z-index: 1;
+        width: 396px;
+        flex: none;
+        padding: 30px;
+        border: 1px solid rgb(38 46 73 / 0.95);
+        border-radius: 26px;
+        background: rgb(13 18 36 / 0.88);
+        box-shadow: 0 30px 70px -30px rgb(0 0 0 / 0.9);
+        transform: rotate(-1.4deg);
+      }
+
+      .card-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 13px;
+        color: #5a658a;
+      }
+
+      .pill {
+        padding: 5px 12px;
+        border: 1px solid rgb(251 191 36 / 0.4);
+        border-radius: 999px;
+        background: rgb(251 191 36 / 0.12);
+        color: #fcd34d;
+        font-family: Inter, sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .question {
+        margin-top: 22px;
+        font-family: "Space Grotesk", Inter, sans-serif;
+        font-size: 23px;
+        font-weight: 600;
+        line-height: 1.35;
+      }
+
+      ul {
+        margin-top: 22px;
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      li {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 13px 15px;
+        border: 1px solid rgb(38 46 73 / 0.9);
+        border-radius: 14px;
+        background: rgb(23 29 50 / 0.6);
+        color: #a9b2cc;
+        font-size: 17px;
+      }
+
+      li .letter {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        flex: none;
+        border-radius: 8px;
+        background: rgb(60 70 101 / 0.5);
+        color: #7d88a8;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      li.correct {
+        border-color: rgb(52 211 153 / 0.55);
+        background: rgb(16 185 129 / 0.14);
+        color: #eef1f8;
+        font-weight: 600;
+      }
+
+      li.correct .letter {
+        background: rgb(52 211 153 / 0.9);
+        color: #04060f;
+      }
+
+      li.correct .tick {
+        width: 20px;
+        height: 20px;
+        margin-left: auto;
+        flex: none;
+        color: #34d399;
+      }
+
+      .score {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 22px;
+        padding-top: 20px;
+        border-top: 1px solid rgb(38 46 73 / 0.9);
+      }
+
+      .score strong {
+        color: #fcd34d;
+        font-family: "Space Grotesk", Inter, sans-serif;
+        font-size: 30px;
+        font-weight: 700;
+      }
+
+      .score span {
+        color: #5a658a;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="backdrop">
+      <div class="aurora aurora-a"></div>
+      <div class="aurora aurora-b"></div>
+      <div class="grid"></div>
+      <div class="rule"></div>
+    </div>
+
+    <main>
+      <div class="brand">
+        <svg class="mark" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="eq" x1="0" y1="4" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#67e8f9" />
+              <stop offset="55%" stop-color="#a78bfa" />
+              <stop offset="100%" stop-color="#f472b6" />
+            </linearGradient>
+          </defs>
+          <g
+            stroke="url(#eq)"
+            stroke-width="2.1"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="3.6" y="4.2" width="16.8" height="16.4" rx="5.2" />
+            <path d="M9.55 10.4a2.6 2.6 0 0 1 5.06.83c0 1.75-2.45 2.1-2.45 3.72" />
+          </g>
+          <circle cx="12.16" cy="17.4" r="1.12" fill="#fbbf24" />
+          <path
+            d="M19.1 1.5l.62 1.53 1.53.62-1.53.62-.62 1.53-.62-1.53-1.53-.62 1.53-.62z"
+            fill="#fbbf24"
+          />
+        </svg>
+        <span class="wordmark">Easy<span class="spark"> Quiz</span></span>
+      </div>
+
+      <h1>Học vui,<br /><span class="gradient">nhớ lâu.</span></h1>
+
+      <p class="lede">
+        Chơi trắc nghiệm ngay không cần tài khoản, leo bảng xếp hạng mỗi ngày, và để AI Assist
+        soạn đề cho giáo viên.
+      </p>
+
+      <p class="url">easyquiz.aitechx.vn</p>
+    </main>
+
+    <aside class="card">
+      <div class="card-top">
+        <span>câu 03 / 10</span>
+        <span class="pill">Khoa học</span>
+      </div>
+
+      <p class="question">Hành tinh nào gần Mặt Trời nhất?</p>
+
+      <ul>
+        <li><span class="letter">A</span>Sao Kim</li>
+        <li class="correct">
+          <span class="letter">B</span>Sao Thuỷ
+          <svg class="tick" viewBox="0 0 24 24" fill="none" aria-hidden>
+            <path
+              d="M20 6 9 17l-5-5"
+              stroke="currentColor"
+              stroke-width="2.4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </li>
+        <li><span class="letter">C</span>Trái Đất</li>
+        <li><span class="letter">D</span>Sao Hoả</li>
+      </ul>
+
+      <div class="score">
+        <strong>+120</strong>
+        <span>điểm · chuỗi 6 ngày</span>
+      </div>
+    </aside>
+  </body>
+</html>
