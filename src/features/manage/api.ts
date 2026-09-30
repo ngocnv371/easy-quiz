@@ -13,9 +13,10 @@ import {
   type QuizDraftQuestion,
   type QuestionRow,
   type OptionRow,
+  type ProfileRow,
   type SaveQuizResult,
 } from '@/lib/domain'
-import { buildQuizReport, type QuizReport } from './report'
+import { buildQuizReport, buildWrongAnswerIndex, type QuizReport, type WrongAnswerIndex } from './report'
 
 /** Every quiz the signed-in teacher owns, drafts included. */
 export async function fetchMyQuizzes(ownerId: string): Promise<QuizCard[]> {
@@ -267,6 +268,8 @@ export async function fetchAttemptsForOwner(
 export interface QuizReportDocument {
   card: QuizCard
   report: QuizReport
+  /** Question id → the players who got it wrong, for the follow-up modal. */
+  wrongAnswers: WrongAnswerIndex
 }
 
 /**
@@ -322,8 +325,26 @@ export async function fetchQuizReport(quizId: string): Promise<QuizReportDocumen
     answers = (answerData ?? []) as AttemptAnswerRow[]
   }
 
+  // Names for the per-question roster. `profiles` is publicly readable, but the
+  // query is still narrowed to the players who actually sat this quiz.
+  const userIds = [
+    ...new Set(attempts.map((attempt) => attempt.user_id).filter((id): id is string => Boolean(id))),
+  ]
+
+  let profiles: ProfileRow[] = []
+  if (userIds.length > 0) {
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .in('id', userIds)
+
+    if (profileError) throw new Error(errorMessage(profileError))
+    profiles = (profileData ?? []) as ProfileRow[]
+  }
+
   return {
     card: toQuizCard(cardData),
     report: buildQuizReport({ attempts, questions, answers }),
+    wrongAnswers: buildWrongAnswerIndex({ attempts, answers, profiles }),
   }
 }

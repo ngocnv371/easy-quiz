@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -11,6 +11,7 @@ import {
   Target,
   TrendingDown,
   TrendingUp,
+  UserX,
   Users,
 } from 'lucide-react'
 
@@ -18,9 +19,14 @@ import { Badge } from '@/components/ui/badge'
 import { Button, ButtonLink } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Alert, EmptyState, Skeleton } from '@/components/ui/feedback'
+import { Modal } from '@/components/ui/modal'
 import { MeterBar, VerticalBarChart, accuracyTone } from '@/features/manage/charts'
 import { fetchQuizReport } from '@/features/manage/api'
-import { PASS_THRESHOLD_PERCENT } from '@/features/manage/report'
+import {
+  PASS_THRESHOLD_PERCENT,
+  type QuestionStat,
+  type WrongAnswerer,
+} from '@/features/manage/report'
 import { DifficultyBadge } from '@/features/quiz/quiz-card-tile'
 import { useAuth } from '@/features/auth/auth-context'
 import {
@@ -29,6 +35,7 @@ import {
   formatDate,
   formatDuration,
   formatPercent,
+  formatRelative,
 } from '@/lib/format'
 import { STATUS_LABELS } from '@/lib/labels'
 import { usePageMeta } from '@/lib/seo'
@@ -63,6 +70,10 @@ export function ManageQuizReportPage() {
 
   const card = query.data?.card ?? null
   const report = query.data?.report ?? null
+  const wrongAnswers = query.data?.wrongAnswers ?? {}
+
+  // The question whose "who got this wrong" roster is open, if any.
+  const [openQuestion, setOpenQuestion] = useState<QuestionStat | null>(null)
 
   /**
    * Print to PDF.
@@ -408,6 +419,17 @@ export function ManageQuizReportPage() {
                                 ~{formatDuration(question.averageSeconds)}
                               </span>
                             ) : null}
+
+                            {(wrongAnswers[question.questionId]?.length ?? 0) > 0 ? (
+                              <button
+                                type="button"
+                                onClick={() => setOpenQuestion(question)}
+                                className="border-ink-600 text-ink-200 hover:border-wrong-400/60 hover:bg-wrong-500/10 hover:text-wrong-200 ml-auto inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-medium transition-colors"
+                              >
+                                <UserX className="size-3.5" aria-hidden />
+                                Xem ai làm sai
+                              </button>
+                            ) : null}
                           </div>
 
                           <MeterBar
@@ -436,7 +458,87 @@ export function ManageQuizReportPage() {
           </Card>
         </>
       )}
+
+      <WrongAnswerModal
+        question={openQuestion}
+        entries={openQuestion ? (wrongAnswers[openQuestion.questionId] ?? []) : []}
+        onClose={() => setOpenQuestion(null)}
+      />
     </div>
+  )
+}
+
+/**
+ * The roster behind a question's "N lượt sai".
+ *
+ * The list is the dialog's own scroll region, so a question a whole class
+ * missed stays readable instead of growing a page-long panel.
+ */
+function WrongAnswerModal({
+  question,
+  entries,
+  onClose,
+}: {
+  question: QuestionStat | null
+  entries: WrongAnswerer[]
+  onClose: () => void
+}) {
+  return (
+    <Modal
+      open={question !== null}
+      onClose={onClose}
+      icon={UserX}
+      tone="wrong"
+      title={question ? `Câu ${question.position}: ai đã làm sai` : 'Ai đã làm sai'}
+      description={question?.prompt}
+      footer={
+        question ? (
+          <span className="tabular-nums">
+            {entries.length} lượt trả lời sai ·{' '}
+            {formatPercent(
+              question.answered > 0 ? (entries.length / question.answered) * 100 : 0,
+            )}{' '}
+            số lượt làm câu này
+          </span>
+        ) : null
+      }
+    >
+      {entries.length > 0 ? (
+        <ul className="divide-ink-600/50 divide-y">
+          {entries.map((entry) => (
+            <li
+              key={entry.attemptId}
+              className="flex items-center gap-3 rounded-lg px-3 py-3 sm:px-4"
+            >
+              <span
+                className="bg-ink-800 flex size-9 shrink-0 items-center justify-center rounded-xl text-base"
+                aria-hidden
+              >
+                {entry.avatarEmoji}
+              </span>
+
+              <div className="min-w-0 flex-1">
+                <p className="text-ink-100 truncate text-sm font-medium">
+                  {entry.displayName}
+                </p>
+                <p className="text-ink-500 text-xs tabular-nums">
+                  {formatRelative(entry.completedAt)}
+                  {entry.seconds > 0 ? ` · ${formatDuration(entry.seconds)}` : ''}
+                </p>
+              </div>
+
+              <span className="text-wrong-300 shrink-0 text-xs font-medium">
+                Trả lời sai
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-ink-400 px-3 py-6 text-sm sm:px-4">
+          Không có dữ liệu chi tiết cho câu này.
+        </p>
+      )}
+    </Modal>
   )
 }
 

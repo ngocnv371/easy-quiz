@@ -14,7 +14,7 @@
  *     the earliest attempts has a smaller sample than the quiz as a whole.
  */
 
-import type { AttemptAnswerRow, AttemptRow, QuestionRow } from '@/lib/domain'
+import type { AttemptAnswerRow, AttemptRow, ProfileRow, QuestionRow } from '@/lib/domain'
 
 /** A run counts as passing at 50% of the maximum score. */
 export const PASS_THRESHOLD_PERCENT = 50
@@ -65,6 +65,74 @@ export interface QuizReport {
   scoreDistribution: ScoreBucket[]
   /** Worst questions first — the "what should I reteach?" list. */
   questions: QuestionStat[]
+}
+
+/** One player who answered a single question incorrectly. */
+export interface WrongAnswerer {
+  attemptId: string
+  /** Profile id, or null for a legacy attempt whose user row is gone. */
+  userId: string | null
+  displayName: string
+  avatarEmoji: string
+  /** When the run was submitted, ISO string. */
+  completedAt: string
+  /** Time spent on this question, in seconds. */
+  seconds: number
+}
+
+/** Question id → everyone who got it wrong, most recent first. */
+export type WrongAnswerIndex = Record<string, WrongAnswerer[]>
+
+/**
+ * Who missed what.
+ *
+ * The ranking in `QuestionStat` says *how many* got a question wrong; this is
+ * the roster behind that number, so a teacher can follow up with a person and
+ * not just a statistic. Names come from the player's profile, falling back to
+ * `attempts.guest_name` and finally to the same anonymous label the leaderboard
+ * uses, so a row is never nameless.
+ *
+ * Only incorrect answers are kept — a question a class aced simply has no entry.
+ */
+export function buildWrongAnswerIndex(input: {
+  attempts: AttemptRow[]
+  answers: AttemptAnswerRow[]
+  profiles: ProfileRow[]
+}): WrongAnswerIndex {
+  const { attempts, answers, profiles } = input
+
+  const attemptById = new Map(attempts.map((attempt) => [attempt.id, attempt]))
+  const profileById = new Map(profiles.map((profile) => [profile.id, profile]))
+
+  const index: WrongAnswerIndex = {}
+
+  for (const answer of answers) {
+    if (answer.is_correct) continue
+
+    const attempt = attemptById.get(answer.attempt_id)
+    if (!attempt) continue
+
+    const profile = attempt.user_id ? profileById.get(attempt.user_id) : undefined
+
+    const entry: WrongAnswerer = {
+      attemptId: attempt.id,
+      userId: attempt.user_id,
+      displayName:
+        profile?.display_name ?? attempt.guest_name ?? 'Người chơi ẩn danh',
+      avatarEmoji: profile?.avatar_emoji ?? '🎓',
+      completedAt: attempt.completed_at,
+      seconds: Math.max(0, answer.time_ms) / 1000,
+    }
+
+    ;(index[answer.question_id] ??= []).push(entry)
+  }
+
+  for (const list of Object.values(index)) {
+    // ISO timestamps sort lexicographically, so this is newest-first.
+    list.sort((a, b) => b.completedAt.localeCompare(a.completedAt))
+  }
+
+  return index
 }
 
 // Five bands of the score as a share of the maximum.
