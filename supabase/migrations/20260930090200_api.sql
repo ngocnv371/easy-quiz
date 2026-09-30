@@ -587,8 +587,15 @@ begin
     raise exception 'Bạn cần đăng nhập.' using errcode = '42501';
   end if;
 
+  -- Either signal counts. By the time this runs the caller has already been
+  -- converted by Supabase Auth, so `is_anonymous` has usually flipped to false
+  -- and the profile flag is the one that still knows.
   if not exists (
-    select 1 from public.profiles p where p.id = v_uid and p.is_guest
+    select 1
+    from public.profiles p
+    join auth.users u on u.id = p.id
+    where p.id = v_uid
+      and (p.is_guest or coalesce(u.is_anonymous, false))
   ) then
     raise exception 'Tài khoản này đã là tài khoản chính thức.' using errcode = '42501';
   end if;

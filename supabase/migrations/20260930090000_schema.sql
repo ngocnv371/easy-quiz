@@ -121,7 +121,12 @@ security definer
 set search_path = ''
 as $$
 declare
-  v_guest    boolean := coalesce(new.raw_app_meta_data ->> 'provider', '') = 'anonymous';
+  -- `is_anonymous` is the column GoTrue actually sets for "chơi ngay". The
+  -- metadata provider is only a fallback: it is not reliably present on the
+  -- INSERT that creates the row, and relying on it alone marked real guests as
+  -- ordinary students.
+  v_guest    boolean := coalesce(new.is_anonymous, false)
+                        or coalesce(new.raw_app_meta_data ->> 'provider', '') = 'anonymous';
   v_local    text;
   v_display  text;
   v_role     text;

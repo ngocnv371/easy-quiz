@@ -15,6 +15,8 @@ import type { ProfileRow, UserRole } from '@/lib/domain'
 import { asRole } from '@/lib/domain'
 import { isSupabaseConfigured, supabase } from '@/lib/supabase'
 
+import { DEAD_SESSION_MESSAGE, authErrorMessage, isDeadSessionError } from './errors'
+
 export interface SignUpInput {
   email: string
   password: string
@@ -54,6 +56,12 @@ interface AuthContextValue {
   /** A message the UI can surface instead of a raw Supabase error. */
   authError: string | null
   clearAuthError: () => void
+  /**
+   * Set when a session had to be thrown away — for example the account behind
+   * it no longer exists. The UI shows it once and clears it.
+   */
+  sessionNotice: string | null
+  clearSessionNotice: () => void
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -69,27 +77,54 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<ProfileRow | null>(null)
   const [status, setStatus] = useState<'loading' | 'ready'>('loading')
   const [authError, setAuthError] = useState<string | null>(null)
+  const [sessionNotice, setSessionNotice] = useState<string | null>(null)
 
   // Guards against a slow profile fetch resolving after the user signed out.
   const userIdRef = useRef<string | null>(null)
 
-  const loadProfile = useCallback(async (user: User | null) => {
-    if (!supabase || !user) {
-      setProfile(null)
-      return
-    }
+  /**
+   * Throws the current session away and says why.
+   *
+   * Local-only: the account is already gone on the server, so a global revoke
+   * would just fail with the same error we are recovering from.
+   */
+  const discardSession = useCallback(async (notice: string) => {
+    userIdRef.current = null
+    setProfile(null)
+    setSession(null)
+    setSessionNotice(notice)
 
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .maybeSingle()
-
-    // Drop a stale response if the session moved on while we were fetching.
-    if (userIdRef.current !== user.id) return
-
-    setProfile(data ?? null)
+    if (supabase) await supabase.auth.signOut({ scope: 'local' })
   }, [])
+
+  const loadProfile = useCallback(
+    async (user: User | null) => {
+      if (!supabase || !user) {
+        setProfile(null)
+        return
+      }
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle()
+
+      // Drop a stale response if the session moved on while we were fetching.
+      if (userIdRef.current !== user.id) return
+
+      // A row always exists for a live user (the sign-up trigger creates it),
+      // so an empty result means the account is gone while the token is not.
+      // Recovering here beats letting every later request fail on its own.
+      if (!error && !data) {
+        await discardSession(DEAD_SESSION_MESSAGE)
+        return
+      }
+
+      setProfile(data ?? null)
+    },
+    [discardSession],
+  )
 
   useEffect(() => {
     if (!isSupabaseConfigured || !supabase) {
@@ -126,49 +161,65 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [loadProfile])
 
-  const signIn = useCallback(async (email: string, password: string) => {
-    if (!supabase) throw new Error('Supabase chưa được cấu hình.')
-    setAuthError(null)
+  /**
+   * One exit for every auth failure: recover from a dead session, or surface a
+   * message a person can act on.
+   */
+  const fail = useCallback(
+    async (error: unknown): Promise<never> => {
+      if (isDeadSessionError(error)) {
+        await discardSession(DEAD_SESSION_MESSAGE)
+        throw new Error(DEAD_SESSION_MESSAGE)
+      }
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    })
-
-    if (error) {
-      const message = errorMessage(error)
+      const message = authErrorMessage(error)
       setAuthError(message)
       throw new Error(message)
-    }
-  }, [])
+    },
+    [discardSession],
+  )
 
-  const signUp = useCallback(async (input: SignUpInput) => {
-    if (!supabase) throw new Error('Supabase chưa được cấu hình.')
-    setAuthError(null)
+  const signIn = useCallback(
+    async (email: string, password: string) => {
+      if (!supabase) throw new Error('Supabase chưa được cấu hình.')
+      setAuthError(null)
 
-    const { data, error } = await supabase.auth.signUp({
-      email: input.email.trim(),
-      password: input.password,
-      options: {
-        data: {
-          display_name: input.displayName.trim(),
-          role: input.role,
-          school: input.school?.trim() || null,
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      })
+
+      if (error) await fail(error)
+    },
+    [fail],
+  )
+
+  const signUp = useCallback(
+    async (input: SignUpInput) => {
+      if (!supabase) throw new Error('Supabase chưa được cấu hình.')
+      setAuthError(null)
+
+      const { data, error } = await supabase.auth.signUp({
+        email: input.email.trim(),
+        password: input.password,
+        options: {
+          data: {
+            display_name: input.displayName.trim(),
+            role: input.role,
+            school: input.school?.trim() || null,
+          },
         },
-      },
-    })
+      })
 
-    if (error) {
-      const message = errorMessage(error)
-      setAuthError(message)
-      throw new Error(message)
-    }
+      if (error) await fail(error)
 
-    // With email confirmation switched on, Supabase returns a user but no
-    // session — the caller then shows a "check your inbox" screen instead of
-    // pretending the person is signed in.
-    return { needsEmailConfirmation: data.session === null }
-  }, [])
+      // With email confirmation switched on, Supabase returns a user but no
+      // session — the caller then shows a "check your inbox" screen instead of
+      // pretending the person is signed in.
+      return { needsEmailConfirmation: data.session === null }
+    },
+    [fail],
+  )
 
   const signInAsGuest = useCallback(async (name: string) => {
     if (!supabase) throw new Error('Supabase chưa được cấu hình.')
@@ -182,11 +233,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         ? { data: { user: currentUser }, error: null }
         : await supabase.auth.signInAnonymously()
 
-    if (error) {
-      const message = errorMessage(error)
-      setAuthError(message)
-      throw new Error(message)
-    }
+    if (error) await fail(error)
 
     const user = data.user
     if (!user) throw new Error('Không tạo được phiên chơi ẩn danh.')
@@ -261,11 +308,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         },
       })
 
-      if (error) {
-        const message = errorMessage(error)
-        setAuthError(message)
-        throw new Error(message)
-      }
+      if (error) await fail(error)
 
       // With email confirmation switched on, the address only lands once the
       // link is followed, so `user.email` still reads as null here.
@@ -288,6 +331,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     [refreshProfile],
   )
+
+  const clearSessionNotice = useCallback(() => setSessionNotice(null), [])
 
   const value = useMemo<AuthContextValue>(() => {
     const guest = isAnonymous(session?.user ?? null)
@@ -318,12 +363,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       refreshProfile,
       authError,
       clearAuthError: () => setAuthError(null),
+      sessionNotice,
+      clearSessionNotice,
     }
   }, [
     status,
     session,
     profile,
     authError,
+    sessionNotice,
+    clearSessionNotice,
     signIn,
     signUp,
     signInAsGuest,

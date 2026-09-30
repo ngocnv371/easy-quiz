@@ -148,6 +148,18 @@ Play is **exam-style** — no per-question feedback while answering, then a full
 explanations once the attempt is graded. That keeps the answer key secret *and* gives the result
 screen something worth celebrating.
 
+### Sessions that outlive their account
+
+A JWT stays valid after the user row behind it is deleted — an admin removing an account, a
+restore from backup, a local `db reset` under a live browser. Supabase then answers every request
+with *"User from sub claim in JWT does not exist"*, which is accurate and useless to a player.
+
+The app uses a missing profile row as that signal: `handle_new_user` creates the row in the same
+transaction as the user, so a live session can never legitimately lack one. On detecting it the
+session is discarded **locally** (a server-side revoke would fail with the same error), the
+visitor drops back to guest, and a toast says why — instead of leaving a session that fails
+cryptically on every later click.
+
 ### AI Assist
 
 `supabase/functions/ai-quiz/index.ts` takes a brief:
