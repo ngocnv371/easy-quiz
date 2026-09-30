@@ -130,8 +130,19 @@ Two smaller decisions fall out of the same reasoning:
 ### Guest play
 
 "Chơi ngay" uses Supabase's **anonymous sign-in**: a throwaway identity that still owns a
-profile, so a guest's score can appear on the leaderboard and the profile can be upgraded to a
-real account later. `enable_anonymous_sign_ins = true` is set in `supabase/config.toml`.
+profile, so a guest's score can appear on the leaderboard straight away.
+`enable_anonymous_sign_ins = true` is set in `supabase/config.toml`.
+
+"Lưu kết quả của bạn" then converts that account **in place** — `updateUser({ email, password })`
+keeps the same user id, so the profile and every attempt already recorded survive. Calling
+`signUp()` instead would silently start the player from zero, which is the wrong answer for a
+button whose whole promise is saving results. The remaining details (display name, role, school)
+travel through `upgrade_guest_profile()`, the only path allowed to set `role` or clear `is_guest`
+for a player.
+
+Because a guest *is* signed in, `/login` and `/register` deliberately do **not** redirect them the
+way they redirect a real account — those two pages are exactly where a guest needs to be. `/login`
+says plainly that signing in would replace the guest session, and links to the upgrade instead.
 
 Play is **exam-style** — no per-question feedback while answering, then a full review with
 explanations once the attempt is graded. That keeps the answer key secret *and* gives the result
@@ -267,3 +278,6 @@ Called out honestly rather than hidden:
 - **The result review lives in `sessionStorage`.** Opening a result link in a fresh tab shows the
   summary without the per-question review — the correct trade-off, since the review names the
   answer key.
+- **Upgrading a guest keeps its auto-generated username** (e.g. `player_1a2b3`). The display name
+  is what every screen and the leaderboard actually show, so this is cosmetic — but deriving a
+  username from the new email would be a small, worthwhile follow-up.

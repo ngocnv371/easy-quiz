@@ -301,6 +301,9 @@ isOneToOne: false
                            },
 "submit_attempt":
 { Args: { "p_answers": Json,"p_duration_seconds"?: number,"p_guest_name"?: string,"p_slug": string }; Returns: Json
+                           },
+"upgrade_guest_profile":
+{ Args: { "p_display_name": string,"p_role"?: string,"p_school"?: string }; Returns: undefined
                            }
           }
           Enums: {

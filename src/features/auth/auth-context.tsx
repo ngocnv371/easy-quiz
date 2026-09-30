@@ -23,6 +23,9 @@ export interface SignUpInput {
   school?: string
 }
 
+/** The same details, but applied to the anonymous session already in hand. */
+export type UpgradeGuestInput = SignUpInput
+
 interface AuthContextValue {
   /** False when `.env.local` has no Supabase credentials yet. */
   isConfigured: boolean
@@ -38,6 +41,13 @@ interface AuthContextValue {
   signIn: (email: string, password: string) => Promise<void>
   signUp: (input: SignUpInput) => Promise<{ needsEmailConfirmation: boolean }>
   signInAsGuest: (name: string) => Promise<void>
+  /**
+   * Turns the current anonymous session into a permanent account.
+   *
+   * The user id is preserved, so the profile and every attempt already recorded
+   * stay attached. Creating a new account instead would start from zero.
+   */
+  upgradeGuest: (input: UpgradeGuestInput) => Promise<{ needsEmailConfirmation: boolean }>
   signOut: () => Promise<void>
   updateProfile: (patch: Partial<ProfileRow>) => Promise<void>
   refreshProfile: () => Promise<void>
@@ -232,6 +242,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await loadProfile(data.session?.user ?? null)
   }, [loadProfile])
 
+  const upgradeGuest = useCallback(
+    async (input: UpgradeGuestInput) => {
+      if (!supabase) throw new Error('Supabase chưa được cấu hình.')
+      setAuthError(null)
+
+      const email = input.email.trim()
+
+      // `updateUser` converts the anonymous user in place — same id, same
+      // profile, same attempt history.
+      const { data, error } = await supabase.auth.updateUser({
+        email,
+        password: input.password,
+        data: {
+          display_name: input.displayName.trim(),
+          role: input.role,
+          school: input.school?.trim() || null,
+        },
+      })
+
+      if (error) {
+        const message = errorMessage(error)
+        setAuthError(message)
+        throw new Error(message)
+      }
+
+      // With email confirmation switched on, the address only lands once the
+      // link is followed, so `user.email` still reads as null here.
+      const applied = data.user?.email?.toLowerCase() === email.toLowerCase()
+
+      // Run while the profile is still flagged as a guest — that flag is the
+      // guard this function checks.
+      const { error: profileError } = await supabase.rpc('upgrade_guest_profile', {
+        p_display_name: input.displayName.trim(),
+        p_role: input.role,
+        // `undefined` rather than `null`: the argument is optional, and the SQL
+        // default is already null.
+        p_school: input.school?.trim() || undefined,
+      })
+
+      if (profileError) throw new Error(errorMessage(profileError))
+
+      await refreshProfile()
+      return { needsEmailConfirmation: !applied }
+    },
+    [refreshProfile],
+  )
+
   const value = useMemo<AuthContextValue>(() => {
     const guest = isAnonymous(session?.user ?? null)
     const role = asRole(profile?.role ?? null)
@@ -242,16 +299,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       session,
       user: session?.user ?? null,
       profile,
-      isGuest: guest || (profile?.is_guest ?? false),
+      // The session is the authority on whether someone is a guest. The
+      // `profiles.is_guest` column is only an aggregation flag for the
+      // leaderboard, so it must not drive this.
       isTeacher: role === 'teacher' || role === 'admin',
       isAdmin: role === 'admin',
       role,
+      isGuest: guest,
       displayName:
         profile?.display_name ??
         (session?.user?.email ? session.user.email.split('@')[0] : 'Khách'),
       signIn,
       signUp,
       signInAsGuest,
+      upgradeGuest,
       signOut,
       updateProfile,
       refreshProfile,
@@ -266,6 +327,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signIn,
     signUp,
     signInAsGuest,
+    upgradeGuest,
     signOut,
     updateProfile,
     refreshProfile,

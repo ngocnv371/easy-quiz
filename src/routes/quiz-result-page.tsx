@@ -37,7 +37,7 @@ import { cn } from '@/lib/utils'
 
 export function QuizResultPage() {
   const { slug = '', attemptId = '' } = useParams()
-  const { displayName, user } = useAuth()
+  const { displayName, user, isGuest } = useAuth()
 
   // A fresh submission is already in sessionStorage, including the full review.
   const [stashed] = useState(() => readResult(attemptId))
@@ -216,17 +216,17 @@ export function QuizResultPage() {
               </div>
             </Card>
 
-            {!user ? (
+            {isGuest ? (
               <Card className="border-spark-400/30 p-5">
                 <p className="text-spark-300 text-sm font-semibold">
                   Muốn giữ lại thành tích này?
                 </p>
                 <p className="text-ink-300 mt-1.5 text-sm leading-relaxed">
-                  Bạn đang chơi với tư cách khách. Tạo tài khoản để lưu hồ sơ, theo dõi tiến bộ
-                  và không mất điểm khi đổi thiết bị.
+                  Bạn đang chơi với tư cách khách. Thêm email và mật khẩu để giữ nguyên điểm số,
+                  hồ sơ và thứ hạng — không mất gì cả.
                 </p>
                 <ButtonLink to="/register" variant="spark" size="sm" className="mt-4">
-                  Tạo tài khoản
+                  Lưu kết quả của bạn
                   <ArrowRight className="size-3.5" aria-hidden />
                 </ButtonLink>
               </Card>

@@ -556,8 +556,59 @@ comment on function public.save_quiz(jsonb) is
   'Creates or replaces a quiz document atomically. Returns the id, slug and status.';
 
 -- ---------------------------------------------------------------------------
+-- upgrade_guest_profile
+--
+-- "Chơi ngay" signs a visitor in anonymously. Supabase Auth converts that
+-- account in place via `updateUser({ email, password })`, which is what makes
+-- "Lưu kết quả của bạn" keep every score already earned — a fresh `signUp()`
+-- would start from zero.
+--
+-- This function carries the rest of the details across in the same breath. It
+-- is also the only path that may change `role` or clear `is_guest` for a
+-- player, because neither column is client-writable (see 0002_rls.sql).
+--
+-- Guarded on the profile still being marked as a guest, so it cannot be used
+-- to re-label an established account.
+-- ---------------------------------------------------------------------------
+create or replace function public.upgrade_guest_profile(
+  p_display_name text,
+  p_role text default 'student',
+  p_school text default null
+)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_uid uuid := auth.uid();
+begin
+  if v_uid is null then
+    raise exception 'Bạn cần đăng nhập.' using errcode = '42501';
+  end if;
+
+  if not exists (
+    select 1 from public.profiles p where p.id = v_uid and p.is_guest
+  ) then
+    raise exception 'Tài khoản này đã là tài khoản chính thức.' using errcode = '42501';
+  end if;
+
+  update public.profiles p
+  set display_name = left(coalesce(nullif(btrim(p_display_name), ''), p.display_name), 60),
+      role = case when p_role = 'teacher' then 'teacher' else 'student' end,
+      school = nullif(btrim(coalesce(p_school, '')), ''),
+      is_guest = false
+  where p.id = v_uid;
+end;
+$$;
+
+comment on function public.upgrade_guest_profile(text, text, text) is
+  'Applies the details chosen when a guest becomes a real account, and clears the guest flag.';
+
+-- ---------------------------------------------------------------------------
 -- Execution grants
 -- ---------------------------------------------------------------------------
 grant execute on function public.get_quiz_for_play(text) to anon, authenticated;
 grant execute on function public.submit_attempt(text, jsonb, integer, text) to authenticated;
 grant execute on function public.save_quiz(jsonb) to authenticated;
+grant execute on function public.upgrade_guest_profile(text, text, text) to authenticated;

@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { GraduationCap, KeyRound, Mail, School, UserRound } from 'lucide-react'
 
@@ -14,10 +14,19 @@ import type { UserRole } from '@/lib/domain'
 type SignUpRole = Exclude<UserRole, 'admin'>
 
 export function RegisterPage() {
-  const { signUp, user, status, isConfigured } = useAuth()
+  const {
+    signUp,
+    upgradeGuest,
+    user,
+    status,
+    isConfigured,
+    isGuest,
+    displayName: currentName,
+  } = useAuth()
   const navigate = useNavigate()
 
   const [displayName, setDisplayName] = useState('')
+  const [nameTouched, setNameTouched] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [role, setRole] = useState<SignUpRole>('student')
@@ -27,7 +36,14 @@ export function RegisterPage() {
   const [error, setError] = useState<string | null>(null)
   const [needsConfirmation, setNeedsConfirmation] = useState(false)
 
-  if (isConfigured && status === 'ready' && user && !needsConfirmation) {
+  // A guest already picked a name when they started playing — offer it back.
+  useEffect(() => {
+    if (isGuest && !nameTouched && currentName) setDisplayName(currentName)
+  }, [isGuest, nameTouched, currentName])
+
+  // A guest is signed in, but they belong on this page: it is where their
+  // scores stop being disposable. Only a real account gets redirected away.
+  if (isConfigured && status === 'ready' && user && !isGuest && !needsConfirmation) {
     return <Navigate to={role === 'teacher' ? '/manage' : '/explore'} replace />
   }
 
@@ -48,7 +64,11 @@ export function RegisterPage() {
     setSubmitting(true)
 
     try {
-      const { needsEmailConfirmation } = await signUp({
+      // Both actions take the same input and return the same shape. The only
+      // difference: a guest's account is converted in place, so the profile and
+      // every attempt already recorded survive.
+      const action = isGuest ? upgradeGuest : signUp
+      const { needsEmailConfirmation } = await action({
         email,
         password,
         displayName,
@@ -72,7 +92,11 @@ export function RegisterPage() {
     return (
       <AuthShell
         title="Kiểm tra hộp thư của bạn"
-        description="Chúng tôi đã gửi một liên kết xác nhận. Bấm vào đó để kích hoạt tài khoản, rồi quay lại đăng nhập."
+        description={
+          isGuest
+            ? 'Chúng tôi đã gửi một liên kết xác nhận. Điểm số của bạn vẫn được giữ nguyên trong lúc chờ — bấm vào liên kết để hoàn tất.'
+            : 'Chúng tôi đã gửi một liên kết xác nhận. Bấm vào đó để kích hoạt tài khoản, rồi quay lại đăng nhập.'
+        }
         footer={
           <Link to="/login" className="text-neon-300 font-medium hover:underline">
             Về trang đăng nhập
@@ -88,15 +112,29 @@ export function RegisterPage() {
 
   return (
     <AuthShell
-      title="Tạo tài khoản Easy Quiz"
-      description="Miễn phí, không cần thẻ. Bạn có thể bắt đầu với vai trò học sinh và nâng lên giáo viên bất cứ lúc nào."
+      title={isGuest ? 'Lưu kết quả của bạn' : 'Tạo tài khoản Easy Quiz'}
+      description={
+        isGuest
+          ? 'Thêm email và mật khẩu để giữ lại toàn bộ điểm số, lịch sử chơi và thứ hạng bạn đã có. Mọi thứ được chuyển sang tài khoản mới — không mất gì cả.'
+          : 'Miễn phí, không cần thẻ. Bạn có thể bắt đầu với vai trò học sinh và nâng lên giáo viên bất cứ lúc nào.'
+      }
       footer={
-        <>
-          Đã có tài khoản?{' '}
-          <Link to="/login" className="text-neon-300 font-medium hover:underline">
-            Đăng nhập
-          </Link>
-        </>
+        isGuest ? (
+          <>
+            Đã có tài khoản khác?{' '}
+            <Link to="/login" className="text-neon-300 font-medium hover:underline">
+              Đăng nhập
+            </Link>{' '}
+            — phiên khách này sẽ bị thay thế.
+          </>
+        ) : (
+          <>
+            Đã có tài khoản?{' '}
+            <Link to="/login" className="text-neon-300 font-medium hover:underline">
+              Đăng nhập
+            </Link>
+          </>
+        )
       }
     >
       {!isConfigured ? (
@@ -127,7 +165,10 @@ export function RegisterPage() {
               id="displayName"
               required
               value={displayName}
-              onChange={(event) => setDisplayName(event.target.value)}
+              onChange={(event) => {
+                setNameTouched(true)
+                setDisplayName(event.target.value)
+              }}
               placeholder="Ngọc Anh"
               maxLength={60}
               className="pl-10"
@@ -218,15 +259,14 @@ export function RegisterPage() {
         ) : null}
 
         <Button type="submit" size="lg" className="w-full" loading={submitting}>
-          {role === 'teacher' ? (
-            <GraduationCap className="size-4" aria-hidden />
-          ) : null}
-          Tạo tài khoản
+          {role === 'teacher' ? <GraduationCap className="size-4" aria-hidden /> : null}
+          {isGuest ? 'Lưu kết quả' : 'Tạo tài khoản'}
         </Button>
 
         <p className="text-ink-500 text-xs leading-relaxed">
-          Bằng việc tạo tài khoản, bạn đồng ý để Easy Quiz lưu điểm số và tên hiển thị của bạn
-          cho mục đích xếp hạng.
+          {isGuest
+            ? 'Tài khoản của bạn giữ nguyên mã người chơi, nên bảng xếp hạng và lịch sử chơi không thay đổi. Bạn vẫn có thể đổi tên hiển thị sau trong trang tài khoản.'
+            : 'Bằng việc tạo tài khoản, bạn đồng ý để Easy Quiz lưu điểm số và tên hiển thị của bạn cho mục đích xếp hạng.'}
         </p>
       </form>
     </AuthShell>

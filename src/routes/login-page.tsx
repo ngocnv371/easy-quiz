@@ -17,7 +17,7 @@ function safeRedirect(value: string | null): string {
 }
 
 export function LoginPage() {
-  const { signIn, user, status, isConfigured } = useAuth()
+  const { signIn, user, status, isConfigured, isGuest } = useAuth()
   const navigate = useNavigate()
   const [params] = useSearchParams()
 
@@ -28,7 +28,9 @@ export function LoginPage() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  if (isConfigured && status === 'ready' && user) {
+  // A guest is technically signed in, but they still need this page — either
+  // to sign into a different account or to realise they should save this one.
+  if (isConfigured && status === 'ready' && user && !isGuest) {
     return <Navigate to={redirectTo} replace />
   }
 
@@ -64,6 +66,17 @@ export function LoginPage() {
         <Alert tone="warning" title="Chưa kết nối Supabase" className="mb-5">
           Hãy sao chép <code>.env.example</code> thành <code>.env.local</code> và điền URL cùng
           anon key trước khi đăng nhập.
+        </Alert>
+      ) : null}
+
+      {isGuest ? (
+        <Alert tone="warning" title="Bạn đang có một phiên chơi khách" className="mb-5">
+          Đăng nhập bằng tài khoản khác sẽ <strong>thay thế</strong> phiên này, và điểm đã chơi
+          sẽ không được giữ. Muốn giữ chúng?{' '}
+          <Link to="/register" className="font-medium underline">
+            Lưu kết quả của bạn
+          </Link>{' '}
+          trước đã.
         </Alert>
       ) : null}
 
