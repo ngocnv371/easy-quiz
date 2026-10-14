@@ -15,7 +15,7 @@ export const QUESTION_REVEAL_DURATION = 22
  */
 export const QUESTION_REVEAL_VARIANTS = [
   'sweep',
-  'rows',
+  'columns',
   'shutter',
   'ripple',
   'prism',
@@ -59,13 +59,25 @@ const CLAMP = {
 const EASE = Easing.bezier(0.16, 1, 0.3, 1)
 
 /**
+ * The last frame the player actually renders. `durationInFrames` is a count, so
+ * frames run 0…DURATION−1; a fade that ends at `DURATION` never quite reaches
+ * zero and leaves a ghost of the flourish on screen forever.
+ */
+const LAST_FRAME = QUESTION_REVEAL_DURATION - 1
+
+/** Fades from 1 at `start` to exactly 0 on the composition's last frame. */
+function fadeOut(frame: number, start: number): number {
+  return interpolate(frame, [start, LAST_FRAME], [1, 0], CLAMP)
+}
+
+/**
  * The flourish played over the question card each time a new question arrives.
  *
- * It is deliberately abstract: it never draws the question's own text, so it can
- * be stretched to whatever size the card happens to be without a font or layout
- * mismatch. Every variant ends fully transparent, which leaves the real,
- * interactive question on screen — the composition decorates the change, it
- * never replaces the question.
+ * It is deliberately abstract: it never draws the question's own text or mirrors
+ * its layout, so it can be stretched to whatever size the card happens to be
+ * without looking misaligned. Every variant ends fully transparent, which leaves
+ * the real, interactive question on screen — the composition decorates the
+ * change, it never replaces the question.
  */
 export function QuestionReveal({ variant, accent }: QuestionRevealProps) {
   const frame = useCurrentFrame()
@@ -74,17 +86,22 @@ export function QuestionReveal({ variant, accent }: QuestionRevealProps) {
   // and bottom edges keeps a variant from ending on a hard clipped line.
   const edgeFade = 'linear-gradient(180deg, transparent, #000 14%, #000 86%, transparent)'
 
+  // Belt and braces: whatever a variant does, the whole layer is gone before the
+  // final frame, so no ghost can outlive the animation.
+  const settle = interpolate(frame, [LAST_FRAME - 5, LAST_FRAME], [1, 0], CLAMP)
+
   return (
     <AbsoluteFill
       style={{
         overflow: 'hidden',
         pointerEvents: 'none',
+        opacity: settle,
         maskImage: edgeFade,
         WebkitMaskImage: edgeFade,
       }}
     >
       {variant === 'sweep' ? <Sweep frame={frame} accent={accent} /> : null}
-      {variant === 'rows' ? <Rows frame={frame} accent={accent} /> : null}
+      {variant === 'columns' ? <Columns frame={frame} accent={accent} /> : null}
       {variant === 'shutter' ? <Shutter frame={frame} accent={accent} /> : null}
       {variant === 'ripple' ? <Ripple frame={frame} accent={accent} /> : null}
       {variant === 'prism' ? <Prism frame={frame} /> : null}
@@ -98,7 +115,7 @@ export function QuestionReveal({ variant, accent }: QuestionRevealProps) {
 /** A diagonal sheet of light rakes across, trailing a bright edge. */
 function Sweep({ frame, accent }: { frame: number; accent: string }) {
   const travel = interpolate(frame, [0, 13], [-0.6, 1.15], { ...CLAMP, easing: EASE })
-  const fade = interpolate(frame, [10, QUESTION_REVEAL_DURATION], [1, 0], CLAMP)
+  const fade = fadeOut(frame, 9)
   const left = `${travel * 100}%`
 
   return (
@@ -134,47 +151,36 @@ function Sweep({ frame, accent }: { frame: number; accent: string }) {
 }
 
 /**
- * The card assembles from its own skeleton: a prompt bar, then four option
- * bars, each wiping in from the left.
+ * An abstract equaliser: vertical columns of light rise and fall. It is
+ * intentionally not shaped like the option tiles, so it can never look like it
+ * is trying — and failing — to line up with them.
  */
-function Rows({ frame, accent }: { frame: number; accent: string }) {
-  const rows = [
-    { top: '13%', width: '62%', height: 26 },
-    { top: '42%', width: '90%', height: 46 },
-    { top: '55%', width: '90%', height: 46 },
-    { top: '68%', width: '90%', height: 46 },
-    { top: '81%', width: '90%', height: 46 },
-  ]
+function Columns({ frame, accent }: { frame: number; accent: string }) {
+  const count = 9
 
   return (
     <>
-      {rows.map((row, index) => {
-        const delay = index * 2.2
-        const grow = interpolate(frame, [delay, delay + 9], [0, 1], {
+      {Array.from({ length: count }, (_, index) => {
+        const delay = index * 1.1
+        const grow = interpolate(frame, [delay, delay + 8], [0, 1], {
           ...CLAMP,
           easing: EASE,
         })
-        const fade = interpolate(
-          frame,
-          [13 + index, QUESTION_REVEAL_DURATION],
-          [1, 0],
-          CLAMP,
-        )
+        const fade = fadeOut(frame, 7 + index * 0.6)
 
         return (
           <div
-            key={row.top}
+            key={index}
             style={{
               position: 'absolute',
-              top: row.top,
-              left: '5%',
-              width: row.width,
-              height: row.height,
-              borderRadius: 14,
-              transform: `scaleX(${grow})`,
-              transformOrigin: 'left center',
-              borderLeft: `4px solid ${accent}`,
-              background: `linear-gradient(90deg, ${accent}33, ${accent}0d 70%, transparent)`,
+              bottom: '16%',
+              left: `${6 + index * 10}%`,
+              width: '5%',
+              height: `${26 + (index % 4) * 15}%`,
+              borderRadius: 8,
+              transform: `scaleY(${grow})`,
+              transformOrigin: 'bottom center',
+              background: `linear-gradient(180deg, ${accent}00, ${accent}cc 45%, ${accent}22)`,
               opacity: fade,
             }}
           />
@@ -196,6 +202,7 @@ function Shutter({ frame, accent }: { frame: number; accent: string }) {
           ...CLAMP,
           easing: EASE,
         })
+        const fade = fadeOut(frame, 12)
 
         return (
           <div
@@ -211,6 +218,7 @@ function Shutter({ frame, accent }: { frame: number; accent: string }) {
               background: `linear-gradient(90deg, ${accent}2e, ${COLORS.ink900}66 55%, ${accent}2e)`,
               borderTop: `1px solid ${accent}55`,
               borderBottom: `1px solid ${accent}55`,
+              opacity: fade,
             }}
           />
         )
@@ -227,13 +235,13 @@ function Ripple({ frame, accent }: { frame: number; accent: string }) {
     <>
       {Array.from({ length: rings }, (_, index) => {
         const delay = index * 2.6
-        const grow = interpolate(frame, [delay, QUESTION_REVEAL_DURATION], [0.1, 1.5], {
+        const grow = interpolate(frame, [delay, LAST_FRAME], [0.1, 1.5], {
           ...CLAMP,
           easing: EASE,
         })
         const fade = interpolate(
           frame,
-          [delay, delay + 6, QUESTION_REVEAL_DURATION],
+          [delay, delay + 6, LAST_FRAME],
           [0, 0.75, 0],
           CLAMP,
         )
@@ -265,7 +273,7 @@ function Ripple({ frame, accent }: { frame: number; accent: string }) {
 function Prism({ frame }: { frame: number }) {
   const slivers = [COLORS.neon400, COLORS.violet400, COLORS.magenta400]
   const travel = interpolate(frame, [0, 12], [-0.25, 0.25], { ...CLAMP, easing: EASE })
-  const fade = interpolate(frame, [8, QUESTION_REVEAL_DURATION], [1, 0], CLAMP)
+  const fade = fadeOut(frame, 8)
 
   return (
     <>
@@ -297,7 +305,7 @@ function Prism({ frame }: { frame: number }) {
           position: 'absolute',
           inset: 0,
           backgroundColor: '#ffffff',
-          opacity: interpolate(frame, [5, 7, QUESTION_REVEAL_DURATION], [0, 0.28, 0], CLAMP),
+          opacity: interpolate(frame, [5, 7, LAST_FRAME], [0, 0.28, 0], CLAMP),
         }}
       />
     </>
@@ -323,7 +331,7 @@ function Ink({ frame, accent }: { frame: number; accent: string }) {
         })
         const fade = interpolate(
           frame,
-          [delay, delay + 5, QUESTION_REVEAL_DURATION],
+          [delay, delay + 5, LAST_FRAME],
           [0, 0.42, 0],
           CLAMP,
         )
