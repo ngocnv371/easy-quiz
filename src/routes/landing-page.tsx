@@ -3,6 +3,7 @@ import {
   ArrowRight,
   BrainCircuit,
   Compass,
+  Infinity as InfinityIcon,
   Rocket,
   Sparkles,
   Trophy,
@@ -114,6 +115,10 @@ export function LandingPage() {
                   <ButtonLink to="/explore" size="lg">
                     Khám phá đề thi
                     <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+                  </ButtonLink>
+                  <ButtonLink to="/endless" variant="spark" size="lg">
+                    <InfinityIcon className="size-4" aria-hidden />
+                    Chế độ vô tận
                   </ButtonLink>
                   <ButtonLink to="/register" variant="secondary" size="lg">
                     Tôi là giáo viên

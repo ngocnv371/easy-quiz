@@ -20,6 +20,7 @@ import {
 
 import { AuroraBackground } from '@/components/brand/aurora-background'
 import { EasyQuizLogo } from '@/components/brand/logo'
+import { UserMenu } from '@/components/layout/user-menu'
 import { QuestionRevealVideo } from '@/components/remotion/players'
 import { Badge, accentTone } from '@/components/ui/badge'
 import { Button, ButtonLink, Spinner } from '@/components/ui/button'
@@ -433,25 +434,42 @@ function EndlessPlayer({ session }: { session: ReturnType<typeof useEndlessSessi
 
         {/* ── Areas ──────────────────────────────────────────────────── */}
         <footer className="border-ink-600/50 border-t backdrop-blur-sm">
-          <div className="mx-auto w-full max-w-3xl px-5 py-3" data-cy="endless-areas">
-            {areas.length === 0 ? (
-              <p className="text-ink-500 flex items-center gap-2 text-xs" data-cy="endless-areas-empty">
-                <Brain className="size-3.5 shrink-0" aria-hidden />
-                Trả lời vài câu để xem hồ sơ năng lực của bạn theo từng môn.
-              </p>
-            ) : (
-              <div className="flex items-center gap-2">
-                <span className="text-ink-500 hidden shrink-0 items-center gap-1.5 text-xs sm:flex">
-                  <Brain className="size-3.5" aria-hidden />
-                  Khu vực
-                </span>
-                <div className="flex flex-1 items-center gap-1.5 overflow-x-auto pb-0.5">
-                  {areas.map((area) => (
-                    <AreaChip key={area.topic_id} area={area} />
-                  ))}
-                </div>
-              </div>
-            )}
+          <div
+            className="mx-auto flex w-full max-w-3xl items-center gap-3 px-5 py-3"
+            data-cy="endless-areas"
+          >
+            <UserMenu
+              placement="top"
+              align="start"
+              size="sm"
+              guestJoin
+              dataCy="endless-user"
+              className="shrink-0"
+            />
+
+            <div className="flex min-w-0 flex-1 items-center gap-2">
+              {areas.length === 0 ? (
+                <p
+                  className="text-ink-500 flex items-center gap-2 text-xs"
+                  data-cy="endless-areas-empty"
+                >
+                  <Brain className="size-3.5 shrink-0" aria-hidden />
+                  Trả lời vài câu để xem hồ sơ năng lực của bạn theo từng môn.
+                </p>
+              ) : (
+                <>
+                  <span className="text-ink-500 hidden shrink-0 items-center gap-1.5 text-xs sm:flex">
+                    <Brain className="size-3.5" aria-hidden />
+                    Khu vực
+                  </span>
+                  <div className="flex flex-1 items-center gap-1.5 overflow-x-auto pb-0.5">
+                    {areas.map((area) => (
+                      <AreaChip key={area.topic_id} area={area} />
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </footer>
       </div>

@@ -1,20 +1,13 @@
-import { useEffect, useRef, useState } from 'react'
-import { Link, NavLink, useNavigate } from 'react-router-dom'
-import {
-  ChevronDown,
-  LayoutDashboard,
-  LineChart,
-  LogOut,
-  Menu,
-  Trophy,
-  User,
-  X,
-} from 'lucide-react'
+import { useState } from 'react'
+import { Link, NavLink } from 'react-router-dom'
+import { LayoutDashboard, Menu, Trophy, X } from 'lucide-react'
 
 import { EasyQuizLogo } from '@/components/brand/logo'
 import { Button, ButtonLink } from '@/components/ui/button'
 import { useAuth } from '@/features/auth/auth-context'
 import { cn } from '@/lib/utils'
+
+import { UserMenu } from './user-menu'
 
 const NAV_ITEMS = [
   { to: '/explore', label: 'Khám phá', icon: null },
@@ -22,38 +15,9 @@ const NAV_ITEMS = [
 ] as const
 
 export function SiteHeader() {
-  const { status, user, profile, isTeacher, isGuest, displayName, signOut } = useAuth()
-  const navigate = useNavigate()
+  const { status, user, isTeacher, isGuest } = useAuth()
 
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
-  const menuRef = useRef<HTMLDivElement>(null)
-
-  // Close the avatar menu on an outside click or Escape.
-  useEffect(() => {
-    if (!menuOpen) return
-
-    const onPointerDown = (event: MouseEvent) => {
-      if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false)
-    }
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setMenuOpen(false)
-    }
-
-    document.addEventListener('mousedown', onPointerDown)
-    document.addEventListener('keydown', onKeyDown)
-    return () => {
-      document.removeEventListener('mousedown', onPointerDown)
-      document.removeEventListener('keydown', onKeyDown)
-    }
-  }, [menuOpen])
-
-  const handleSignOut = async () => {
-    setMenuOpen(false)
-    setMobileOpen(false)
-    await signOut()
-    navigate('/')
-  }
 
   const linkClasses = ({ isActive }: { isActive: boolean }) =>
     cn(
@@ -101,74 +65,7 @@ export function SiteHeader() {
           {status === 'loading' ? (
             <div className="bg-ink-800 h-9 w-24 animate-pulse rounded-full" aria-hidden />
           ) : user ? (
-            <div className="relative" ref={menuRef}>
-              <button
-                type="button"
-                onClick={() => setMenuOpen((open) => !open)}
-                aria-haspopup="menu"
-                aria-expanded={menuOpen}
-                className="border-ink-600 bg-ink-800/70 hover:border-neon-400/60 flex items-center gap-2 rounded-full border py-1.5 pr-2.5 pl-1.5 transition-colors"
-              >
-                <span
-                  className="bg-ink-700 flex size-7 items-center justify-center rounded-full text-sm"
-                  aria-hidden
-                >
-                  {profile?.avatar_emoji ?? '🎓'}
-                </span>
-                <span className="text-ink-100 hidden max-w-28 truncate text-sm font-medium sm:inline">
-                  {displayName}
-                </span>
-                <ChevronDown
-                  className={cn(
-                    'text-ink-400 size-4 transition-transform duration-200',
-                    menuOpen && 'rotate-180',
-                  )}
-                  aria-hidden
-                />
-              </button>
-
-              {menuOpen ? (
-                <div
-                  role="menu"
-                  className="glass-panel shadow-panel absolute right-0 mt-2 w-56 overflow-hidden rounded-xl p-1.5"
-                >
-                  <div className="border-ink-600/60 border-b px-3 py-2.5">
-                    <p className="text-ink-50 truncate text-sm font-medium">{displayName}</p>
-                    <p className="text-ink-400 truncate text-xs">
-                      {isGuest ? 'Phiên chơi ẩn danh' : (profile?.username ?? user.email)}
-                    </p>
-                  </div>
-
-                  <MenuLink to="/progress" icon={LineChart} onClick={() => setMenuOpen(false)}>
-                    Tiến độ học tập
-                  </MenuLink>
-
-                  <MenuLink to="/account" icon={User} onClick={() => setMenuOpen(false)}>
-                    Tài khoản
-                  </MenuLink>
-
-                  {isTeacher ? (
-                    <MenuLink
-                      to="/manage"
-                      icon={LayoutDashboard}
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      Trang quản lý
-                    </MenuLink>
-                  ) : null}
-
-                  <button
-                    type="button"
-                    role="menuitem"
-                    onClick={handleSignOut}
-                    className="text-ink-300 hover:bg-ink-800/70 hover:text-ink-50 flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition-colors"
-                  >
-                    <LogOut className="size-4" aria-hidden />
-                    Đăng xuất
-                  </button>
-                </div>
-              ) : null}
-            </div>
+            <UserMenu />
           ) : (
             <div className="hidden items-center gap-2 sm:flex">
               <ButtonLink to="/login" variant="ghost" size="sm">
@@ -243,29 +140,5 @@ export function SiteHeader() {
         </div>
       ) : null}
     </header>
-  )
-}
-
-function MenuLink({
-  to,
-  icon: Icon,
-  children,
-  onClick,
-}: {
-  to: string
-  icon: typeof User
-  children: React.ReactNode
-  onClick: () => void
-}) {
-  return (
-    <Link
-      to={to}
-      role="menuitem"
-      onClick={onClick}
-      className="text-ink-300 hover:bg-ink-800/70 hover:text-ink-50 flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors"
-    >
-      <Icon className="size-4" aria-hidden />
-      {children}
-    </Link>
   )
 }
