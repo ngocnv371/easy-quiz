@@ -35,6 +35,7 @@ rendered live in the browser via `@remotion/player`.
 | Animation | Motion (DOM) + Remotion (video compositions)                   |
 | Icons     | lucide-react                                                   |
 | Lint      | Oxlint                                                         |
+| E2E       | Cypress (Edge)                                                 |
 
 ---
 
@@ -290,6 +291,7 @@ no stylesheet.
 | `npm run preview`                             | Serve the built app                               |
 | `npm run lint`                                | Oxlint                                            |
 | `npm run typecheck`                           | `tsc -b`                                          |
+| `npm run e2e` / `:open` / `:headed`           | Cypress end-to-end suite, in Edge                 |
 | `npm run supabase:start` / `:stop` / `:status`| Local stack lifecycle                             |
 | `npm run db:reset`                            | Re-apply migrations and seed                      |
 | `npm run db:push`                             | Push migrations to the linked remote project      |
@@ -300,6 +302,26 @@ no stylesheet.
 
 > `src/lib/database.types.ts` is generated. Change the schema in `supabase/migrations`, then run
 > `npm run types:gen`.
+
+---
+
+## End-to-end tests
+
+Cypress drives the real app against a local Supabase stack, in **Edge** by default. The Endless
+spec (`cypress/e2e/endless.cy.ts`) covers the flow that matters most: landing straight on a
+question, grading an answer, revealing the key, the streak/accuracy readouts, per-topic area
+tracking, the batch prefetch, and the stop summary.
+
+```bash
+npm run supabase:start   # backend + migrations + seed
+npm run dev              # app on http://localhost:5173
+npm run e2e              # headless, Edge
+npm run e2e:open         # interactive, Edge
+```
+
+The specs expect the seed data (tagged demo quizzes), because area tracking keys off a quiz's
+topic. `baseUrl` lives in `cypress.config.ts`; failure screenshots land in `cypress/screenshots/`,
+which is git-ignored.
 
 ---
 

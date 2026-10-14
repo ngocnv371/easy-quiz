@@ -242,13 +242,13 @@ function EndlessPlayer({ session }: { session: ReturnType<typeof useEndlessSessi
             </Badge>
 
             <div className="ml-auto flex items-center gap-1.5">
-              <StatPill icon={Flame} tone={stats.streak >= 2 ? 'spark' : 'neutral'}>
+              <StatPill icon={Flame} tone={stats.streak >= 2 ? 'spark' : 'neutral'} dataCy="endless-streak">
                 <span key={stats.streak} className="animate-pop inline-block">
                   {stats.streak}
                 </span>
               </StatPill>
 
-              <StatPill icon={Target} tone="neon">
+              <StatPill icon={Target} tone="neon" dataCy="endless-accuracy">
                 {formatPercent(accuracy)}
               </StatPill>
 
@@ -257,7 +257,13 @@ function EndlessPlayer({ session }: { session: ReturnType<typeof useEndlessSessi
               </StatPill>
             </div>
 
-            <Button variant="ghost" size="sm" onClick={stop} className="shrink-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={stop}
+              className="shrink-0"
+              data-cy="endless-stop"
+            >
               <Pause className="size-4" aria-hidden />
               Dừng
             </Button>
@@ -288,16 +294,18 @@ function EndlessPlayer({ session }: { session: ReturnType<typeof useEndlessSessi
           ) : (
             <div key={current.id} className={cn(questionMotion, 'w-full')}>
               <div className="flex flex-wrap items-center gap-2">
-                {current.topic ? (
-                  <Badge tone={accentTone(current.topic.accent)}>
-                    <span aria-hidden>{current.topic.emoji}</span>
-                    {current.topic.name}
-                  </Badge>
-                ) : (
-                  <Badge tone="neutral" icon={Layers}>
-                    Tổng hợp
-                  </Badge>
-                )}
+                <span data-cy="endless-topic">
+                  {current.topic ? (
+                    <Badge tone={accentTone(current.topic.accent)}>
+                      <span aria-hidden>{current.topic.emoji}</span>
+                      {current.topic.name}
+                    </Badge>
+                  ) : (
+                    <Badge tone="neutral" icon={Layers}>
+                      Tổng hợp
+                    </Badge>
+                  )}
+                </span>
 
                 <Badge tone="neutral">
                   <span aria-hidden>{current.quiz.cover_emoji}</span>
@@ -305,7 +313,10 @@ function EndlessPlayer({ session }: { session: ReturnType<typeof useEndlessSessi
                 </Badge>
               </div>
 
-              <h1 className="font-display text-ink-50 mt-5 text-xl leading-snug font-semibold sm:text-2xl">
+              <h1
+                data-cy="endless-prompt"
+                className="font-display text-ink-50 mt-5 text-xl leading-snug font-semibold sm:text-2xl"
+              >
                 {current.prompt}
               </h1>
 
@@ -317,7 +328,7 @@ function EndlessPlayer({ session }: { session: ReturnType<typeof useEndlessSessi
                 />
               ) : null}
 
-              <div className="mt-7 space-y-3">
+              <div className="mt-7 space-y-3" data-cy="endless-options">
                 {current.options.map((option, optionIndex) => {
                   const state = answerState(option.id, selected, feedback)
                   return (
@@ -357,9 +368,9 @@ function EndlessPlayer({ session }: { session: ReturnType<typeof useEndlessSessi
 
         {/* ── Areas ──────────────────────────────────────────────────── */}
         <footer className="border-ink-600/50 border-t backdrop-blur-sm">
-          <div className="mx-auto w-full max-w-3xl px-5 py-3">
+          <div className="mx-auto w-full max-w-3xl px-5 py-3" data-cy="endless-areas">
             {areas.length === 0 ? (
-              <p className="text-ink-500 flex items-center gap-2 text-xs">
+              <p className="text-ink-500 flex items-center gap-2 text-xs" data-cy="endless-areas-empty">
                 <Brain className="size-3.5 shrink-0" aria-hidden />
                 Trả lời vài câu để xem hồ sơ năng lực của bạn theo từng môn.
               </p>
@@ -443,6 +454,7 @@ function FeedbackBanner({
 }) {
   return (
     <div
+      data-cy="endless-feedback"
       className={cn(
         'animate-feedback-in mt-5 rounded-2xl border p-4',
         feedback.is_correct
@@ -502,6 +514,7 @@ function AreaChip({ area }: { area: EndlessTopicProgress }) {
 
   return (
     <span
+      data-cy="endless-area-chip"
       className={cn(
         'inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs',
         STRENGTH_CHIP[strength],
@@ -519,11 +532,13 @@ function StatPill({
   icon: Icon,
   tone = 'neutral',
   className,
+  dataCy,
   children,
 }: {
   icon: typeof Flame
   tone?: 'neutral' | 'spark' | 'neon'
   className?: string
+  dataCy?: string
   children: ReactNode
 }) {
   const tones = {
@@ -534,6 +549,7 @@ function StatPill({
 
   return (
     <span
+      data-cy={dataCy}
       className={cn(
         'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium tabular-nums',
         tones[tone],
@@ -561,7 +577,7 @@ function StopSummary({
 
   return (
     <div className="bg-ink-950/85 fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-5 backdrop-blur">
-      <Card className="animate-pop my-auto w-full max-w-lg p-6">
+      <Card data-cy="endless-summary" className="animate-pop my-auto w-full max-w-lg p-6">
         <div className="flex items-center gap-3">
           <span className="border-neon-400/40 bg-neon-400/10 text-neon-300 flex size-11 items-center justify-center rounded-2xl border">
             <Sparkles className="size-5" aria-hidden />
