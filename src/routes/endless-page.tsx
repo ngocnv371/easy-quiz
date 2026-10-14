@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+import { useReducedMotion } from 'motion/react'
 import {
   ArrowRight,
   Brain,
@@ -19,6 +20,7 @@ import {
 
 import { AuroraBackground } from '@/components/brand/aurora-background'
 import { EasyQuizLogo } from '@/components/brand/logo'
+import { QuestionRevealVideo } from '@/components/remotion/players'
 import { Badge, accentTone } from '@/components/ui/badge'
 import { Button, ButtonLink, Spinner } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -35,6 +37,7 @@ import { useEndlessSession } from '@/features/quiz/use-endless-session'
 import { useAuth } from '@/features/auth/auth-context'
 import { formatClock, formatPercent } from '@/lib/format'
 import { usePageMeta } from '@/lib/seo'
+import { QUESTION_REVEAL_VARIANTS, accentColor } from '@/remotion/question-reveal'
 import type { EndlessTopicProgress } from '@/lib/domain'
 import { cn, errorMessage } from '@/lib/utils'
 
@@ -190,6 +193,14 @@ function EndlessPlayer({ session }: { session: ReturnType<typeof useEndlessSessi
   // the animation under the player's eyes.
   const questionMotion = QUESTION_MOTIONS[shown % QUESTION_MOTIONS.length] ?? QUESTION_MOTIONS[0]
 
+  const reduceMotion = useReducedMotion()
+
+  // Remotion drives a second, richer layer of question variants over the CSS
+  // entrance. Both index off `shown`, so they move in step.
+  const revealVariant =
+    QUESTION_REVEAL_VARIANTS[shown % QUESTION_REVEAL_VARIANTS.length] ?? QUESTION_REVEAL_VARIANTS[0]
+  const revealAccent = accentColor(current?.topic?.accent ?? null)
+
   // Keyboard: numbers pick an answer, Enter/Space skips the feedback wait.
   useEffect(() => {
     if (!current) return
@@ -271,7 +282,18 @@ function EndlessPlayer({ session }: { session: ReturnType<typeof useEndlessSessi
         </header>
 
         {/* ── Question ───────────────────────────────────────────────── */}
-        <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center px-5 py-8">
+        <main className="relative mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center px-5 py-8">
+          {current && !reduceMotion ? (
+            <div
+              data-cy="endless-reveal"
+              aria-hidden
+              className="pointer-events-none absolute inset-0 z-10 overflow-hidden"
+            >
+              {/* Keyed by `shown` so each question replays the composition from frame zero. */}
+              <QuestionRevealVideo key={shown} variant={revealVariant} accent={revealAccent} />
+            </div>
+          ) : null}
+
           {showSkeleton ? (
             <QuestionSkeleton />
           ) : !current ? (

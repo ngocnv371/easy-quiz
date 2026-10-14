@@ -29,6 +29,15 @@ import {
   ResultReveal,
   resultRevealDefaults,
 } from './result-reveal'
+import {
+  QUESTION_REVEAL_DURATION,
+  QUESTION_REVEAL_FPS,
+  QUESTION_REVEAL_HEIGHT,
+  QUESTION_REVEAL_ID,
+  QUESTION_REVEAL_WIDTH,
+  QuestionReveal,
+  questionRevealDefaults,
+} from './question-reveal'
 
 /**
  * Composition registry.
@@ -81,6 +90,16 @@ export function RemotionRoot() {
         width={RESULT_REVEAL_WIDTH}
         height={RESULT_REVEAL_HEIGHT}
         defaultProps={resultRevealDefaults}
+      />
+
+      <Composition
+        id={QUESTION_REVEAL_ID}
+        component={QuestionReveal}
+        durationInFrames={QUESTION_REVEAL_DURATION}
+        fps={QUESTION_REVEAL_FPS}
+        width={QUESTION_REVEAL_WIDTH}
+        height={QUESTION_REVEAL_HEIGHT}
+        defaultProps={questionRevealDefaults}
       />
     </Folder>
   )

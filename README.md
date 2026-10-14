@@ -164,8 +164,9 @@ the next. "Dừng" ends the session with a summary at any point.
 - The next batch is **weighted** toward a player's stronger topics, while the weakest topic is
   guaranteed a slot in every batch, so the stream leans into strengths without abandoning the
   areas still being learned. The weighting lives in SQL, not the client.
-- The question player cycles through several entrance animations and staggers the answer tiles, so
-  a long session never looks static.
+- The question player cycles through several entrance animations and staggers the answer tiles. A
+  Remotion composition (`EasyQuizQuestionReveal`) then plays a short flourish over each new
+  question — six variants, tinted by the question's topic — so a long session never looks static.
 
 ### Sessions that outlive their account
 
@@ -245,13 +246,14 @@ then `npm run fn:serve`, or restart the stack.
 
 ### Remotion
 
-Three compositions in `src/remotion/`, each played in-page through `@remotion/player`:
+Four compositions in `src/remotion/`, each played in-page through `@remotion/player`:
 
 | Composition            | Where                      | Length        |
 | ---------------------- | -------------------------- | ------------- |
 | `EasyQuizLandingHero`  | landing page hero          | 12 s, loops   |
 | `EasyQuizCountdown`    | the 3-2-1 before a quiz    | 3 s + sting   |
 | `EasyQuizResultReveal` | result page                | 7 s           |
+| `EasyQuizQuestionReveal` | each new question in Endless mode | 22 frames |
 
 They obey Remotion's rules, which are stricter than they look: **every** animated value derives
 from `useCurrentFrame()`, with no CSS transitions and no Tailwind animation classes, because

@@ -18,6 +18,15 @@ import {
   type QuizIntroProps,
 } from '@/remotion/quiz-countdown'
 import {
+  QUESTION_REVEAL_DURATION,
+  QUESTION_REVEAL_FPS,
+  QUESTION_REVEAL_HEIGHT,
+  QUESTION_REVEAL_WIDTH,
+  QuestionReveal,
+  questionRevealDefaults,
+  type QuestionRevealProps,
+} from '@/remotion/question-reveal'
+import {
   RESULT_REVEAL_DURATION,
   RESULT_REVEAL_FPS,
   RESULT_REVEAL_HEIGHT,
@@ -130,6 +139,43 @@ export function ResultRevealVideo({
       spaceKeyToPlayOrPause={false}
       allowFullscreen={false}
       showVolumeControls={false}
+      initiallyMuted
+      numberOfSharedAudioTags={0}
+      style={PLAYER_STYLE}
+      className={cn(className)}
+    />
+  )
+}
+
+/**
+ * The question-change flourish, played once per question in Endless mode.
+ *
+ * It is a decoration, not the question: it holds its final (transparent) frame
+ * and never intercepts a click, so the real answer tiles below stay live the
+ * whole time.
+ */
+export function QuestionRevealVideo({
+  className,
+  ...props
+}: QuestionRevealProps & { className?: string }) {
+  return (
+    <Player
+      component={QuestionReveal}
+      inputProps={{ ...questionRevealDefaults, ...props }}
+      durationInFrames={QUESTION_REVEAL_DURATION}
+      fps={QUESTION_REVEAL_FPS}
+      compositionWidth={QUESTION_REVEAL_WIDTH}
+      compositionHeight={QUESTION_REVEAL_HEIGHT}
+      autoPlay
+      loop={false}
+      controls={false}
+      clickToPlay={false}
+      doubleClickToFullscreen={false}
+      spaceKeyToPlayOrPause={false}
+      allowFullscreen={false}
+      showVolumeControls={false}
+      // Hold the last frame: it is the settled, transparent one.
+      moveToBeginningWhenEnded={false}
       initiallyMuted
       numberOfSharedAudioTags={0}
       style={PLAYER_STYLE}

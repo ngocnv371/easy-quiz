@@ -33,6 +33,8 @@ export const COLORS = {
   spark300: '#fcd34d',
   spark400: '#fbbf24',
 
+  lime400: '#a3e635',
+
   correct300: '#6ee7b7',
   correct400: '#34d399',
   correct500: '#10b981',

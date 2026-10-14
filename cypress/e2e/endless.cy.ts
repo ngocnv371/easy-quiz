@@ -26,6 +26,7 @@ const S = {
   areaChip: '[data-cy=endless-area-chip]',
   streak: '[data-cy=endless-streak]',
   accuracy: '[data-cy=endless-accuracy]',
+  reveal: '[data-cy=endless-reveal]',
 } as const
 
 /** Waits for the first question — the app fetches a batch behind a skeleton. */
@@ -70,6 +71,13 @@ describe('Endless mode', () => {
     // No answers yet, so the areas footer still shows its empty hint.
     cy.get(S.areas).should('be.visible')
     cy.get(S.areasEmpty).should('be.visible')
+
+    // The Remotion flourish plays over the card, and must never eat a click.
+    cy.get(S.reveal)
+      .should('exist')
+      .and('have.css', 'pointer-events', 'none')
+      .find('canvas, video, div')
+      .should('exist')
   })
 
   it('grades an answer, reveals the key and advances', () => {
