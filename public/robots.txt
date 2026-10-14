@@ -13,6 +13,9 @@ Disallow: /account
 Disallow: /q/*/play
 Disallow: /q/*/result
 
+# Endless mode is a session, not a page worth indexing.
+Disallow: /endless
+
 # The catch-all; also marked `noindex` at runtime.
 Disallow: /404
 

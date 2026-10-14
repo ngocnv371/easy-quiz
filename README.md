@@ -148,6 +148,24 @@ Play is **exam-style** — no per-question feedback while answering, then a full
 explanations once the attempt is graded. That keeps the answer key secret *and* gives the result
 screen something worth celebrating.
 
+### Endless mode
+
+`/endless` is the opposite of an exam: no start gate, no finish line. As soon as a player has an
+identity — an anonymous guest is fine — the first question is on screen, and every answer brings
+the next. "Dừng" ends the session with a summary at any point.
+
+- Questions are drawn from every published public quiz in **batches of 10**
+  (`get_endless_batch()`), keyed by the quiz's topic as the "area of expertise", so there is no
+  per-question tagging to maintain.
+- Each answer is graded on its own (`grade_endless_answer()`), which reveals the key for that one
+  question and folds the result into `endless_progress` — one row per player and topic. The answer
+  key still never reaches the browser.
+- The next batch is **weighted** toward a player's stronger topics, while the weakest topic is
+  guaranteed a slot in every batch, so the stream leans into strengths without abandoning the
+  areas still being learned. The weighting lives in SQL, not the client.
+- The question player cycles through several entrance animations and staggers the answer tiles, so
+  a long session never looks static.
+
 ### Sessions that outlive their account
 
 A JWT stays valid after the user row behind it is deleted — an admin removing an account, a

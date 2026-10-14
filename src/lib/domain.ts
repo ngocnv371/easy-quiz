@@ -279,6 +279,63 @@ export interface SaveQuizResult {
   question_count: number
 }
 
+// ── Endless mode ───────────────────────────────────────────────────────────
+// `get_endless_batch()` and `grade_endless_answer()` return `jsonb`. A question
+// carries the quiz and topic it came from so the player can see where they are
+// in the catalogue, and so the UI can attribute mastery to a topic.
+
+export interface EndlessTopic {
+  id: string
+  slug: string
+  name: string
+  emoji: string
+  accent: TopicAccent
+}
+
+export interface EndlessQuestion {
+  id: string
+  prompt: string
+  image_url: string | null
+  points: number
+  quiz: {
+    id: string
+    slug: string
+    title: string
+    cover_emoji: string
+  }
+  topic: EndlessTopic | null
+  options: PlayOption[]
+}
+
+export interface EndlessTopicProgress {
+  topic_id: string
+  slug: string
+  name: string
+  emoji: string
+  accent: string
+  answered: number
+  correct: number
+  /** Correct answers as a percentage, 0–100, one decimal. */
+  accuracy: number
+}
+
+export interface EndlessBatch {
+  questions: EndlessQuestion[]
+  progress: EndlessTopicProgress[]
+}
+
+export interface EndlessGrade {
+  question_id: string
+  option_id: string | null
+  is_correct: boolean
+  correct_option_id: string | null
+  explanation: string | null
+  topic: EndlessTopic | null
+  /** Updated progress for this question's topic, or null when it has none. */
+  progress: EndlessTopicProgress | null
+}
+
+
 // ── Editor document ────────────────────────────────────────────────────────
 export interface QuizDraftOption {
   label: string

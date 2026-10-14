@@ -71,6 +71,9 @@ const registerPage = () =>
 const quizPlayPage = () =>
   import('@/routes/quiz-play-page').then((module) => ({ Component: module.QuizPlayPage }))
 
+const endlessPage = () =>
+  import('@/routes/endless-page').then((module) => ({ Component: module.EndlessPage }))
+
 const notFoundPage = () =>
   import('@/routes/not-found-page').then((module) => ({ Component: module.NotFoundPage }))
 
@@ -145,6 +148,9 @@ export const router = createBrowserRouter([
 
   // ── Play, outside the public chrome so nothing competes with the quiz ───
   { path: '/q/:slug/play', lazy: quizPlayPage, ...HYDRATE },
+
+  // ── Endless — same idea, but no start gate: question one is the landing ──
+  { path: '/endless', lazy: endlessPage, ...HYDRATE },
 
   {
     path: '/q/:slug/result/:attemptId',

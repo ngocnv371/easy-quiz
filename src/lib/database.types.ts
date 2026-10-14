@@ -122,6 +122,31 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"endless_progress": {
+                  Row: {
+                    "answered": number,"correct": number,"topic_id": string,"updated_at": string,"user_id": string
+                  }
+                  Insert: {
+                    "answered"?: number,"correct"?: number,"topic_id": string,"updated_at"?: string,"user_id": string
+                  }
+                  Update: {
+                    "answered"?: number,"correct"?: number,"topic_id"?: string,"updated_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "endless_progress_topic_id_fkey"
+      columns: ["topic_id"]
+isOneToOne: false
+      referencedRelation: "topics"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "endless_progress_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"options": {
                   Row: {
                     "id": string,"is_correct": boolean,"label": string,"position": number,"question_id": string
@@ -295,8 +320,17 @@ isOneToOne: false
 "can_view_quiz":
 { Args: { "p_quiz_id": string }; Returns: boolean
                            },
+"endless_progress_rows":
+{ Args: { "p_uid": string }; Returns: Json
+                           },
+"get_endless_batch":
+{ Args: { "p_exclude"?: (string)[],"p_limit"?: number }; Returns: Json
+                           },
 "get_quiz_for_play":
 { Args: { "p_slug": string }; Returns: Json
+                           },
+"grade_endless_answer":
+{ Args: { "p_option_id": string,"p_question_id": string }; Returns: Json
                            },
 "grant_ai_credits":
 { Args: { "p_amount": number,"p_reason"?: string,"p_user_id": string }; Returns: number
