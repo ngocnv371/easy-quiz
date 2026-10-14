@@ -164,9 +164,12 @@ the next. "Dừng" ends the session with a summary at any point.
 - The next batch is **weighted** toward a player's stronger topics, while the weakest topic is
   guaranteed a slot in every batch, so the stream leans into strengths without abandoning the
   areas still being learned. The weighting lives in SQL, not the client.
-- The question player cycles through several entrance animations and staggers the answer tiles. A
-  Remotion composition (`EasyQuizQuestionReveal`) then plays a short flourish over each new
-  question — six variants, tinted by the question's topic — so a long session never looks static.
+- The question's own words and answer tiles are animated with **Motion**, on the real DOM: the
+  prompt is split into word (or character) spans and the tiles are staggered, cycling through six
+  choreographies (`src/features/quiz/question-motion.ts`). A Remotion composition
+  (`EasyQuizQuestionReveal`) — a twist on the quiz countdown — plays a short "CÂU N" ring beat
+  before each question after the first, tinted by the question's topic, so a long session never
+  looks static.
 
 ### Sessions that outlive their account
 
@@ -253,7 +256,7 @@ Four compositions in `src/remotion/`, each played in-page through `@remotion/pla
 | `EasyQuizLandingHero`  | landing page hero          | 12 s, loops   |
 | `EasyQuizCountdown`    | the 3-2-1 before a quiz    | 3 s + sting   |
 | `EasyQuizResultReveal` | result page                | 7 s           |
-| `EasyQuizQuestionReveal` | each new question in Endless mode | 22 frames |
+| `EasyQuizQuestionReveal` | the "CÂU N" beat before each Endless question | 22 frames |
 
 They obey Remotion's rules, which are stricter than they look: **every** animated value derives
 from `useCurrentFrame()`, with no CSS transitions and no Tailwind animation classes, because

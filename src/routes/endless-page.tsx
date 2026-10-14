@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { Fragment, useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { useReducedMotion } from 'motion/react'
+import { motion, useReducedMotion } from 'motion/react'
 import {
   ArrowRight,
   Brain,
@@ -27,6 +27,10 @@ import { Card } from '@/components/ui/card'
 import { Alert, EmptyState, Skeleton } from '@/components/ui/feedback'
 import { AnswerTile, optionLetter, type AnswerState } from '@/features/quiz/answer-tile'
 import {
+  QUESTION_MOTION_RECIPES,
+  tokenizePrompt,
+} from '@/features/quiz/question-motion'
+import {
   AREA_HINTS,
   AREA_LABELS,
   areaStrength,
@@ -37,7 +41,7 @@ import { useEndlessSession } from '@/features/quiz/use-endless-session'
 import { useAuth } from '@/features/auth/auth-context'
 import { formatClock, formatPercent } from '@/lib/format'
 import { usePageMeta } from '@/lib/seo'
-import { QUESTION_REVEAL_VARIANTS, accentColor } from '@/remotion/question-reveal'
+import { accentColor } from '@/remotion/question-reveal'
 import type { EndlessTopicProgress } from '@/lib/domain'
 import { cn, errorMessage } from '@/lib/utils'
 
@@ -52,14 +56,6 @@ import { cn, errorMessage } from '@/lib/utils'
  * lost, because nothing was a fixed-length attempt to begin with.
  */
 
-const QUESTION_MOTIONS = [
-  'animate-question-rise',
-  'animate-question-slide',
-  'animate-question-scale',
-  'animate-question-flip',
-  'animate-question-drop',
-] as const
-
 const STRENGTH_CHIP: Record<AreaStrength, string> = {
   strong: 'border-correct-400/40 bg-correct-500/10 text-correct-300',
   steady: 'border-spark-400/40 bg-spark-400/10 text-spark-300',
@@ -71,6 +67,12 @@ const STRENGTH_BAR: Record<AreaStrength, string> = {
   steady: 'bg-spark-400',
   new: 'bg-ink-500',
 }
+
+/**
+ * How long the Remotion intro beat holds before the elements animate in. Slightly
+ * shorter than the composition, so the words start as the ring bursts.
+ */
+const INTRO_LEAD_MS = 430
 
 export function EndlessPage() {
   const { user, status, isConfigured, signInAsGuest } = useAuth()
@@ -188,18 +190,33 @@ function EndlessPlayer({ session }: { session: ReturnType<typeof useEndlessSessi
   const accuracy = stats.answered === 0 ? 0 : (stats.correct / stats.answered) * 100
   const areas = sortByStrength(progress)
 
-  // Cycle the entrance motion per question. `shown` only moves at a question
-  // boundary, so a mid-question re-render (the feedback arriving) cannot replay
-  // the animation under the player's eyes.
-  const questionMotion = QUESTION_MOTIONS[shown % QUESTION_MOTIONS.length] ?? QUESTION_MOTIONS[0]
-
   const reduceMotion = useReducedMotion()
 
-  // Remotion drives a second, richer layer of question variants over the CSS
-  // entrance. Both index off `shown`, so they move in step.
-  const revealVariant =
-    QUESTION_REVEAL_VARIANTS[shown % QUESTION_REVEAL_VARIANTS.length] ?? QUESTION_REVEAL_VARIANTS[0]
+  // Cycle the element choreography per question. `shown` only moves at a
+  // question boundary, so a mid-question re-render cannot replay it.
+  const recipe =
+    QUESTION_MOTION_RECIPES[shown % QUESTION_MOTION_RECIPES.length] ?? QUESTION_MOTION_RECIPES[0]
+  const promptTokens = current ? tokenizePrompt(current.prompt, recipe.prompt.unit) : []
+
+  // The Remotion beat announces the question number; the prompt words and
+  // answer tiles animate themselves.
   const revealAccent = accentColor(current?.topic?.accent ?? null)
+
+  // With reduced motion requested, start every element in its settled state.
+  const motionFrom = reduceMotion ? 'visible' : 'hidden'
+
+  // The intro beat plays on every question after the first, hiding the card and
+  // then handing off to the element animations. `introShownFor` records which
+  // question has been handed off, so a mid-question re-render never re-hides it.
+  const [introShownFor, setIntroShownFor] = useState(0)
+  const introReady = reduceMotion || shown === 0 || introShownFor === shown
+
+  useEffect(() => {
+    if (reduceMotion || shown === 0) return
+
+    const timer = window.setTimeout(() => setIntroShownFor(shown), INTRO_LEAD_MS)
+    return () => window.clearTimeout(timer)
+  }, [shown, reduceMotion])
 
   // Keyboard: numbers pick an answer, Enter/Space skips the feedback wait.
   useEffect(() => {
@@ -283,14 +300,14 @@ function EndlessPlayer({ session }: { session: ReturnType<typeof useEndlessSessi
 
         {/* ── Question ───────────────────────────────────────────────── */}
         <main className="relative mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center px-5 py-8">
-          {current && !reduceMotion ? (
+          {current && shown > 0 && !reduceMotion ? (
             <div
               data-cy="endless-reveal"
               aria-hidden
               className="pointer-events-none absolute inset-0 z-10 overflow-hidden"
             >
               {/* Keyed by `shown` so each question replays the composition from frame zero. */}
-              <QuestionRevealVideo key={shown} variant={revealVariant} accent={revealAccent} />
+              <QuestionRevealVideo key={shown} accent={revealAccent} index={shown + 1} />
             </div>
           ) : null}
 
@@ -314,7 +331,11 @@ function EndlessPlayer({ session }: { session: ReturnType<typeof useEndlessSessi
               }
             />
           ) : (
-            <div key={current.id} className={cn(questionMotion, 'w-full')}>
+            <div
+              key={current.id}
+              className="w-full transition-opacity duration-300"
+              style={{ opacity: introReady ? 1 : 0 }}
+            >
               <div className="flex flex-wrap items-center gap-2">
                 <span data-cy="endless-topic">
                   {current.topic ? (
@@ -335,12 +356,28 @@ function EndlessPlayer({ session }: { session: ReturnType<typeof useEndlessSessi
                 </Badge>
               </div>
 
-              <h1
+              <motion.h1
                 data-cy="endless-prompt"
                 className="font-display text-ink-50 mt-5 text-xl leading-snug font-semibold sm:text-2xl"
+                variants={recipe.prompt.container}
+                initial={motionFrom}
+                animate={introReady ? 'visible' : 'hidden'}
               >
-                {current.prompt}
-              </h1>
+                {promptTokens.map((token, tokenIndex) => (
+                  <Fragment key={`${tokenIndex}-${token}`}>
+                    <motion.span
+                      custom={tokenIndex}
+                      variants={recipe.prompt.item}
+                      className="inline-block whitespace-pre"
+                    >
+                      {token}
+                    </motion.span>
+                    {recipe.prompt.unit === 'words' && tokenIndex < promptTokens.length - 1
+                      ? ' '
+                      : null}
+                  </Fragment>
+                ))}
+              </motion.h1>
 
               {current.image_url ? (
                 <img
@@ -350,14 +387,20 @@ function EndlessPlayer({ session }: { session: ReturnType<typeof useEndlessSessi
                 />
               ) : null}
 
-              <div className="mt-7 space-y-3" data-cy="endless-options">
+              <motion.div
+                data-cy="endless-options"
+                className="mt-7 space-y-3"
+                variants={recipe.choice.container}
+                initial={motionFrom}
+                animate={introReady ? 'visible' : 'hidden'}
+              >
                 {current.options.map((option, optionIndex) => {
                   const state = answerState(option.id, selected, feedback)
                   return (
-                    <div
+                    <motion.div
                       key={option.id}
-                      className="animate-answer-in"
-                      style={{ animationDelay: `${optionIndex * 55}ms` }}
+                      custom={optionIndex}
+                      variants={recipe.choice.item}
                     >
                       <AnswerTile
                         letter={optionLetter(optionIndex)}
@@ -370,10 +413,10 @@ function EndlessPlayer({ session }: { session: ReturnType<typeof useEndlessSessi
                           state === 'wrong' && 'animate-ring-wrong',
                         )}
                       />
-                    </div>
+                    </motion.div>
                   )
                 })}
-              </div>
+              </motion.div>
 
               {feedback ? (
                 <FeedbackBanner feedback={feedback} onAdvance={advance} />

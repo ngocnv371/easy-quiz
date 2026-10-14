@@ -84,14 +84,9 @@
   --animate-drift-up: drift-up 1.6s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-sheen: sheen 2.4s ease-in-out infinite;
 
-  /* Endless mode — the question player is where a player spends almost all of
-   * their time, so the entrance is cycled per question instead of repeating. */
-  --animate-question-rise: question-rise 560ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  --animate-question-slide: question-slide 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  --animate-question-scale: question-scale 500ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  --animate-question-flip: question-flip 640ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  --animate-question-drop: question-drop 560ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  --animate-answer-in: answer-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  /* Quiz feedback motions --------------------------------------------
+   * The question's own entrance is animated with Motion on the real elements
+   * (see `src/features/quiz/question-motion.ts`); only feedback stays in CSS. */
   --animate-feedback-in: feedback-in 340ms cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-ring-correct: ring-correct 900ms ease-out both;
   --animate-ring-wrong: ring-wrong 620ms ease-out both;
@@ -242,72 +237,6 @@
 /* ------------------------------------------------------------------ *
  * Endless mode motions
  * ------------------------------------------------------------------ */
-@keyframes question-rise {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 26px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes question-slide {
-  from {
-    opacity: 0;
-    transform: translate3d(46px, 0, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes question-scale {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes question-flip {
-  from {
-    opacity: 0;
-    transform: perspective(900px) rotateX(-62deg) translateY(18px);
-  }
-  to {
-    opacity: 1;
-    transform: perspective(900px) rotateX(0deg) translateY(0);
-  }
-}
-
-@keyframes question-drop {
-  from {
-    opacity: 0;
-    transform: translate3d(0, -32px, 0) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-}
-
-@keyframes answer-in {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 14px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
 @keyframes feedback-in {
   from {
     opacity: 0;

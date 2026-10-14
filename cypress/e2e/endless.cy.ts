@@ -64,6 +64,9 @@ describe('Endless mode', () => {
     cy.get(S.prompt).invoke('text').should('not.be.empty')
     cy.get(S.stop).should('be.visible')
 
+    // The prompt is split into animated word spans, not one static string.
+    cy.get(`${S.prompt} span`).should('have.length.at.least', 1)
+
     // Nothing was asked of the player before play began.
     cy.get('input').should('not.exist')
     cy.contains('Bắt đầu làm bài').should('not.exist')
@@ -72,11 +75,20 @@ describe('Endless mode', () => {
     cy.get(S.areas).should('be.visible')
     cy.get(S.areasEmpty).should('be.visible')
 
-    // The Remotion flourish plays over the card, and must never eat a click.
+    // The first question skips the intro and plays immediately.
+    cy.get(S.reveal).should('not.exist')
+  })
+
+  it('plays the Remotion intro before the next question', () => {
+    cy.get(S.options).first().click()
+    cy.get(S.feedback).should('be.visible')
+    cy.get(S.feedback).contains('button', 'Tiếp').click()
+
+    // The intro is a transition, not an overlay: it must never eat a click.
     cy.get(S.reveal)
       .should('exist')
       .and('have.css', 'pointer-events', 'none')
-      .find('canvas, video, div')
+      .find('div')
       .should('exist')
   })
 
