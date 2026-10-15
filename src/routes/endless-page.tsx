@@ -446,25 +446,6 @@ function EndlessPlayer({
               className="w-full transition-opacity duration-300"
               style={{ opacity: introReady ? 1 : 0 }}
             >
-              <div className="flex flex-wrap items-center gap-2">
-                <span data-cy="endless-topic">
-                  {current.topic ? (
-                    <Badge tone={accentTone(current.topic.accent)}>
-                      <span aria-hidden>{current.topic.emoji}</span>
-                      {current.topic.name}
-                    </Badge>
-                  ) : (
-                    <Badge tone="neutral" icon={Layers}>
-                      Tổng hợp
-                    </Badge>
-                  )}
-                </span>
-
-                <Badge tone="neutral">
-                  <span aria-hidden>{current.quiz.cover_emoji}</span>
-                  <span className="max-w-[14rem] truncate">{current.quiz.title}</span>
-                </Badge>
-              </div>
 
               <motion.h1
                 data-cy="endless-prompt"
