@@ -335,6 +335,36 @@ export interface EndlessGrade {
   progress: EndlessTopicProgress | null
 }
 
+// One row of the separate Endless leaderboard, ranked by best session streak.
+export interface EndlessLeaderboardEntry {
+  user_id: string
+  username: string
+  display_name: string
+  avatar_emoji: string
+  is_guest: boolean
+  best_streak: number
+  best_correct: number
+  session_count: number
+  last_played_at: string
+}
+
+type EndlessLeaderboardRow =
+  Database['public']['Functions']['get_endless_leaderboard']['Returns'][number]
+
+export function toEndlessLeaderboardEntry(row: EndlessLeaderboardRow): EndlessLeaderboardEntry {
+  return {
+    user_id: row.user_id,
+    username: row.username,
+    display_name: row.display_name || 'Người chơi ẩn danh',
+    avatar_emoji: row.avatar_emoji || '🎓',
+    is_guest: row.is_guest ?? false,
+    best_streak: row.best_streak,
+    best_correct: row.best_correct,
+    session_count: row.session_count,
+    last_played_at: row.last_played_at,
+  }
+}
+
 
 // ── Editor document ────────────────────────────────────────────────────────
 export interface QuizDraftOption {

@@ -533,6 +533,15 @@ function EndlessPlayer({
               className="shrink-0"
             />
 
+            <Link
+              to="/leaderboard?board=endless"
+              className="text-ink-300 hover:text-neon-300 inline-flex items-center gap-1.5 text-xs transition-colors"
+              data-cy="endless-leaderboard-link"
+            >
+              <Trophy className="size-3.5" aria-hidden />
+              Bảng xếp hạng
+            </Link>
+
             <span
               data-cy="endless-highscore"
               className="border-spark-400/40 bg-spark-400/10 text-spark-300 ml-auto inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium tabular-nums"

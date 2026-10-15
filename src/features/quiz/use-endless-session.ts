@@ -3,7 +3,12 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { EndlessGrade, EndlessQuestion, EndlessTopicProgress } from '@/lib/domain'
 import { errorMessage } from '@/lib/utils'
 
-import { ENDLESS_BATCH_SIZE, fetchEndlessBatch, gradeEndlessAnswer } from './endless-api'
+import {
+  ENDLESS_BATCH_SIZE,
+  fetchEndlessBatch,
+  gradeEndlessAnswer,
+  startEndlessSession,
+} from './endless-api'
 
 export type EndlessPhase =
   | 'waiting'
@@ -102,6 +107,8 @@ export function useEndlessSession(
   /** Ids seen this session, so the stream does not repeat a question. */
   const seenRef = useRef<Set<string>>(new Set())
   const bootedRef = useRef(false)
+  /** The server-side run id this session's answers are attributed to. */
+  const sessionIdRef = useRef<string | null>(null)
 
   useEffect(() => {
     queueRef.current = queue
@@ -147,13 +154,16 @@ export function useEndlessSession(
     setError(null)
 
     try {
+      // Best-effort: a run with no id still plays, it just never reaches the
+      // leaderboard. The id is what lets the server score the session.
+      sessionIdRef.current = await startEndlessSession(topicId).catch(() => null)
       await fetchMore()
       setPhase('playing')
     } catch (loadError) {
       setError(errorMessage(loadError))
       setPhase('error')
     }
-  }, [fetchMore])
+  }, [fetchMore, topicId])
 
   // Boot once an identity exists.
   useEffect(() => {
@@ -183,7 +193,7 @@ export function useEndlessSession(
     setSelected(optionId)
     setPhase('grading')
 
-    gradeEndlessAnswer(question.id, optionId)
+    gradeEndlessAnswer(question.id, optionId, sessionIdRef.current)
       .then((grade) => {
         setFeedback(grade)
         setStats((previous) => {

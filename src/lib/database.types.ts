@@ -147,6 +147,31 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"endless_sessions": {
+                  Row: {
+                    "answered": number,"best_streak": number,"correct": number,"current_streak": number,"id": string,"started_at": string,"topic_id": string | null,"updated_at": string,"user_id": string
+                  }
+                  Insert: {
+                    "answered"?: number,"best_streak"?: number,"correct"?: number,"current_streak"?: number,"id"?: string,"started_at"?: string,"topic_id"?: string | null,"updated_at"?: string,"user_id": string
+                  }
+                  Update: {
+                    "answered"?: number,"best_streak"?: number,"correct"?: number,"current_streak"?: number,"id"?: string,"started_at"?: string,"topic_id"?: string | null,"updated_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "endless_sessions_topic_id_fkey"
+      columns: ["topic_id"]
+isOneToOne: false
+      referencedRelation: "topics"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "endless_sessions_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"options": {
                   Row: {
                     "id": string,"is_correct": boolean,"label": string,"position": number,"question_id": string
@@ -326,11 +351,16 @@ isOneToOne: false
 "get_endless_batch":
 { Args: { "p_exclude"?: (string)[],"p_limit"?: number,"p_topic_id"?: string }; Returns: Json
                            },
+"get_endless_leaderboard":
+{ Args: { "p_limit"?: number }; Returns: {
+              "avatar_emoji": string,"best_correct": number,"best_streak": number,"display_name": string,"is_guest": boolean,"last_played_at": string,"session_count": number,"user_id": string,"username": string
+            }[]
+                           },
 "get_quiz_for_play":
 { Args: { "p_slug": string }; Returns: Json
                            },
 "grade_endless_answer":
-{ Args: { "p_option_id": string,"p_question_id": string }; Returns: Json
+{ Args: { "p_option_id": string,"p_question_id": string,"p_session_id"?: string }; Returns: Json
                            },
 "grant_ai_credits":
 { Args: { "p_amount": number,"p_reason"?: string,"p_user_id": string }; Returns: number
@@ -357,6 +387,9 @@ isOneToOne: false
                            },
 "slugify":
 { Args: { "p_input": string }; Returns: string
+                           },
+"start_endless_session":
+{ Args: { "p_topic_id"?: string }; Returns: string
                            },
 "submit_attempt":
 { Args: { "p_answers": Json,"p_duration_seconds"?: number,"p_guest_name"?: string,"p_slug": string }; Returns: Json

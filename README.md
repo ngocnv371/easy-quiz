@@ -167,6 +167,10 @@ the next. "Dừng" ends the session with a summary at any point.
 - Each answer is graded on its own (`grade_endless_answer()`), which reveals the key for that one
   question and folds the result into `endless_progress` — one row per player and topic. The answer
   key still never reaches the browser.
+- Endless has its **own leaderboard** — the "Vô tận" tab on `/leaderboard` — ranked by the best
+  correct-answer streak in a single run (`get_endless_leaderboard()`). A run is opened with
+  `start_endless_session()`, and every graded answer advances its streak inside
+  `grade_endless_answer()`, so the score is server-earned rather than client-claimed.
 - The next batch is **weighted** toward a player's stronger topics, while the weakest topic is
   guaranteed a slot in every batch, so the stream leans into strengths without abandoning the
   areas still being learned. The weighting lives in SQL, not the client.

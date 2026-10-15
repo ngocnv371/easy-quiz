@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { Crown, Target, Trophy, Users } from 'lucide-react'
+import { Crown, Flame, Infinity as InfinityIcon, Target, Trophy, Users } from 'lucide-react'
 
 import { AuroraBackground } from '@/components/brand/aurora-background'
 import { Badge } from '@/components/ui/badge'
@@ -13,8 +13,9 @@ import {
   fetchQuizCards,
   fetchQuizLeaderboard,
 } from '@/features/quiz/api'
+import { fetchEndlessLeaderboard } from '@/features/quiz/endless-api'
 import { formatCompact, formatPercent, formatRelative, medalFor } from '@/lib/format'
-import type { LeaderboardEntry } from '@/lib/domain'
+import type { EndlessLeaderboardEntry, LeaderboardEntry } from '@/lib/domain'
 import { usePageMeta } from '@/lib/seo'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import { useAsyncData } from '@/lib/use-async-data'
@@ -23,11 +24,18 @@ import { cn } from '@/lib/utils'
 export function LeaderboardPage() {
   const [params, setParams] = useSearchParams()
   const quizSlug = params.get('quiz')
+  const endlessMode = params.get('board') === 'endless'
 
   const global = useAsyncData(
     'leaderboard:global',
     () => fetchGlobalLeaderboard(50),
-    isSupabaseConfigured && !quizSlug,
+    isSupabaseConfigured && !quizSlug && !endlessMode,
+  )
+
+  const endless = useAsyncData(
+    'leaderboard:endless',
+    () => fetchEndlessLeaderboard(50),
+    isSupabaseConfigured && endlessMode,
   )
 
   const quizzes = useAsyncData(
@@ -44,24 +52,46 @@ export function LeaderboardPage() {
   const perQuiz = useAsyncData(
     `leaderboard:quiz:${selectedQuiz?.id ?? 'none'}`,
     () => fetchQuizLeaderboard(selectedQuiz!.id, 30),
-    isSupabaseConfigured && Boolean(selectedQuiz),
+    isSupabaseConfigured && Boolean(selectedQuiz) && !endlessMode,
   )
 
   usePageMeta({
-    title: selectedQuiz ? `Bảng xếp hạng — ${selectedQuiz.title}` : 'Bảng xếp hạng',
+    title: endlessMode
+      ? 'Bảng xếp hạng — Vô tận'
+      : selectedQuiz
+        ? `Bảng xếp hạng — ${selectedQuiz.title}`
+        : 'Bảng xếp hạng',
     description:
       'Bảng xếp hạng Easy Quiz: điểm số, chuỗi ngày học và thứ hạng của người chơi trên toàn hệ thống và theo từng đề thi.',
     path: '/leaderboard',
   })
 
-  const setQuiz = (slug: string | null) => {
+  const patchParam = (mutate: (next: URLSearchParams) => void) => {
     setParams((previous) => {
       const next = new URLSearchParams(previous)
-      if (slug) next.set('quiz', slug)
-      else next.delete('quiz')
+      mutate(next)
       return next
     })
   }
+
+  const showGlobal = () =>
+    patchParam((next) => {
+      next.delete('board')
+      next.delete('quiz')
+    })
+
+  const showEndless = () =>
+    patchParam((next) => {
+      next.set('board', 'endless')
+      next.delete('quiz')
+    })
+
+  const showQuiz = (slug: string | null) =>
+    patchParam((next) => {
+      next.delete('board')
+      if (slug) next.set('quiz', slug)
+      else next.delete('quiz')
+    })
 
   return (
     <div className="relative">
@@ -92,26 +122,29 @@ export function LeaderboardPage() {
             aria-label="Kiểu bảng xếp hạng"
           >
             <ModeTab
-              active={!quizSlug}
-              onClick={() => setQuiz(null)}
+              active={!endlessMode && !quizSlug}
+              onClick={showGlobal}
               icon={Crown}
               label="Bảng vàng"
             />
             <ModeTab
-              active={Boolean(quizSlug)}
-              onClick={() => {
-                const first = quizzes.data?.[0]
-                setQuiz(first?.slug ?? null)
-              }}
+              active={!endlessMode && Boolean(quizSlug)}
+              onClick={() => showQuiz(quizzes.data?.[0]?.slug ?? null)}
               icon={Target}
               label="Theo đề thi"
             />
+            <ModeTab
+              active={endlessMode}
+              onClick={showEndless}
+              icon={InfinityIcon}
+              label="Vô tận"
+            />
           </div>
 
-          {quizSlug ? (
+          {!endlessMode && quizSlug ? (
             <Select
               value={quizSlug}
-              onChange={(event) => setQuiz(event.target.value || null)}
+              onChange={(event) => showQuiz(event.target.value || null)}
               aria-label="Chọn đề thi"
               className="sm:w-80"
             >
@@ -131,6 +164,12 @@ export function LeaderboardPage() {
               icon={Trophy}
               title="Chưa kết nối Supabase"
               description="Bảng xếp hạng cần dữ liệu thật. Hãy cấu hình .env.local và chạy npm run supabase:start."
+            />
+          ) : endlessMode ? (
+            <EndlessBoard
+              loading={endless.loading}
+              error={endless.error}
+              entries={endless.data ?? []}
             />
           ) : quizSlug ? (
             <PerQuizBoard
@@ -284,6 +323,117 @@ function GlobalBoard({
                     {formatPercent(entry.avg_accuracy)}
                   </p>
                 </div>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      ) : null}
+    </div>
+  )
+}
+
+// ── Endless board ──────────────────────────────────────────────────────────
+function EndlessBoard({
+  loading,
+  error,
+  entries,
+}: {
+  loading: boolean
+  error: string | null
+  entries: EndlessLeaderboardEntry[]
+}) {
+  if (loading) return <BoardSkeleton />
+  if (error) return <EmptyState icon={Trophy} title="Không tải được bảng xếp hạng" description={error} />
+
+  if (entries.length === 0) {
+    return (
+      <EmptyState
+        icon={InfinityIcon}
+        title="Chưa có chuỗi nào lên bảng"
+        description="Chơi chế độ vô tận và trả lời đúng liên tiếp để ghi tên mình vào bảng này."
+      />
+    )
+  }
+
+  const podium = entries.slice(0, 3)
+  const rest = entries.slice(3)
+
+  return (
+    <div className="space-y-8">
+      <div className="grid gap-4 sm:grid-cols-3">
+        {podium.map((entry, index) => (
+          <Reveal key={entry.user_id} delay={index * 0.08}>
+            <Card
+              className={cn(
+                'p-5 text-center',
+                index === 0 && 'border-spark-400/40 shadow-glow-spark',
+              )}
+            >
+              <p className="text-3xl" aria-hidden>
+                {medalFor(index + 1)}
+              </p>
+              <p className="mt-2 text-3xl" aria-hidden>
+                {entry.avatar_emoji}
+              </p>
+
+              <p className="font-display text-ink-50 mt-2 truncate text-base font-semibold">
+                {entry.username ? (
+                  <Link to={`/u/${entry.username}`} className="hover:text-neon-300 transition-colors">
+                    {entry.display_name}
+                  </Link>
+                ) : (
+                  entry.display_name
+                )}
+              </p>
+
+              <p className="font-display text-gradient-spark mt-1 inline-flex items-center gap-1.5 text-2xl font-bold tabular-nums">
+                <Flame className="size-5" aria-hidden />
+                {entry.best_streak}
+              </p>
+
+              <p className="text-ink-400 mt-1 text-xs">
+                chuỗi dài nhất · {entry.best_correct} câu đúng
+              </p>
+            </Card>
+          </Reveal>
+        ))}
+      </div>
+
+      {rest.length > 0 ? (
+        <Card className="overflow-hidden">
+          <ul className="divide-ink-600/60 divide-y">
+            {rest.map((entry, index) => (
+              <li
+                key={entry.user_id}
+                className="hover:bg-ink-800/40 flex items-center gap-4 px-5 py-3.5 transition-colors"
+              >
+                <span className="text-ink-400 w-8 text-sm tabular-nums">{index + 4}</span>
+                <span className="text-lg" aria-hidden>
+                  {entry.avatar_emoji}
+                </span>
+
+                <div className="min-w-0 flex-1">
+                  <p className="text-ink-100 truncate text-sm font-medium">
+                    {entry.username ? (
+                      <Link
+                        to={`/u/${entry.username}`}
+                        className="hover:text-neon-300 transition-colors"
+                      >
+                        {entry.display_name}
+                      </Link>
+                    ) : (
+                      entry.display_name
+                    )}
+                  </p>
+                  <p className="text-ink-400 text-xs">
+                    {entry.session_count} phiên · {formatRelative(entry.last_played_at)}
+                  </p>
+                </div>
+
+                <p className="text-spark-300 inline-flex w-16 items-center justify-end gap-1 text-right text-sm font-semibold tabular-nums">
+                  <Flame className="size-3.5" aria-hidden />
+                  {entry.best_streak}
+                </p>
               </li>
             ))}
           </ul>
