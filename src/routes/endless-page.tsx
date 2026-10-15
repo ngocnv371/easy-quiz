@@ -15,6 +15,7 @@ import {
   Target,
   Pause,
   Timer,
+  Trophy,
   XCircle,
 } from 'lucide-react'
 
@@ -531,6 +532,22 @@ function EndlessPlayer({
               dataCy="endless-user"
               className="shrink-0"
             />
+
+            <span
+              data-cy="endless-highscore"
+              className="border-spark-400/40 bg-spark-400/10 text-spark-300 ml-auto inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium tabular-nums"
+              title="Chuỗi trả lời đúng dài nhất trong phiên này"
+            >
+              <Trophy className="size-3.5" aria-hidden />
+              Kỷ lục
+              <span
+                key={stats.bestStreak}
+                data-cy="endless-highscore-value"
+                className="text-ink-50 animate-pop inline-block font-semibold"
+              >
+                {stats.bestStreak}
+              </span>
+            </span>
           </div>
         </footer>
       </div>

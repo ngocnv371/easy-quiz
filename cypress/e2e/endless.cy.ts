@@ -20,6 +20,8 @@ const S = {
   feedback: '[data-cy=endless-feedback]',
   stop: '[data-cy=endless-stop]',
   scope: '[data-cy=endless-scope]',
+  highscore: '[data-cy=endless-highscore]',
+  highscoreValue: '[data-cy=endless-highscore-value]',
   summary: '[data-cy=endless-summary]',
   streak: '[data-cy=endless-streak]',
   accuracy: '[data-cy=endless-accuracy]',
@@ -68,8 +70,10 @@ describe('Endless mode', () => {
     cy.get('input').should('not.exist')
     cy.contains('Bắt đầu làm bài').should('not.exist')
 
-    // The subject-scope control lives in the header, not an inventory of areas.
+    // The subject-scope control and the session highscore live in the chrome,
+    // not in an inventory of areas.
     cy.get(S.scope).should('be.visible')
+    cy.get(S.highscore).should('be.visible')
 
     // The first question skips the intro and plays immediately.
     cy.get(S.reveal).should('not.exist')
@@ -118,6 +122,8 @@ describe('Endless mode', () => {
         const wasCorrect = text.includes('Chính xác!')
         cy.get(S.streak).should('have.text', wasCorrect ? '1' : '0')
         cy.get(S.accuracy).should('have.text', wasCorrect ? '100%' : '0%')
+        // The footer highscore is the best streak so far — 1 after a hit.
+        cy.get(S.highscoreValue).should('have.text', wasCorrect ? '1' : '0')
       })
   })
 
