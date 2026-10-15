@@ -2,9 +2,9 @@
 -- Easy Quiz · 0001 — schema
 --
 -- Domain model
---   topics            : the subjects students browse ("Toán", "Lịch sử", …)
+--   topics            : the subjects users browse ("Toán", "Lịch sử", …)
 --   profiles          : one row per auth user, including anonymous guests
---   quizzes           : a quiz shell owned by a teacher
+--   quizzes           : a quiz shell owned by an admin
 --   questions         : ordered questions inside a quiz
 --   options           : ordered answer choices; exactly one is correct
 --   attempts          : one graded run of a quiz — the leaderboard's raw material
@@ -96,8 +96,8 @@ create table public.profiles (
                check (username ~ '^[a-z0-9_]{3,32}$'),
   display_name text not null check (char_length(btrim(display_name)) between 1 and 60),
   avatar_emoji text not null default '🎓',
-  role         text not null default 'student'
-               check (role in ('student', 'teacher', 'admin')),
+  role         text not null default 'user'
+               check (role in ('user', 'admin')),
   is_guest     boolean not null default false,
   school       text,
   bio          text check (bio is null or char_length(bio) <= 280),
@@ -124,12 +124,11 @@ declare
   -- `is_anonymous` is the column GoTrue actually sets for "chơi ngay". The
   -- metadata provider is only a fallback: it is not reliably present on the
   -- INSERT that creates the row, and relying on it alone marked real guests as
-  -- ordinary students.
+  -- ordinary users.
   v_guest    boolean := coalesce(new.is_anonymous, false)
                         or coalesce(new.raw_app_meta_data ->> 'provider', '') = 'anonymous';
   v_local    text;
   v_display  text;
-  v_role     text;
   v_username text;
 begin
   -- Every branch has to be nullified before it joins the coalesce chain.
@@ -148,11 +147,6 @@ begin
     'Người chơi'
   );
 
-  v_role := case
-    when new.raw_user_meta_data ->> 'role' = 'teacher' then 'teacher'
-    else 'student'
-  end;
-
   v_username := lower(regexp_replace(
     coalesce(
       nullif(btrim(coalesce(new.raw_user_meta_data ->> 'username', '')), ''),
@@ -167,12 +161,15 @@ begin
   -- Suffix with a slice of the uuid so collisions are practically impossible.
   v_username := left(v_username, 24) || '_' || substr(replace(new.id::text, '-', ''), 1, 5);
 
+  -- Every account starts as an ordinary user. `role` is deliberately *not*
+  -- read from client metadata, so a crafted sign-up cannot promote itself to
+  -- admin; that is a separate, privileged database step.
   insert into public.profiles (id, username, display_name, role, is_guest, school)
   values (
     new.id,
     v_username,
     left(v_display, 60),
-    v_role,
+    'user',
     v_guest,
     nullif(btrim(coalesce(new.raw_user_meta_data ->> 'school', '')), '')
   )

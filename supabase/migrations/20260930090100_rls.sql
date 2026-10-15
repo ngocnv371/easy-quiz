@@ -37,19 +37,6 @@ as $$
   );
 $$;
 
-create or replace function public.is_teacher(p_uid uuid default auth.uid())
-returns boolean
-language sql
-stable
-security definer
-set search_path = ''
-as $$
-  select exists (
-    select 1 from public.profiles p
-    where p.id = p_uid and p.role in ('teacher', 'admin')
-  );
-$$;
-
 create or replace function public.owns_quiz(p_quiz_id uuid)
 returns boolean
 language sql
@@ -130,12 +117,12 @@ create policy "published quizzes are public"
     or owner_id = (select auth.uid())
   );
 
-create policy "teachers create quizzes"
+create policy "admins create quizzes"
   on public.quizzes for insert
   to authenticated
   with check (
     owner_id = (select auth.uid())
-    and public.is_teacher()
+    and public.is_admin()
   );
 
 create policy "owners update their quizzes"
@@ -204,7 +191,7 @@ create policy "attempt detail is readable by the player and the author"
 -- explicit statements narrow `profiles` and `quizzes` to the columns a client
 -- is allowed to change, which closes two escalation paths:
 --   · a player promoting themselves to `admin`
---   · a teacher inflating `play_count` on their own quiz
+--   · an admin inflating `play_count` on their own quiz
 -- ---------------------------------------------------------------------------
 grant usage on schema public to anon, authenticated;
 
@@ -229,7 +216,6 @@ grant update (topic_id, slug, title, description, cover_emoji, difficulty,
 
 grant execute on function
   public.is_admin(uuid),
-  public.is_teacher(uuid),
   public.owns_quiz(uuid),
   public.owns_question(uuid),
   public.can_view_quiz(uuid),

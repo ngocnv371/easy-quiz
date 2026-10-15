@@ -42,7 +42,7 @@ comment on function public.quiz_stats(uuid) is
 
 grant execute on function public.quiz_stats(uuid) to anon, authenticated;
 
--- Catalogue rows for the Explore page and the teacher's dashboard.
+-- Catalogue rows for the Explore page and the admin's dashboard.
 create or replace view public.quiz_cards
 with (security_invoker = true)
 as
@@ -396,8 +396,8 @@ begin
     raise exception 'Bạn cần đăng nhập.' using errcode = '42501';
   end if;
 
-  if not public.is_teacher(v_uid) then
-    raise exception 'Chỉ tài khoản giáo viên mới tạo được đề thi.' using errcode = '42501';
+  if not public.is_admin(v_uid) then
+    raise exception 'Chỉ quản trị viên mới tạo được đề thi.' using errcode = '42501';
   end if;
 
   v_id := coalesce(nullif(p_payload ->> 'id', '')::uuid, gen_random_uuid());
@@ -564,15 +564,15 @@ comment on function public.save_quiz(jsonb) is
 -- would start from zero.
 --
 -- This function carries the rest of the details across in the same breath. It
--- is also the only path that may change `role` or clear `is_guest` for a
--- player, because neither column is client-writable (see 0002_rls.sql).
+-- is also the only path that may clear `is_guest` for a player, because that
+-- column is not client-writable (see 0002_rls.sql). It deliberately leaves
+-- `role` alone: a guest can never promote itself.
 --
 -- Guarded on the profile still being marked as a guest, so it cannot be used
 -- to re-label an established account.
 -- ---------------------------------------------------------------------------
 create or replace function public.upgrade_guest_profile(
   p_display_name text,
-  p_role text default 'student',
   p_school text default null
 )
 returns void
@@ -602,14 +602,13 @@ begin
 
   update public.profiles p
   set display_name = left(coalesce(nullif(btrim(p_display_name), ''), p.display_name), 60),
-      role = case when p_role = 'teacher' then 'teacher' else 'student' end,
       school = nullif(btrim(coalesce(p_school, '')), ''),
       is_guest = false
   where p.id = v_uid;
 end;
 $$;
 
-comment on function public.upgrade_guest_profile(text, text, text) is
+comment on function public.upgrade_guest_profile(text, text) is
   'Applies the details chosen when a guest becomes a real account, and clears the guest flag.';
 
 -- ---------------------------------------------------------------------------
@@ -618,4 +617,4 @@ comment on function public.upgrade_guest_profile(text, text, text) is
 grant execute on function public.get_quiz_for_play(text) to anon, authenticated;
 grant execute on function public.submit_attempt(text, jsonb, integer, text) to authenticated;
 grant execute on function public.save_quiz(jsonb) to authenticated;
-grant execute on function public.upgrade_guest_profile(text, text, text) to authenticated;
+grant execute on function public.upgrade_guest_profile(text, text) to authenticated;

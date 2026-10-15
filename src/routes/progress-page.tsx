@@ -40,7 +40,7 @@ const MASTERY_TONES: Record<MasteryLevel, BadgeTone> = {
 }
 
 /**
- * The student's own progress screen: how they are doing overall, which topics
+ * The player's own progress screen: how they are doing overall, which topics
  * are strong or shaky, and — the point of the page — the handful of quizzes
  * most worth retrying, each with a reason.
  *

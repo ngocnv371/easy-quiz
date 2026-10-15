@@ -1,12 +1,12 @@
 /**
  * Performance statistics for one quiz, derived entirely on the client.
  *
- * Teachers can already read their own `attempts`, `attempt_answers` and
+ * Admins can already read their own `attempts`, `attempt_answers` and
  * `questions` through RLS, so the report is a plain read plus a pure
  * aggregation step — no RPC to maintain. Keeping the maths here (rather than in
  * the page) means the shape is typed once and the component only renders.
  *
- * Two honest caveats the UI repeats to the teacher:
+ * Two honest caveats the UI repeats to the admin:
  *   · `duration_seconds` is 0 when a run was never timed (older attempts, or a
  *     client that did not report a duration) — those rows still count as a
  *     participant but are excluded from the time statistics.
@@ -87,7 +87,7 @@ export type WrongAnswerIndex = Record<string, WrongAnswerer[]>
  * Who missed what.
  *
  * The ranking in `QuestionStat` says *how many* got a question wrong; this is
- * the roster behind that number, so a teacher can follow up with a person and
+ * the roster behind that number, so an admin can follow up with a person and
  * not just a statistic. Names come from the player's profile, falling back to
  * `attempts.guest_name` and finally to the same anonymous label the leaderboard
  * uses, so a row is never nameless.

@@ -15,7 +15,7 @@ const NAV_ITEMS = [
 ] as const
 
 export function SiteHeader() {
-  const { status, user, isTeacher, isGuest } = useAuth()
+  const { status, user, isAdmin, isGuest } = useAuth()
 
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -42,7 +42,7 @@ export function SiteHeader() {
             </NavLink>
           ))}
 
-          {isTeacher ? (
+          {isAdmin ? (
             <NavLink to="/manage" className={linkClasses}>
               <span className="inline-flex items-center gap-1.5">
                 <LayoutDashboard className="size-4" aria-hidden />
@@ -109,7 +109,7 @@ export function SiteHeader() {
               Bảng xếp hạng
             </NavLink>
 
-            {isTeacher ? (
+            {isAdmin ? (
               <NavLink to="/manage" className={linkClasses} onClick={() => setMobileOpen(false)}>
                 Quản lý
               </NavLink>

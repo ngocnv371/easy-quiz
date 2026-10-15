@@ -12,7 +12,7 @@ const LINKS = [
   { to: '/manage/quizzes/new', label: 'Tạo đề mới', icon: PlusCircle, end: true },
 ] as const
 
-/** Shell for the teacher console: persistent sidebar, routed workspace. */
+/** Shell for the admin console: persistent sidebar, routed workspace. */
 export function ManageLayout() {
   const { displayName, profile } = useAuth()
 
@@ -35,7 +35,7 @@ export function ManageLayout() {
             </span>
             <div className="min-w-0">
               <p className="text-ink-50 truncate text-sm font-medium">{displayName}</p>
-              <p className="text-spark-300 text-xs">Giáo viên</p>
+              <p className="text-spark-300 text-xs">Quản trị viên</p>
             </div>
           </div>
 

@@ -45,7 +45,7 @@ const PILLARS = [
   },
   {
     icon: Wand2,
-    title: 'Giáo viên soạn đề nhanh gấp mười',
+    title: 'Quản trị viên soạn đề nhanh gấp mười',
     description:
       'AI Assist nhận một câu mô tả chủ đề và trả về 10 câu hỏi kèm đáp án, giải thích. Bạn chỉ cần đọc lại và bấm xuất bản.',
     tone: 'violet' as const,
@@ -120,8 +120,8 @@ export function LandingPage() {
                     <InfinityIcon className="size-4" aria-hidden />
                     Chế độ vô tận
                   </ButtonLink>
-                  <ButtonLink to="/register" variant="secondary" size="lg">
-                    Tôi là giáo viên
+                  <ButtonLink to="/manage" variant="secondary" size="lg">
+                    Tôi là quản trị viên
                   </ButtonLink>
                 </div>
               </Reveal>
@@ -199,7 +199,7 @@ export function LandingPage() {
           <SectionHeading
             eyebrow="Vì sao là Easy Quiz"
             title="Một chỗ cho cả người học và người dạy"
-            description="Học sinh cần thứ gì đó thú vị để quay lại mỗi ngày. Giáo viên cần thứ gì đó nhanh hơn việc gõ tay từng câu hỏi. Easy Quiz làm cả hai."
+            description="Người chơi cần thứ gì đó thú vị để quay lại mỗi ngày. Quản trị viên cần thứ gì đó nhanh hơn việc gõ tay từng câu hỏi. Easy Quiz làm cả hai."
           />
 
           <div className="mt-12 grid gap-5 md:grid-cols-3">
@@ -310,7 +310,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ══ Teacher CTA ════════════════════════════════════════════════ */}
+      {/* ══ Admin CTA ══════════════════════════════════════════════════ */}
       <section className="py-16">
         <div className="container-page">
           <Reveal>
@@ -318,7 +318,7 @@ export function LandingPage() {
               <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-center">
                 <div>
                   <Badge tone="violet" icon={BrainCircuit}>
-                    Dành cho giáo viên
+                    Dành cho quản trị viên
                   </Badge>
 
                   <h2 className="font-display mt-5 text-3xl font-semibold tracking-tight sm:text-4xl">
@@ -347,12 +347,12 @@ export function LandingPage() {
                   </ul>
 
                   <div className="mt-8 flex flex-wrap gap-3">
-                    <ButtonLink to="/register" variant="spark" size="lg">
-                      Tạo tài khoản giáo viên
+                    <ButtonLink to="/manage" variant="spark" size="lg">
+                      Vào trang quản lý
                       <Rocket className="size-4" aria-hidden />
                     </ButtonLink>
-                    <ButtonLink to="/manage" variant="outline" size="lg">
-                      Vào trang quản lý
+                    <ButtonLink to="/explore" variant="outline" size="lg">
+                      Khám phá đề thi
                     </ButtonLink>
                   </div>
                 </div>

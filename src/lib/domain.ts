@@ -13,7 +13,7 @@ export type { Database, Json }
 
 // ── Domain unions ──────────────────────────────────────────────────────────
 export type TopicAccent = 'neon' | 'violet' | 'magenta' | 'spark' | 'lime'
-export type UserRole = 'student' | 'teacher' | 'admin'
+export type UserRole = 'user' | 'admin'
 export type QuizDifficulty = 'easy' | 'medium' | 'hard'
 export type QuizVisibility = 'private' | 'unlisted' | 'public'
 export type QuizStatus = 'draft' | 'published' | 'archived'
@@ -39,7 +39,7 @@ const DIFFICULTIES: readonly QuizDifficulty[] = ['easy', 'medium', 'hard']
 const VISIBILITIES: readonly QuizVisibility[] = ['private', 'unlisted', 'public']
 const STATUSES: readonly QuizStatus[] = ['draft', 'published', 'archived']
 const ACCENTS: readonly TopicAccent[] = ['neon', 'violet', 'magenta', 'spark', 'lime']
-const ROLES: readonly UserRole[] = ['student', 'teacher', 'admin']
+const ROLES: readonly UserRole[] = ['user', 'admin']
 
 function oneOf<T extends string>(allowed: readonly T[], value: string | null, fallback: T): T {
   return allowed.includes(value as T) ? (value as T) : fallback
@@ -53,7 +53,7 @@ export const asVisibility = (value: string | null): QuizVisibility =>
 
 export const asStatus = (value: string | null): QuizStatus => oneOf(STATUSES, value, 'draft')
 
-export const asRole = (value: string | null): UserRole => oneOf(ROLES, value, 'student')
+export const asRole = (value: string | null): UserRole => oneOf(ROLES, value, 'user')
 
 export const asAccent = (value: string | null): TopicAccent | null =>
   value && (ACCENTS as readonly string[]).includes(value) ? (value as TopicAccent) : null

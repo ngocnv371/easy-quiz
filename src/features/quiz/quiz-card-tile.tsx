@@ -35,7 +35,7 @@ export function DifficultyBadge({
   )
 }
 
-/** The catalogue tile used on Explore, the landing page and the teacher list. */
+/** The catalogue tile used on Explore, the landing page and the admin list. */
 export function QuizCardTile({
   quiz,
   href,
@@ -133,7 +133,7 @@ export function QuizCardTile({
   )
 }
 
-/** Compact row used inside the teacher console, where density matters more. */
+/** Compact row used inside the admin console, where density matters more. */
 export function QuizListRow({
   quiz,
   actions,

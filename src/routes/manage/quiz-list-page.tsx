@@ -18,6 +18,7 @@ import { Alert, EmptyState, Skeleton } from '@/components/ui/feedback'
 import { Input, Select } from '@/components/ui/field'
 import { QuizListRow } from '@/features/quiz/quiz-card-tile'
 import { deleteQuiz, fetchMyQuizzes, updateQuizStatus } from '@/features/manage/api'
+import { ImportQuestionsButton } from '@/features/manage/import-questions-dialog'
 import { useAuth } from '@/features/auth/auth-context'
 import { formatCompact } from '@/lib/format'
 import type { QuizCard, QuizStatus } from '@/lib/domain'
@@ -131,10 +132,14 @@ export function ManageQuizListPage() {
           </p>
         </div>
 
-        <ButtonLink to="/manage/quizzes/new">
-          <PlusCircle className="size-4" aria-hidden />
-          Tạo đề mới
-        </ButtonLink>
+        <div className="flex flex-wrap items-center gap-3">
+          <ImportQuestionsButton onImported={queries.reload} />
+
+          <ButtonLink to="/manage/quizzes/new">
+            <PlusCircle className="size-4" aria-hidden />
+            Tạo đề mới
+          </ButtonLink>
+        </div>
       </div>
 
       {/* ── Filters ────────────────────────────────────────────────── */}

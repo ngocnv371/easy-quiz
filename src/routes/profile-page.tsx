@@ -118,7 +118,7 @@ export function ProfilePage() {
                   <h1 className="font-display text-ink-50 text-xl font-semibold tracking-tight sm:text-2xl">
                     {person.display_name}
                   </h1>
-                  <Badge tone={role === 'teacher' || role === 'admin' ? 'spark' : 'neon'}>
+                  <Badge tone={role === 'admin' ? 'spark' : 'neon'}>
                     {ROLE_LABELS[role]}
                   </Badge>
                   {person.is_guest ? <Badge tone="neutral">Khách</Badge> : null}

@@ -2,7 +2,7 @@
  * The report's charts, drawn with plain divs rather than a charting library.
  *
  * A dependency such as Recharts or Chart.js would add hundreds of kilobytes to
- * the teacher console for two bar charts, and neither library prints reliably
+ * the admin console for two bar charts, and neither library prints reliably
  * without extra work. Bars are simple enough to express as flex columns: the
  * height is a percentage of the tallest value, and every colour comes from the
  * design tokens, which the print stylesheet flips to a light theme in one place.

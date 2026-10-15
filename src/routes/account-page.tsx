@@ -25,7 +25,7 @@ export function AccountPage() {
     profile,
     displayName,
     isGuest,
-    isTeacher,
+    isAdmin,
     role,
     updateProfile,
     signOut,
@@ -134,7 +134,7 @@ export function AccountPage() {
                 </p>
               </div>
 
-              <Badge tone={role === 'teacher' || role === 'admin' ? 'spark' : 'neon'}>
+              <Badge tone={role === 'admin' ? 'spark' : 'neon'}>
                 {ROLE_LABELS[role]}
               </Badge>
             </div>
@@ -211,7 +211,7 @@ export function AccountPage() {
             </form>
           </Card>
 
-          {isTeacher ? (
+          {isAdmin ? (
             <Card className="p-6 sm:p-7">
               <div className="flex items-center justify-between gap-4">
                 <div>

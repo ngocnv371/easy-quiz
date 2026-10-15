@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// ai-quiz — AI Assist for the teacher console
+// ai-quiz — AI Assist for the admin console
 //
 // Takes a short brief ("Ôn tập lịch sử Việt Nam lớp 9, mức trung bình") and
 // returns a set of multiple-choice questions the editor can drop straight into
@@ -10,7 +10,7 @@
 // endpoint — so swapping providers, or falling back to the offline generator,
 // is a secret change, not a redeploy of the front end.
 //
-// A teacher's AI Assist allowance is a credit balance (`profiles.ai_credits`).
+// An admin's AI Assist allowance is a credit balance (`profiles.ai_credits`).
 // Each generation reserves credits up front and hands them back if no paid
 // provider actually produced the questions, so `mock` runs are free.
 //
@@ -83,11 +83,11 @@ const DIFFICULTY_LABELS: Record<string, string> = {
 
 function buildPrompt(input: GenerateRequest, count: number): string {
   const difficulty = DIFFICULTY_LABELS[input.difficulty ?? 'medium'] ?? DIFFICULTY_LABELS.medium
-  const level = input.level?.trim() || 'học sinh phổ thông'
+  const level = input.level?.trim() || 'người học phổ thông'
   const notes = input.notes?.trim()
 
   return [
-    `Bạn là giáo viên soạn đề trắc nghiệm cho ${level}.`,
+    `Bạn là người soạn đề trắc nghiệm cho ${level}.`,
     `Hãy soạn đúng ${count} câu hỏi trắc nghiệm bằng tiếng Việt về chủ đề: "${input.topic.trim()}".`,
     `Mức độ: ${difficulty}.`,
     notes ? `Yêu cầu thêm: ${notes}` : '',
@@ -318,7 +318,7 @@ async function generateWithChatProvider(
       messages: [
         {
           role: 'system',
-          content: 'Bạn là giáo viên soạn đề trắc nghiệm. Chỉ trả về JSON hợp lệ.',
+          content: 'Bạn là người soạn đề trắc nghiệm. Chỉ trả về JSON hợp lệ.',
         },
         { role: 'user', content: prompt },
       ],
@@ -425,21 +425,21 @@ Deno.serve(async (request: Request): Promise<Response> => {
       return json({ error: 'Yêu cầu không hợp lệ.' }, 403)
     }
 
-    // Call policy as the caller, not as the service role, so `is_teacher()`
+    // Call policy as the caller, not as the service role, so `is_admin()`
     // reflects their real profile.
     const userClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authorization } },
       auth: { persistSession: false },
     })
 
-    const { data: isTeacher, error: roleError } = await userClient.rpc('is_teacher')
+    const { data: isAdmin, error: roleError } = await userClient.rpc('is_admin')
 
     if (roleError) {
       return json({ error: `Không kiểm tra được quyền: ${roleError.message}` }, 500)
     }
 
-    if (isTeacher !== true) {
-      return json({ error: 'Chỉ tài khoản giáo viên mới dùng được AI Assist.' }, 403)
+    if (isAdmin !== true) {
+      return json({ error: 'Chỉ quản trị viên mới dùng được AI Assist.' }, 403)
     }
 
     const body = (await request.json()) as Partial<GenerateRequest>
@@ -465,7 +465,7 @@ Deno.serve(async (request: Request): Promise<Response> => {
     // ── Credits ────────────────────────────────────────────────────────────
     // Reserve before the request so a burst of parallel calls cannot each read
     // the same balance and overspend. Whatever does not end up using a paid
-    // provider is refunded below, so the teacher pays for real work only.
+    // provider is refunded below, so the admin pays for real work only.
     const cost = usesPaidProvider ? creditCost() : 0
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
     const adminClient = serviceRoleKey
@@ -487,7 +487,7 @@ Deno.serve(async (request: Request): Promise<Response> => {
       })
 
       if (spendError) {
-        // The function's "hết credit" message is written for the teacher; any
+        // The function's "hết credit" message is written for the admin; any
         // other failure is an operator problem and should not masquerade as a
         // payment issue.
         if (/credit/i.test(spendError.message)) {
@@ -503,7 +503,7 @@ Deno.serve(async (request: Request): Promise<Response> => {
 
     /**
      * Hands a reservation back. Best-effort on purpose: a failed refund must
-     * not turn an otherwise working generation into an error for the teacher.
+     * not turn an otherwise working generation into an error for the admin.
      */
     const refund = async (reason: string) => {
       if (reserved === 0) return
@@ -538,7 +538,7 @@ Deno.serve(async (request: Request): Promise<Response> => {
           ? await generateWithChatProvider(chatProvider, prompt, count)
           : await generateWithGemini(prompt, count)
       } catch (providerError) {
-        // Bad configuration is the operator's problem, not the teacher's: say
+        // Bad configuration is the operator's problem, not the admin's: say
         // so instead of quietly handing back placeholder questions — and do not
         // charge for work that never happened.
         if (providerError instanceof ConfigError) {
@@ -546,7 +546,7 @@ Deno.serve(async (request: Request): Promise<Response> => {
           throw providerError
         }
 
-        // A dead provider should not dead-end the teacher mid-lesson. The
+        // A dead provider should not dead-end the admin mid-lesson. The
         // placeholder questions it falls back to are not worth a credit.
         console.error('AI provider failed, falling back to mock:', providerError)
         result = {

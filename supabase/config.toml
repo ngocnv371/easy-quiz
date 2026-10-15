@@ -455,8 +455,8 @@ deno_version = 2
 # ---------------------------------------------------------------------------
 # Edge Functions
 #
-# `ai-quiz` powers AI Assist in the teacher console. It verifies the caller's
-# JWT and then re-checks the teacher role itself, so an anonymous session
+# `ai-quiz` powers AI Assist in the admin console. It verifies the caller's
+# JWT and then re-checks the admin role itself, so an anonymous session
 # cannot spend provider quota.
 #
 # Secrets live in `supabase/functions/.env` (see supabase/.env.example):
@@ -465,6 +465,12 @@ deno_version = 2
 #   OPENAI_BASE_URL=… points the openai adapter at any compatible endpoint.
 # ---------------------------------------------------------------------------
 [functions.ai-quiz]
+verify_jwt = true
+
+# `import-questions` powers the admin bulk import on the manage screen. It
+# parses an uploaded CSV and calls `import_question_bank()` as the caller, so
+# the admin check runs in both places.
+[functions.import-questions]
 verify_jwt = true
 
 [analytics]

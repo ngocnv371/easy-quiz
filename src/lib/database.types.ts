@@ -206,13 +206,13 @@ isOneToOne: false
                   ]
                 },"quizzes": {
                   Row: {
-                    "ai_generated": boolean,"cover_emoji": string,"created_at": string,"description": string | null,"difficulty": string,"id": string,"owner_id": string,"play_count": number,"published_at": string | null,"shuffle_options": boolean,"shuffle_questions": boolean,"slug": string,"status": string,"time_limit_seconds": number,"title": string,"topic_id": string | null,"updated_at": string,"visibility": string
+                    "ai_generated": boolean,"cover_emoji": string,"created_at": string,"description": string | null,"difficulty": string,"id": string,"imported_at": string | null,"owner_id": string,"play_count": number,"published_at": string | null,"shuffle_options": boolean,"shuffle_questions": boolean,"slug": string,"status": string,"time_limit_seconds": number,"title": string,"topic_id": string | null,"updated_at": string,"visibility": string
                   }
                   Insert: {
-                    "ai_generated"?: boolean,"cover_emoji"?: string,"created_at"?: string,"description"?: string | null,"difficulty"?: string,"id"?: string,"owner_id": string,"play_count"?: number,"published_at"?: string | null,"shuffle_options"?: boolean,"shuffle_questions"?: boolean,"slug": string,"status"?: string,"time_limit_seconds"?: number,"title": string,"topic_id"?: string | null,"updated_at"?: string,"visibility"?: string
+                    "ai_generated"?: boolean,"cover_emoji"?: string,"created_at"?: string,"description"?: string | null,"difficulty"?: string,"id"?: string,"imported_at"?: string | null,"owner_id": string,"play_count"?: number,"published_at"?: string | null,"shuffle_options"?: boolean,"shuffle_questions"?: boolean,"slug": string,"status"?: string,"time_limit_seconds"?: number,"title": string,"topic_id"?: string | null,"updated_at"?: string,"visibility"?: string
                   }
                   Update: {
-                    "ai_generated"?: boolean,"cover_emoji"?: string,"created_at"?: string,"description"?: string | null,"difficulty"?: string,"id"?: string,"owner_id"?: string,"play_count"?: number,"published_at"?: string | null,"shuffle_options"?: boolean,"shuffle_questions"?: boolean,"slug"?: string,"status"?: string,"time_limit_seconds"?: number,"title"?: string,"topic_id"?: string | null,"updated_at"?: string,"visibility"?: string
+                    "ai_generated"?: boolean,"cover_emoji"?: string,"created_at"?: string,"description"?: string | null,"difficulty"?: string,"id"?: string,"imported_at"?: string | null,"owner_id"?: string,"play_count"?: number,"published_at"?: string | null,"shuffle_options"?: boolean,"shuffle_questions"?: boolean,"slug"?: string,"status"?: string,"time_limit_seconds"?: number,"title"?: string,"topic_id"?: string | null,"updated_at"?: string,"visibility"?: string
                   }
                   Relationships: [
                     {
@@ -335,10 +335,10 @@ isOneToOne: false
 "grant_ai_credits":
 { Args: { "p_amount": number,"p_reason"?: string,"p_user_id": string }; Returns: number
                            },
-"is_admin":
-{ Args: { "p_uid"?: string }; Returns: boolean
+"import_question_bank":
+{ Args: { "p_payload": Json }; Returns: Json
                            },
-"is_teacher":
+"is_admin":
 { Args: { "p_uid"?: string }; Returns: boolean
                            },
 "owns_question":
@@ -362,7 +362,7 @@ isOneToOne: false
 { Args: { "p_answers": Json,"p_duration_seconds"?: number,"p_guest_name"?: string,"p_slug": string }; Returns: Json
                            },
 "upgrade_guest_profile":
-{ Args: { "p_display_name": string,"p_role"?: string,"p_school"?: string }; Returns: undefined
+{ Args: { "p_display_name": string,"p_school"?: string }; Returns: undefined
                            }
           }
           Enums: {

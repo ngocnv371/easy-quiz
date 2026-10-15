@@ -1,17 +1,13 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
-import { GraduationCap, KeyRound, Mail, School, UserRound } from 'lucide-react'
+import { KeyRound, Mail, School, UserRound } from 'lucide-react'
 
 import { Alert } from '@/components/ui/feedback'
 import { Button } from '@/components/ui/button'
-import { ChoiceTile, Field, Input } from '@/components/ui/field'
+import { Field, Input } from '@/components/ui/field'
 import { AuthShell } from '@/features/auth/auth-shell'
 import { useAuth } from '@/features/auth/auth-context'
-import { ROLE_DESCRIPTIONS } from '@/lib/labels'
 import { errorMessage } from '@/lib/utils'
-import type { UserRole } from '@/lib/domain'
-
-type SignUpRole = Exclude<UserRole, 'admin'>
 
 export function RegisterPage() {
   const {
@@ -29,7 +25,6 @@ export function RegisterPage() {
   const [nameTouched, setNameTouched] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [role, setRole] = useState<SignUpRole>('student')
   const [school, setSchool] = useState('')
 
   const [submitting, setSubmitting] = useState(false)
@@ -44,7 +39,7 @@ export function RegisterPage() {
   // A guest is signed in, but they belong on this page: it is where their
   // scores stop being disposable. Only a real account gets redirected away.
   if (isConfigured && status === 'ready' && user && !isGuest && !needsConfirmation) {
-    return <Navigate to={role === 'teacher' ? '/manage' : '/explore'} replace />
+    return <Navigate to="/explore" replace />
   }
 
   const handleSubmit = async (event: FormEvent) => {
@@ -72,14 +67,13 @@ export function RegisterPage() {
         email,
         password,
         displayName,
-        role,
         school,
       })
 
       if (needsEmailConfirmation) {
         setNeedsConfirmation(true)
       } else {
-        navigate(role === 'teacher' ? '/manage' : '/explore', { replace: true })
+        navigate('/explore', { replace: true })
       }
     } catch (signUpError) {
       setError(errorMessage(signUpError))
@@ -116,7 +110,7 @@ export function RegisterPage() {
       description={
         isGuest
           ? 'Thêm email và mật khẩu để giữ lại toàn bộ điểm số, lịch sử chơi và thứ hạng bạn đã có. Mọi thứ được chuyển sang tài khoản mới — không mất gì cả.'
-          : 'Miễn phí, không cần thẻ. Bạn có thể bắt đầu với vai trò học sinh và nâng lên giáo viên bất cứ lúc nào.'
+          : 'Miễn phí, không cần thẻ. Tạo tài khoản để lưu điểm số, lịch sử chơi và thứ hạng của bạn.'
       }
       footer={
         isGuest ? (
@@ -214,52 +208,23 @@ export function RegisterPage() {
           </div>
         </Field>
 
-        <fieldset>
-          <legend className="text-ink-200 mb-2 text-xs font-medium tracking-wide">
-            Bạn tham gia với vai trò
-          </legend>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            <ChoiceTile
-              name="role"
-              value="student"
-              selected={role === 'student'}
-              onSelect={() => setRole('student')}
-              title="Học sinh"
-              description={ROLE_DESCRIPTIONS.student}
+        <Field label="Trường / tổ chức" htmlFor="school" hint="Không bắt buộc">
+          <div className="relative">
+            <School
+              className="text-ink-400 pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2"
+              aria-hidden
             />
-            <ChoiceTile
-              name="role"
-              value="teacher"
-              selected={role === 'teacher'}
-              onSelect={() => setRole('teacher')}
-              title="Giáo viên"
-              description={ROLE_DESCRIPTIONS.teacher}
-              tone="spark"
+            <Input
+              id="school"
+              value={school}
+              onChange={(event) => setSchool(event.target.value)}
+              placeholder="THCS Nguyễn Du"
+              className="pl-10"
             />
           </div>
-        </fieldset>
-
-        {role === 'teacher' ? (
-          <Field label="Trường / tổ chức" htmlFor="school" hint="Không bắt buộc">
-            <div className="relative">
-              <School
-                className="text-ink-400 pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2"
-                aria-hidden
-              />
-              <Input
-                id="school"
-                value={school}
-                onChange={(event) => setSchool(event.target.value)}
-                placeholder="THCS Nguyễn Du"
-                className="pl-10"
-              />
-            </div>
-          </Field>
-        ) : null}
+        </Field>
 
         <Button type="submit" size="lg" className="w-full" loading={submitting}>
-          {role === 'teacher' ? <GraduationCap className="size-4" aria-hidden /> : null}
           {isGuest ? 'Lưu kết quả' : 'Tạo tài khoản'}
         </Button>
 

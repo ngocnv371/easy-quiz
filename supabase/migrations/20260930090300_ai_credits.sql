@@ -1,8 +1,8 @@
 -- ═══════════════════════════════════════════════════════════════════════════
 -- Easy Quiz · 0004 — AI Assist credits
 --
--- AI Assist used to be unlimited for every teacher. Each generation costs real
--- money at the model provider, so a teacher now spends from a balance:
+-- AI Assist used to be unlimited for everyone. Each generation costs real
+-- money at the model provider, so an admin now spends from a balance:
 --
 --   profiles.ai_credits      the live balance (default 0, never client-writable)
 --   ai_credit_ledger         an append-only audit trail of every movement
@@ -65,7 +65,7 @@ create policy "players read their own ai credit history"
 --
 -- Moves the *caller's* balance by `p_delta` and records it. A negative delta
 -- is a spend anyone may make; a positive delta is a top-up, which only the
--- server (service role) or an admin may perform — otherwise a teacher could
+-- server (service role) or an admin may perform — otherwise an admin could
 -- refund themselves without limit.
 -- ---------------------------------------------------------------------------
 create or replace function public.apply_ai_credits(
@@ -104,7 +104,7 @@ begin
   end if;
 
   if v_balance + p_delta < 0 then
-    -- The edge function turns this message into the teacher-facing "out of
+    -- The edge function turns this message into the admin-facing "out of
     -- credits" response, so it has to read well.
     raise exception 'Bạn đã dùng hết credit AI. Hãy nạp thêm credit để tiếp tục soạn đề.'
       using errcode = 'P0001';

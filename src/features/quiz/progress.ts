@@ -1,5 +1,5 @@
 /**
- * A student's own learning progress, derived entirely on the client.
+ * A player's own learning progress, derived entirely on the client.
  *
  * `fetchMyAttempts()` already returns one row per completed run with the quiz
  * title, topic and accuracy attached, so there is no new query or RPC to
@@ -87,7 +87,7 @@ export interface ProgressReport {
   quizzes: QuizProgress[]
   /** The handful most worth retrying, strongest suggestion first. */
   suggestions: RetrySuggestion[]
-  /** Topics the student has played, strongest first. */
+  /** Topics the player has played, strongest first. */
   topics: TopicProgress[]
 }
 

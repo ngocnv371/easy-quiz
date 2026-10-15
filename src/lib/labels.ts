@@ -33,8 +33,7 @@ export const STATUS_LABELS: Record<QuizStatus, string> = {
 }
 
 export const ROLE_LABELS: Record<UserRole, string> = {
-  student: 'Học sinh',
-  teacher: 'Giáo viên',
+  user: 'Người dùng',
   admin: 'Quản trị viên',
 }
 
@@ -49,12 +48,3 @@ export const AVATAR_EMOJIS = [
   '🎓', '🦊', '🐼', '🐨', '🦉', '🐙', '🦄', '🐝', '🦁',
   '🐬', '🦖', '🐳', '🌟', '🔥', '🌈', '⚡', '🍀', '🎈',
 ] as const
-
-/**
- * Short, honest explanations of what each role can do — shown when a person
- * picks one at sign-up.
- */
-export const ROLE_DESCRIPTIONS: Record<Exclude<UserRole, 'admin'>, string> = {
-  student: 'Khám phá đề thi, chơi và leo bảng xếp hạng.',
-  teacher: 'Tạo đề thi, dùng AI Assist và theo dõi học sinh.',
-}

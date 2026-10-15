@@ -232,7 +232,7 @@ export function ManageQuizReportPage() {
           className="mt-10"
           icon={FileQuestion}
           title="Chưa có lượt chơi nào"
-          description="Xuất bản đề và chia sẻ liên kết để học sinh làm bài. Số liệu sẽ xuất hiện ở đây ngay khi có lượt nộp đầu tiên."
+          description="Xuất bản đề và chia sẻ liên kết để người chơi làm bài. Số liệu sẽ xuất hiện ở đây ngay khi có lượt nộp đầu tiên."
           action={
             card.status === 'published' ? (
               <ButtonLink to={`/q/${card.slug}`} size="sm">

@@ -380,7 +380,7 @@ export function QuizPlayPage() {
         <EmptyState
           icon={AlertTriangle}
           title="Đề thi chưa có câu hỏi"
-          description="Hãy báo cho giáo viên biết để bổ sung nội dung."
+          description="Hãy báo cho quản trị viên biết để bổ sung nội dung."
         />
       </PlayShell>
     )

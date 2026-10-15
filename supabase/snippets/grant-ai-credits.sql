@@ -11,20 +11,20 @@
 -- 1. Find the account you want to top up.
 select p.id, p.display_name, p.username, p.role, p.ai_credits
 from public.profiles p
-where p.role in ('teacher', 'admin')
+where p.role = 'admin'
 order by p.created_at desc;
 
 -- 2. Grant credits (logged in the ledger).
 select public.grant_ai_credits(
-  '11111111-1111-4111-8111-111111111111',  -- the teacher's id from step 1
+  '11111111-1111-4111-8111-111111111111',  -- the admin's id from step 1
   100,                                     -- how many credits to add
   'grant'                                  -- reason recorded in the ledger
 );
 
--- Or, in bulk: give every teacher a top-up.
+-- Or, in bulk: give every admin a top-up.
 select public.grant_ai_credits(p.id, 50, 'grant')
 from public.profiles p
-where p.role in ('teacher', 'admin');
+where p.role = 'admin';
 
 -- ───────────────────────────────────────────────────────────────────────────
 -- Escape hatch: change a balance directly. This does NOT write a ledger row,
@@ -34,7 +34,7 @@ where p.role in ('teacher', 'admin');
 -- update public.profiles set ai_credits = 500 where id = '<uuid>';
 -- update public.profiles set ai_credits = 0  where id = '<uuid>';
 
--- Inspect a teacher's credit history.
+-- Inspect an admin's credit history.
 -- select created_at, delta, balance_after, reason, question_count, provider
 -- from public.ai_credit_ledger
 -- where user_id = '11111111-1111-4111-8111-111111111111'

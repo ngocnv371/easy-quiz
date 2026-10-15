@@ -26,7 +26,7 @@ export interface AiGenerateResult {
   credits: number | null
 }
 
-/** Thrown when the teacher's AI credit balance cannot cover the request. */
+/** Thrown when the admin's AI credit balance cannot cover the request. */
 export class AiCreditsExhaustedError extends Error {}
 
 /**

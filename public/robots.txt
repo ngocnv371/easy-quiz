@@ -4,7 +4,7 @@
 User-agent: *
 Allow: /
 
-# The teacher console and the personal account area sit behind auth and have
+# The admin console and the personal account area sit behind auth and have
 # nothing to offer a crawler.
 Disallow: /manage
 Disallow: /account

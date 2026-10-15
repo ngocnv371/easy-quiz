@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "start": "&& supabase start && vite",
+    "start": "supabase start && vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "lint": "oxlint",

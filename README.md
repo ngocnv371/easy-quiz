@@ -2,8 +2,8 @@
 
 > Học vui, nhớ lâu.
 
-A two-sided quiz platform from **AiTechX**: students explore quizzes by topic, play immediately
-(with or without an account) and land on a leaderboard; teachers author quizzes — optionally
+A quiz platform from **AiTechX**: users explore quizzes by topic, play immediately
+(with or without an account) and land on a leaderboard; admins author quizzes — optionally
 with AI Assist, which turns a one-line brief into a ready-to-edit question set.
 
 The landing page and the quiz player are animated with [Remotion](https://remotion.dev),
@@ -63,7 +63,7 @@ npm run dev
 `supabase db reset` (and the first `supabase start`) applies the migrations and then seeds:
 
 - **8 topics** — Toán học, Lịch sử, Khoa học, …
-- **A demo teacher** — `giaovien@easyquiz.local` / `easyquiz123` (role: teacher)
+- **A demo admin** — `admin@easyquiz.local` / `easyquiz123` (role: admin)
 - **3 published quizzes** with 5 fully written questions each
 - **10 past attempts**, so the leaderboards are not empty on first run
 
@@ -76,11 +76,11 @@ Studio is at <http://127.0.0.1:54423> if you want to poke at the data directly.
 ```
 src/
   routes/               one file per page (lazy-loaded)
-    manage/             the teacher console
+    manage/             the admin console
   features/
     auth/               session context, guards, auth chrome
     quiz/               catalogue, play engine, result cache
-    manage/             teacher data access, AI Assist panel
+    manage/             admin data access, AI Assist panel
     ai/                 AI Assist client
   components/
     ui/                 design-system primitives
@@ -94,6 +94,7 @@ src/
 supabase/
   migrations/           schema → RLS → views + RPCs
   functions/ai-quiz/    AI Assist edge function
+  functions/import-questions/  admin CSV bulk import
   seed.sql              demo content
 ```
 
@@ -112,7 +113,7 @@ So the split is:
 | --------------------- | ------------------ | ---------------------------------------------------------------- |
 | `get_quiz_for_play()` | anyone             | returns the quiz **with `is_correct` stripped out**               |
 | `submit_attempt()`    | any signed-in user | grades **on the server**, stores the attempt, returns the review  |
-| `save_quiz()`         | teachers           | atomically replaces a quiz's questions and options                |
+| `save_quiz()`         | admins             | atomically replaces a quiz's questions and options                |
 
 All three are `SECURITY DEFINER`, so the browser never holds a query that can reach the answer
 key. `attempts` has **no INSERT policy at all** — the RPC is the only writer, which is what
@@ -124,7 +125,7 @@ Two smaller decisions fall out of the same reasoning:
 - `quiz_cards` and `leaderboard_entries` are views with `security_invoker = true`, so the
   caller's RLS still applies. View columns are therefore typed nullable, and
   `src/lib/domain.ts` narrows them into the shapes the UI actually uses.
-- A view cannot compute a question count without tripping RLS (a student cannot read another
+- A view cannot compute a question count without tripping RLS (a user cannot read another
   author's `questions` rows), so `quiz_stats()` is a narrow `SECURITY DEFINER` function that
   exposes the count and the maximum score and nothing else.
 
@@ -137,9 +138,9 @@ profile, so a guest's score can appear on the leaderboard straight away.
 "Lưu kết quả của bạn" then converts that account **in place** — `updateUser({ email, password })`
 keeps the same user id, so the profile and every attempt already recorded survive. Calling
 `signUp()` instead would silently start the player from zero, which is the wrong answer for a
-button whose whole promise is saving results. The remaining details (display name, role, school)
-travel through `upgrade_guest_profile()`, the only path allowed to set `role` or clear `is_guest`
-for a player.
+button whose whole promise is saving results. The remaining details (display name and school)
+travel through `upgrade_guest_profile()`, the only path allowed to clear `is_guest` for a
+player. It deliberately leaves `role` alone, so a guest can never promote itself to admin.
 
 Because a guest *is* signed in, `/login` and `/register` deliberately do **not** redirect them the
 way they redirect a real account — those two pages are exactly where a guest needs to be. `/login`
@@ -209,14 +210,14 @@ and returns validated questions:
   `OPENAI_BASE_URL` turns `openai` into a generic escape hatch for anything that speaks that
   dialect (OpenRouter, Together, Groq, vLLM, Ollama…). The `mock` adapter keeps the whole flow
   working without a key, and is also the automatic fallback when a provider errors, so a dead
-  API never dead-ends a teacher mid-lesson. A *missing key* is not an outage, though: that is
+  API never dead-ends an admin mid-lesson. A *missing key* is not an outage, though: that is
   reported as an error rather than masked with placeholder questions.
-- The function verifies the JWT **and** re-checks the caller's role through `is_teacher()`, so an
+- The function verifies the JWT **and** re-checks the caller's role through `is_admin()`, so an
   anonymous session cannot spend your provider quota.
-- **AI Assist is metered.** A teacher spends credits from `profiles.ai_credits`; each generation
+- **AI Assist is metered.** An admin spends credits from `profiles.ai_credits`; each generation
   reserves `AI_CREDIT_COST` (default `1`) up front and hands it back if no paid provider actually
   produced the questions — so `mock` and `mock:fallback` runs are free. Every movement is logged in
-  `ai_credit_ledger`. The UI shows the balance in the editor's AI Assist panel and on the teacher
+  `ai_credit_ledger`. The UI shows the balance in the editor's AI Assist panel and on the admin
   dashboard; the panel is blocked at zero. Both changes go through `apply_ai_credits()` /
   `grant_ai_credits()` — the balance is never client-writable.
 
@@ -224,7 +225,7 @@ and returns validated questions:
   `supabase/snippets/grant-ai-credits.sql` in Studio's SQL editor, or in short:
 
   ```sql
-  select public.grant_ai_credits('<teacher-uuid>', 100, 'grant');
+  select public.grant_ai_credits('<admin-uuid>', 100, 'grant');
   ```
 
 To use a real model, edit `supabase/functions/.env`:
@@ -246,6 +247,39 @@ OPENAI_BASE_URL=https://your-endpoint/v1
 ```
 
 then `npm run fn:serve`, or restart the stack.
+
+### Bulk question import
+
+An **admin** can load a whole CSV of questions from the manage screen's **Nhập câu hỏi**
+button. The file is read in the browser but parsed and validated on the server, so the format
+rules live in exactly one place.
+
+- `supabase/functions/import-questions/index.ts` parses the CSV (RFC-4180: quoted fields,
+  commas and newlines inside quotes), maps the columns, rejects bad rows with a reason, and
+  groups the rest by subject. It calls `import_question_bank()` with the shaped payload.
+- `import_question_bank()` is `SECURITY DEFINER` and admin-only. It upserts each subject into
+  `topics`, upserts **one quiz per subject** (found by owner + topic via `quizzes.imported_at`,
+  so a re-import replaces that quiz's questions instead of duplicating it), and replaces the
+  question set atomically. Hand-authored quizzes are never touched.
+- The role is checked in the edge function **and** inside the RPC, so hiding the button is
+  only a courtesy — it is not the thing enforcing the rule.
+
+Columns (case- and accent-insensitive headers; Vietnamese aliases in parentheses):
+
+| Column | Required | Notes |
+| --- | --- | --- |
+| `subject` (môn, chủ đề) | yes | becomes the topic and the quiz |
+| `prompt` (câu hỏi) | yes | |
+| `option_a`…`option_f` (`option_1`…, `a`…`f`) | ≥ 2 | empty ones are dropped |
+| `correct` (đáp án) | no | letter `A`–`F` or 1-based number; defaults to `A` |
+| `explanation` (giải thích) | no | |
+| `points`, `difficulty`, `title`, `status`, `visibility`, `subject_slug` | no | |
+
+A subject's cover emoji is not part of the file — the importer lets the topic fall back to its
+database default.
+
+The dialog has a **Tải tệp mẫu** button that writes the same template shown in
+`src/features/manage/import-questions.ts`.
 
 ### Remotion
 
@@ -339,7 +373,7 @@ The app is a client-rendered SPA, so the document head is assembled in two layer
   what a crawler that does not execute JavaScript sees.
 - **`src/lib/seo.ts`** (`usePageMeta`) rewrites those tags on every navigation: per-page title and
   description, a canonical URL, and `noindex` on the surfaces that should stay out of the index
-  (account, teacher console, a result sheet, 404). A quiz page also emits `Quiz` structured data.
+  (account, admin console, a result sheet, 404). A quiz page also emits `Quiz` structured data.
 
 Every URL derives from `VITE_SITE_URL`; `src/lib/site.ts` holds the host and `absoluteUrl()` builds
 full URLs. `.env.production` points it at `https://easyquiz.aitechx.vn`, and `site.ts` falls back to
@@ -367,6 +401,7 @@ serves these three files as-is rather than rewriting them too.
    npm run db:push
    npx supabase secrets set --env-file supabase/functions/.env
    npx supabase functions deploy ai-quiz
+   npx supabase functions deploy import-questions
    ```
 
    Then enable **anonymous sign-ins** under Authentication → Providers.
@@ -398,8 +433,9 @@ Called out honestly rather than hidden:
 
 - **Editing a quiz deletes and re-inserts its questions**, so per-question review detail for
   *past* attempts no longer resolves. Aggregate scores in `attempts` are preserved.
-- **Sign-up lets a person pick the "teacher" role.** Fine for a school tool; put it behind an
-  invite code or an admin approval step before opening it up publicly.
+- **Sign-up creates an ordinary user.** Admin is not self-serve; promote an account with
+  `supabase/snippets/promote-admin.sql`. Put the console behind real approval before opening it
+  up publicly.
 - **`submit_attempt()` has no rate limit.** A determined player could flood the leaderboard.
 - **No image upload.** `questions.image_url` exists and renders, but nothing writes to it yet.
 - **The result review lives in `sessionStorage`.** Opening a result link in a fresh tab shows the

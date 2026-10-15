@@ -3,14 +3,14 @@ import { createBrowserRouter, Navigate } from 'react-router-dom'
 
 import { ManageLayout } from '@/components/layout/manage-layout'
 import { PublicLayout } from '@/components/layout/public-layout'
-import { RequireAuth, RequireTeacher } from '@/components/layout/route-guards'
+import { RequireAuth, RequireAdmin } from '@/components/layout/route-guards'
 import { Spinner } from '@/components/ui/button'
 
 /**
  * Route table.
  *
  * Every page is behind a dynamic `import()`, so a visitor who lands on a quiz
- * never downloads the teacher console — and Remotion, by far the heaviest
+ * never downloads the admin console — and Remotion, by far the heaviest
  * dependency, only arrives on the routes that actually play a video.
  *
  * React Router's route-level `lazy` sets the route's own element, which cannot
@@ -164,14 +164,14 @@ export const router = createBrowserRouter([
     ),
   },
 
-  // ── Teacher console ─────────────────────────────────────────────────────
+  // ── Admin console ───────────────────────────────────────────────────────
   {
     path: '/manage',
     ...HYDRATE,
     element: (
-      <RequireTeacher>
+      <RequireAdmin>
         <ManageLayout />
-      </RequireTeacher>
+      </RequireAdmin>
     ),
     children: [
       { index: true, lazy: manageDashboardPage },

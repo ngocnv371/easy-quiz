@@ -18,7 +18,7 @@ import {
 } from '@/lib/domain'
 import { buildQuizReport, buildWrongAnswerIndex, type QuizReport, type WrongAnswerIndex } from './report'
 
-/** Every quiz the signed-in teacher owns, drafts included. */
+/** Every quiz the signed-in admin owns, drafts included. */
 export async function fetchMyQuizzes(ownerId: string): Promise<QuizCard[]> {
   const supabase = requireSupabase()
 
@@ -193,8 +193,8 @@ export async function deleteQuiz(quizId: string): Promise<void> {
   if (error) throw new Error(errorMessage(error))
 }
 
-/** Aggregate stats for the teacher dashboard. */
-export interface TeacherStats {
+/** Aggregate stats for the admin dashboard. */
+export interface AdminStats {
   quizCount: number
   publishedCount: number
   draftCount: number
@@ -206,7 +206,7 @@ export interface TeacherStats {
 export function summariseQuizzes(
   quizzes: QuizCard[],
   entries: Array<{ accuracy: number }> = [],
-): TeacherStats {
+): AdminStats {
   const published = quizzes.filter((quiz) => quiz.status === 'published')
 
   return {
@@ -222,7 +222,7 @@ export function summariseQuizzes(
   }
 }
 
-/** Recent attempts across everything this teacher owns. */
+/** Recent attempts across everything this admin owns. */
 export async function fetchAttemptsForOwner(
   quizIds: string[],
   limit = 25,

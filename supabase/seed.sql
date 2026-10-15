@@ -2,7 +2,7 @@
 -- Easy Quiz · seed
 --
 -- Runs after migrations on `supabase db reset`. Gives a fresh database a
--- believable shape: subjects to browse, a demo teacher, three published
+-- believable shape: subjects to browse, a demo admin, three published
 -- quizzes, and a handful of past attempts so the leaderboard has something to
 -- rank on day one.
 -- ═══════════════════════════════════════════════════════════════════════════
@@ -23,7 +23,7 @@ values
 on conflict (slug) do nothing;
 
 -- ---------------------------------------------------------------------------
--- Demo teacher
+-- Demo admin
 --
 -- A real `auth.users` row so email sign-in works out of the box. The
 -- `auth.identities` insert is guarded because `provider_id` is only present on
@@ -47,11 +47,11 @@ begin
     v_user_id,
     'authenticated',
     'authenticated',
-    'giaovien@easyquiz.local',
+    'admin@easyquiz.local',
     extensions.crypt('easyquiz123', extensions.gen_salt('bf')),
     now(),
     '{"provider":"email","providers":["email"]}'::jsonb,
-    '{"display_name":"Cô Mai","role":"teacher","school":"THCS Nguyễn Du"}'::jsonb,
+    '{"display_name":"Cô Mai","role":"admin","school":"THCS Nguyễn Du"}'::jsonb,
     '', '', '', '',
     '', '', '',
     now(),
@@ -68,7 +68,7 @@ begin
         id, user_id, identity_data, provider, provider_id, last_sign_in_at, created_at, updated_at
       ) values (
         gen_random_uuid(), $1,
-        jsonb_build_object('sub', $1::text, 'email', 'giaovien@easyquiz.local', 'email_verified', true),
+        jsonb_build_object('sub', $1::text, 'email', 'admin@easyquiz.local', 'email_verified', true),
         'email', $1::text, now(), now(), now()
       )
       on conflict do nothing
@@ -79,7 +79,7 @@ begin
         id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at
       ) values (
         gen_random_uuid(), $1,
-        jsonb_build_object('sub', $1::text, 'email', 'giaovien@easyquiz.local', 'email_verified', true),
+        jsonb_build_object('sub', $1::text, 'email', 'admin@easyquiz.local', 'email_verified', true),
         'email', now(), now(), now()
       )
       on conflict do nothing
@@ -87,11 +87,11 @@ begin
   end if;
 
   -- `handle_new_user` already created the profile; make sure the role stuck.
-  -- The credit balance is set here too, so the demo teacher can try AI Assist
+  -- The credit balance is set here too, so the demo admin can try AI Assist
   -- without a manual top-up (see `supabase/snippets/grant-ai-credits.sql`).
   update public.profiles
   set display_name = 'Cô Mai',
-      role = 'teacher',
+      role = 'admin',
       avatar_emoji = '👩‍🏫',
       school = 'THCS Nguyễn Du',
       ai_credits = 50
@@ -175,7 +175,7 @@ declare
       {
         "prompt": "Số 0 có phải là số tự nhiên không?",
         "explanation": "Theo chương trình lớp 6, tập số tự nhiên được viết là N = {0; 1; 2; 3; ...}.",
-        "options": ["Có", "Không", "Chỉ khi đi kèm số khác", "Tuỳ giáo viên quy định"],
+        "options": ["Có", "Không", "Chỉ khi đi kèm số khác", "Tuỳ quy định"],
         "correct": 0
       }
     ],
@@ -365,7 +365,7 @@ end $$;
 -- Per-question detail for those demo attempts
 --
 -- `submit_attempt()` always writes `attempt_answers`, but the hand-written
--- attempts above do not go through it. Without this the teacher report would
+-- attempts above do not go through it. Without this the admin report would
 -- show every question as "0 lượt sai". Deterministic: the first N questions of
 -- the quiz are answered correctly (N = the attempt's `correct_count`) and the
 -- rest are given a wrong option, keeping the detail consistent with the score

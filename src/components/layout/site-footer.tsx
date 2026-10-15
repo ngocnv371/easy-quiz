@@ -13,7 +13,7 @@ const LINK_GROUPS = [
     ],
   },
   {
-    title: 'Dành cho giáo viên',
+    title: 'Dành cho quản trị viên',
     links: [
       { to: '/manage', label: 'Trang quản lý' },
       { to: '/manage/quizzes/new', label: 'Tạo đề thi mới' },

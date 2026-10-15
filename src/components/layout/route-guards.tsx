@@ -32,9 +32,9 @@ export function RequireAuth({ children }: { children: ReactNode }) {
   return <>{children}</>
 }
 
-/** The teacher console: students have no business here. */
-export function RequireTeacher({ children }: { children: ReactNode }) {
-  const { status, user, isTeacher, isConfigured } = useAuth()
+/** The admin console: ordinary users have no business here. */
+export function RequireAdmin({ children }: { children: ReactNode }) {
+  const { status, user, isAdmin, isConfigured } = useAuth()
   const location = useLocation()
 
   if (!isConfigured) return <>{children}</>
@@ -45,7 +45,7 @@ export function RequireTeacher({ children }: { children: ReactNode }) {
     return <Navigate to={`/login?redirect=${encodeURIComponent(redirect)}`} replace />
   }
 
-  if (!isTeacher) {
+  if (!isAdmin) {
     return (
       <div className="relative flex min-h-dvh items-center justify-center overflow-hidden px-5">
         <AuroraBackground />
@@ -54,19 +54,18 @@ export function RequireTeacher({ children }: { children: ReactNode }) {
           <Alert
             tone="warning"
             icon={ShieldAlert}
-            title="Khu vực dành cho giáo viên"
+            title="Khu vực dành cho quản trị viên"
           >
-            Tài khoản của bạn đang là học sinh. Nếu bạn là giáo viên, hãy tạo một tài khoản
-            mới với vai trò <strong>Giáo viên</strong> — hoặc liên hệ quản trị viên để được
-            nâng quyền.
+            Tài khoản của bạn chưa được cấp quyền quản trị. Hãy liên hệ quản trị viên
+            để được nâng quyền.
           </Alert>
 
           <div className="flex justify-center gap-3">
             <ButtonLink to="/explore" variant="outline">
               Về trang khám phá
             </ButtonLink>
-            <ButtonLink to="/register" variant="primary">
-              Tạo tài khoản giáo viên
+            <ButtonLink to="/" variant="primary">
+              Về trang chủ
             </ButtonLink>
           </div>
         </div>

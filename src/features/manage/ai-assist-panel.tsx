@@ -34,7 +34,7 @@ const DEFAULT_BRIEF: AiBrief = {
 }
 
 /**
- * AI Assist: the teacher writes a brief, the model returns questions that can
+ * AI Assist: the admin writes a brief, the model returns questions that can
  * be appended to the draft. Nothing is written to the database here — the
  * questions land in the editor first, where a human still has the last word.
  */

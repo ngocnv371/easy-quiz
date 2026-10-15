@@ -21,7 +21,6 @@ export interface SignUpInput {
   email: string
   password: string
   displayName: string
-  role: Exclude<UserRole, 'admin'>
   school?: string
 }
 
@@ -36,7 +35,6 @@ interface AuthContextValue {
   user: User | null
   profile: ProfileRow | null
   isGuest: boolean
-  isTeacher: boolean
   isAdmin: boolean
   displayName: string
   role: UserRole
@@ -205,7 +203,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         options: {
           data: {
             display_name: input.displayName.trim(),
-            role: input.role,
             school: input.school?.trim() || null,
           },
         },
@@ -303,7 +300,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password: input.password,
         data: {
           display_name: input.displayName.trim(),
-          role: input.role,
           school: input.school?.trim() || null,
         },
       })
@@ -318,7 +314,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // guard this function checks.
       const { error: profileError } = await supabase.rpc('upgrade_guest_profile', {
         p_display_name: input.displayName.trim(),
-        p_role: input.role,
         // `undefined` rather than `null`: the argument is optional, and the SQL
         // default is already null.
         p_school: input.school?.trim() || undefined,
@@ -347,7 +342,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // The session is the authority on whether someone is a guest. The
       // `profiles.is_guest` column is only an aggregation flag for the
       // leaderboard, so it must not drive this.
-      isTeacher: role === 'teacher' || role === 'admin',
       isAdmin: role === 'admin',
       role,
       isGuest: guest,

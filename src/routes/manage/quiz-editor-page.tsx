@@ -636,7 +636,7 @@ export function ManageQuizEditorPage() {
                       <Field
                         label="Lời giải"
                         htmlFor={`explanation-${index}`}
-                        hint="Hiện cho học sinh sau khi nộp bài. Không bắt buộc."
+                        hint="Hiện cho người chơi sau khi nộp bài. Không bắt buộc."
                       >
                         <Textarea
                           id={`explanation-${index}`}
@@ -727,7 +727,7 @@ export function ManageQuizEditorPage() {
                 onChange={(event) =>
                   patchMeta({ description: event.target.value.slice(0, 600) })
                 }
-                placeholder="Học sinh sẽ được kiểm tra những gì?"
+                placeholder="Người chơi sẽ được kiểm tra những gì?"
               />
             </Field>
 
@@ -817,7 +817,7 @@ export function ManageQuizEditorPage() {
                 checked={draft.shuffle_questions}
                 onChange={(shuffle_questions) => patchMeta({ shuffle_questions })}
                 label="Đảo thứ tự câu hỏi"
-                description="Mỗi học sinh nhận một thứ tự khác nhau."
+                description="Mỗi người chơi nhận một thứ tự khác nhau."
               />
 
               <Toggle

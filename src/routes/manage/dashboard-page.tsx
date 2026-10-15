@@ -16,6 +16,7 @@ import { ButtonLink } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Alert, EmptyState, Skeleton } from '@/components/ui/feedback'
 import { fetchAttemptsForOwner, fetchMyQuizzes, summariseQuizzes } from '@/features/manage/api'
+import { ImportQuestionsButton } from '@/features/manage/import-questions-dialog'
 import { useAuth } from '@/features/auth/auth-context'
 import { formatCompact, formatPercent, formatRelative } from '@/lib/format'
 import { isSupabaseConfigured } from '@/lib/supabase'
@@ -59,7 +60,7 @@ export function ManageDashboardPage() {
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <Badge tone="spark" icon={Sparkles}>
-              Không gian giáo viên
+              Không gian quản trị
             </Badge>
 
             <Badge tone={credits > 0 ? 'violet' : 'wrong'} icon={Coins}>
@@ -72,14 +73,18 @@ export function ManageDashboardPage() {
           </h1>
 
           <p className="text-ink-300 mt-2 max-w-xl text-sm leading-relaxed">
-            Đây là nơi bạn soạn đề, theo dõi lượt chơi và xem học sinh đang làm tốt ở đâu.
+            Đây là nơi bạn soạn đề, theo dõi lượt chơi và xem người chơi đang làm tốt ở đâu.
           </p>
         </div>
 
-        <ButtonLink to="/manage/quizzes/new" size="lg">
-          <PlusCircle className="size-4" aria-hidden />
-          Tạo đề mới
-        </ButtonLink>
+        <div className="flex flex-wrap items-center gap-3">
+          <ImportQuestionsButton onImported={quizzes.reload} size="lg" />
+
+          <ButtonLink to="/manage/quizzes/new" size="lg">
+            <PlusCircle className="size-4" aria-hidden />
+            Tạo đề mới
+          </ButtonLink>
+        </div>
       </div>
 
       {/* ── Stats ──────────────────────────────────────────────────── */}
@@ -131,7 +136,7 @@ export function ManageDashboardPage() {
             </div>
           ) : (attempts.data ?? []).length === 0 ? (
             <p className="text-ink-400 p-5 text-sm leading-relaxed">
-              Chưa có ai làm bài. Xuất bản một đề và chia sẻ liên kết cho học sinh nhé.
+              Chưa có ai làm bài. Xuất bản một đề và chia sẻ liên kết cho người chơi nhé.
             </p>
           ) : (
             <ul className="divide-ink-600/60 max-h-96 divide-y overflow-y-auto">

@@ -29,7 +29,7 @@ export function UserMenu({
   dataCy?: string
   className?: string
 }) {
-  const { user, profile, isTeacher, isGuest, displayName, signOut } = useAuth()
+  const { user, profile, isAdmin, isGuest, displayName, signOut } = useAuth()
   const navigate = useNavigate()
 
   const [open, setOpen] = useState(false)
@@ -133,7 +133,7 @@ export function UserMenu({
             Tài khoản
           </MenuLink>
 
-          {isTeacher ? (
+          {isAdmin ? (
             <MenuLink to="/manage" icon={LayoutDashboard} onClick={() => setOpen(false)}>
               Trang quản lý
             </MenuLink>
