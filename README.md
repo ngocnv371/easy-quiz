@@ -353,8 +353,8 @@ no stylesheet.
 
 Cypress drives the real app against a local Supabase stack, in **Edge** by default. The Endless
 spec (`cypress/e2e/endless.cy.ts`) covers the flow that matters most: landing straight on a
-question, grading an answer, revealing the key, the streak/accuracy readouts, per-topic area
-tracking, the batch prefetch, and the stop summary.
+question, grading an answer, revealing the key, the streak/accuracy readouts, the subject-scope
+control, the batch prefetch, and the stop summary.
 
 ```bash
 npm run supabase:start   # backend + migrations + seed
@@ -363,9 +363,8 @@ npm run e2e              # headless, Edge
 npm run e2e:open         # interactive, Edge
 ```
 
-The specs expect the seed data (tagged demo quizzes), because area tracking keys off a quiz's
-topic. `baseUrl` lives in `cypress.config.ts`; failure screenshots land in `cypress/screenshots/`,
-which is git-ignored.
+The specs expect the seed data. `baseUrl` lives in `cypress.config.ts`; failure screenshots land
+in `cypress/screenshots/`, which is git-ignored.
 
 ---
 

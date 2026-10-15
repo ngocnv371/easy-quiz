@@ -16,14 +16,11 @@
 
 const S = {
   prompt: '[data-cy=endless-prompt]',
-  topic: '[data-cy=endless-topic]',
   options: '[data-cy=endless-options] button',
   feedback: '[data-cy=endless-feedback]',
   stop: '[data-cy=endless-stop]',
+  scope: '[data-cy=endless-scope]',
   summary: '[data-cy=endless-summary]',
-  areas: '[data-cy=endless-areas]',
-  areasEmpty: '[data-cy=endless-areas-empty]',
-  areaChip: '[data-cy=endless-area-chip]',
   streak: '[data-cy=endless-streak]',
   accuracy: '[data-cy=endless-accuracy]',
   reveal: '[data-cy=endless-reveal]',
@@ -71,9 +68,8 @@ describe('Endless mode', () => {
     cy.get('input').should('not.exist')
     cy.contains('Bắt đầu làm bài').should('not.exist')
 
-    // No answers yet, so the areas footer still shows its empty hint.
-    cy.get(S.areas).should('be.visible')
-    cy.get(S.areasEmpty).should('be.visible')
+    // The subject-scope control lives in the header, not an inventory of areas.
+    cy.get(S.scope).should('be.visible')
 
     // The first question skips the intro and plays immediately.
     cy.get(S.reveal).should('not.exist')
@@ -148,31 +144,6 @@ describe('Endless mode', () => {
     waitForFirstQuestion()
     cy.get(S.streak).should('have.text', '0')
     cy.get(S.accuracy).should('have.text', '0%')
-  })
-
-  it('starts tracking an area once a tagged question is answered', () => {
-    // Questions are drawn from every quiz, and a quiz may have no topic. Answer
-    // until one with a topic comes up, then the area footer must list it.
-    const answerUntilTagged = (remaining: number) => {
-      cy.get(S.topic)
-        .invoke('text')
-        .then((topicText) => {
-          const tagged = !topicText.includes('Tổng hợp')
-
-          cy.get(S.options).first().click()
-          cy.get(S.feedback).should('be.visible')
-
-          if (tagged) {
-            cy.get(S.areaChip).should('have.length.at.least', 1)
-          } else if (remaining > 0) {
-            cy.get(S.feedback).contains('button', 'Tiếp').click()
-            cy.get(S.prompt).should('be.visible')
-            answerUntilTagged(remaining - 1)
-          }
-        })
-    }
-
-    answerUntilTagged(8)
   })
 
   it(

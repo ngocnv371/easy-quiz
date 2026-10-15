@@ -3,7 +3,6 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { motion, useReducedMotion } from 'motion/react'
 import {
   ArrowRight,
-  Brain,
   Check,
   CheckCircle2,
   Flame,
@@ -23,7 +22,7 @@ import { AuroraBackground } from '@/components/brand/aurora-background'
 import { EasyQuizLogo } from '@/components/brand/logo'
 import { UserMenu } from '@/components/layout/user-menu'
 import { QuestionRevealVideo } from '@/components/remotion/players'
-import { Badge, accentTone } from '@/components/ui/badge'
+import { Badge } from '@/components/ui/badge'
 import { Button, ButtonLink, Spinner } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Alert, EmptyState, Skeleton } from '@/components/ui/feedback'
@@ -34,7 +33,6 @@ import {
   tokenizePrompt,
 } from '@/features/quiz/question-motion'
 import {
-  AREA_HINTS,
   AREA_LABELS,
   areaStrength,
   sortByStrength,
@@ -522,12 +520,9 @@ function EndlessPlayer({
           )}
         </main>
 
-        {/* ── Areas ──────────────────────────────────────────────────── */}
+        {/* ── Account ─────────────────────────────────────────────────── */}
         <footer className="border-ink-600/50 border-t backdrop-blur-sm">
-          <div
-            className="mx-auto flex w-full max-w-3xl items-center gap-3 px-5 py-3"
-            data-cy="endless-areas"
-          >
+          <div className="mx-auto flex w-full max-w-3xl items-center gap-3 px-5 py-3">
             <UserMenu
               placement="top"
               align="start"
@@ -536,30 +531,6 @@ function EndlessPlayer({
               dataCy="endless-user"
               className="shrink-0"
             />
-
-            <div className="flex min-w-0 flex-1 items-center gap-2">
-              {areas.length === 0 ? (
-                <p
-                  className="text-ink-500 flex items-center gap-2 text-xs"
-                  data-cy="endless-areas-empty"
-                >
-                  <Brain className="size-3.5 shrink-0" aria-hidden />
-                  Trả lời vài câu để xem hồ sơ năng lực của bạn theo từng môn.
-                </p>
-              ) : (
-                <>
-                  <span className="text-ink-500 hidden shrink-0 items-center gap-1.5 text-xs sm:flex">
-                    <Brain className="size-3.5" aria-hidden />
-                    Khu vực
-                  </span>
-                  <div className="flex flex-1 items-center gap-1.5 overflow-x-auto pb-0.5">
-                    {areas.map((area) => (
-                      <AreaChip key={area.topic_id} area={area} />
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
           </div>
         </footer>
       </div>
@@ -759,25 +730,6 @@ function ScopeOption({
         {active ? <Check className="text-neon-300 size-4 shrink-0" aria-hidden /> : null}
       </button>
     </li>
-  )
-}
-
-function AreaChip({ area }: { area: EndlessTopicProgress }) {
-  const strength = areaStrength(area.accuracy, area.answered)
-
-  return (
-    <span
-      data-cy="endless-area-chip"
-      className={cn(
-        'inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs',
-        STRENGTH_CHIP[strength],
-      )}
-      title={`${AREA_LABELS[strength]} · ${AREA_HINTS[strength]}`}
-    >
-      <span aria-hidden>{area.emoji}</span>
-      <span className="text-ink-200 max-w-[7rem] truncate">{area.name}</span>
-      <span className="font-mono tabular-nums">{formatPercent(area.accuracy)}</span>
-    </span>
   )
 }
 
