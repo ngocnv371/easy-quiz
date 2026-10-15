@@ -1,9 +1,10 @@
 import { Fragment, useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { motion, useReducedMotion } from 'motion/react'
 import {
   ArrowRight,
   Brain,
+  Check,
   CheckCircle2,
   Flame,
   Home,
@@ -26,6 +27,7 @@ import { Badge, accentTone } from '@/components/ui/badge'
 import { Button, ButtonLink, Spinner } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Alert, EmptyState, Skeleton } from '@/components/ui/feedback'
+import { Modal } from '@/components/ui/modal'
 import { AnswerTile, optionLetter, type AnswerState } from '@/features/quiz/answer-tile'
 import {
   QUESTION_MOTION_RECIPES,
@@ -38,12 +40,14 @@ import {
   sortByStrength,
   type AreaStrength,
 } from '@/features/quiz/endless-progress'
+import { fetchTopics } from '@/features/quiz/api'
 import { useEndlessSession } from '@/features/quiz/use-endless-session'
 import { useAuth } from '@/features/auth/auth-context'
 import { formatClock, formatPercent } from '@/lib/format'
 import { usePageMeta } from '@/lib/seo'
+import { useAsyncData } from '@/lib/use-async-data'
 import { accentColor } from '@/remotion/question-reveal'
-import type { EndlessTopicProgress } from '@/lib/domain'
+import type { EndlessTopicProgress, TopicRow } from '@/lib/domain'
 import { cn, errorMessage } from '@/lib/utils'
 
 /**
@@ -119,8 +123,38 @@ export function EndlessPage() {
     void signIn()
   }, [isConfigured, status, user, signIn])
 
-  const enabled = isConfigured && status === 'ready' && !!user
-  const session = useEndlessSession(enabled)
+  // ── Subject scope ────────────────────────────────────────────────────────
+  // `/endless?topic=<slug>` pins the stream to one subject; the slug resolves
+  // against the live topic list, so a stale link quietly falls back to "all".
+  const [params, setParams] = useSearchParams()
+  const topicSlug = params.get('topic')
+
+  const topics = useAsyncData('endless:topics', fetchTopics, isConfigured)
+
+  const scopedTopic = topicSlug
+    ? ((topics.data ?? []).find((topic) => topic.slug === topicSlug) ?? null)
+    : null
+  const topicId = scopedTopic?.id ?? null
+
+  const setScope = useCallback(
+    (slug: string | null) => {
+      setParams(
+        (previous) => {
+          const next = new URLSearchParams(previous)
+          if (!slug) next.delete('topic')
+          else next.set('topic', slug)
+          return next
+        },
+        { replace: true },
+      )
+    },
+    [setParams],
+  )
+
+  // Wait for the topic list so a deep-linked scope boots already scoped.
+  const scopeReady = topicSlug === null || !topics.loading
+
+  const enabled = isConfigured && status === 'ready' && !!user && scopeReady
 
   // ── Pre-session states ───────────────────────────────────────────────────
   if (!isConfigured) {
@@ -164,12 +198,59 @@ export function EndlessPage() {
     )
   }
 
-  return <EndlessPlayer session={session} />
+  return (
+    <EndlessSession
+      // A scope change starts a fresh stream, so remount the session rather
+      // than threading a reset through the hook.
+      key={topicId ?? 'all'}
+      enabled={enabled}
+      topicId={topicId}
+      topics={topics.data ?? []}
+      topicSlug={topicSlug}
+      onScopeChange={setScope}
+    />
+  )
+}
+
+/** Owns the session, so changing the scope cleanly remounts it. */
+function EndlessSession({
+  enabled,
+  topicId,
+  topics,
+  topicSlug,
+  onScopeChange,
+}: {
+  enabled: boolean
+  topicId: string | null
+  topics: TopicRow[]
+  topicSlug: string | null
+  onScopeChange: (slug: string | null) => void
+}) {
+  const session = useEndlessSession(enabled, topicId)
+
+  return (
+    <EndlessPlayer
+      session={session}
+      topics={topics}
+      topicSlug={topicSlug}
+      onScopeChange={onScopeChange}
+    />
+  )
 }
 
 // ── Player ────────────────────────────────────────────────────────────────
 
-function EndlessPlayer({ session }: { session: ReturnType<typeof useEndlessSession> }) {
+function EndlessPlayer({
+  session,
+  topics,
+  topicSlug,
+  onScopeChange,
+}: {
+  session: ReturnType<typeof useEndlessSession>
+  topics: TopicRow[]
+  topicSlug: string | null
+  onScopeChange: (slug: string | null) => void
+}) {
   const {
     phase,
     current,
@@ -190,6 +271,9 @@ function EndlessPlayer({ session }: { session: ReturnType<typeof useEndlessSessi
   const grading = phase === 'grading'
   const accuracy = stats.answered === 0 ? 0 : (stats.correct / stats.answered) * 100
   const areas = sortByStrength(progress)
+  const scopeName = topicSlug
+    ? (topics.find((topic) => topic.slug === topicSlug)?.name ?? null)
+    : null
 
   const reduceMotion = useReducedMotion()
 
@@ -211,6 +295,7 @@ function EndlessPlayer({ session }: { session: ReturnType<typeof useEndlessSessi
   // question has been handed off, so a mid-question re-render never re-hides it.
   const [introShownFor, setIntroShownFor] = useState(0)
   const introReady = reduceMotion || shown === 0 || introShownFor === shown
+  const [scopeOpen, setScopeOpen] = useState(false)
 
   useEffect(() => {
     if (reduceMotion || shown === 0) return
@@ -271,6 +356,20 @@ function EndlessPlayer({ session }: { session: ReturnType<typeof useEndlessSessi
             </Badge>
 
             <div className="ml-auto flex items-center gap-1.5">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setScopeOpen(true)}
+                className="gap-1.5"
+                data-cy="endless-scope"
+                aria-label={`Môn học: ${scopeName ?? 'tất cả'}`}
+              >
+                <Layers className="size-4" aria-hidden />
+                <span className="hidden max-w-[8rem] truncate sm:inline">
+                  {scopeName ?? 'Tất cả môn'}
+                </span>
+              </Button>
+
               <StatPill icon={Flame} tone={stats.streak >= 2 ? 'spark' : 'neutral'} dataCy="endless-streak">
                 <span key={stats.streak} className="animate-pop inline-block">
                   {stats.streak}
@@ -318,16 +417,26 @@ function EndlessPlayer({ session }: { session: ReturnType<typeof useEndlessSessi
             <EmptyState
               icon={Sparkles}
               title="Bạn đã đi hết kho câu hỏi"
-              description="Hiện chưa còn câu nào mới cho bạn luyện. Chơi lại từ đầu để gặp lại những câu đã làm."
+              description={
+                scopeName
+                  ? `Bạn đã làm hết câu hỏi của môn ${scopeName}. Đổi sang môn khác, hoặc chơi lại từ đầu để gặp lại những câu đã làm.`
+                  : 'Hiện chưa còn câu nào mới cho bạn luyện. Chơi lại từ đầu để gặp lại những câu đã làm.'
+              }
               action={
                 <div className="flex flex-wrap justify-center gap-3">
                   <Button onClick={() => void restart()}>
                     <RotateCcw className="size-4" aria-hidden />
                     Chơi lại
                   </Button>
-                  <ButtonLink to="/explore" variant="outline">
-                    Xem thêm đề
-                  </ButtonLink>
+                  {topicSlug ? (
+                    <Button variant="outline" onClick={() => onScopeChange(null)}>
+                      Học tất cả môn
+                    </Button>
+                  ) : (
+                    <ButtonLink to="/explore" variant="outline">
+                      Xem thêm đề
+                    </ButtonLink>
+                  )}
                 </div>
               }
             />
@@ -504,6 +613,42 @@ function EndlessPlayer({ session }: { session: ReturnType<typeof useEndlessSessi
           </Card>
         </div>
       ) : null}
+
+      {/* ── Subject scope ────────────────────────────────────────────── */}
+      <Modal
+        open={scopeOpen}
+        onClose={() => setScopeOpen(false)}
+        icon={Layers}
+        tone="violet"
+        title="Chọn môn học"
+        description="Giới hạn câu hỏi vô tận trong một môn, hoặc trộn tất cả."
+      >
+        <ul className="space-y-1">
+          <ScopeOption
+            active={topicSlug === null}
+            glyph={<Layers className="size-4" aria-hidden />}
+            title="Tất cả môn"
+            subtitle="Trộn câu hỏi từ mọi môn"
+            onSelect={() => {
+              onScopeChange(null)
+              setScopeOpen(false)
+            }}
+          />
+
+          {topics.map((topic) => (
+            <ScopeOption
+              key={topic.id}
+              active={topicSlug === topic.slug}
+              glyph={topic.emoji}
+              title={topic.name}
+              onSelect={() => {
+                onScopeChange(topic.slug)
+                setScopeOpen(false)
+              }}
+            />
+          ))}
+        </ul>
+      </Modal>
     </div>
   )
 }
@@ -589,6 +734,50 @@ function FeedbackBanner({
         </Button>
       </div>
     </div>
+  )
+}
+
+function ScopeOption({
+  active,
+  glyph,
+  title,
+  subtitle,
+  onSelect,
+}: {
+  active: boolean
+  glyph: ReactNode
+  title: string
+  subtitle?: string
+  onSelect: () => void
+}) {
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={onSelect}
+        aria-pressed={active}
+        className={cn(
+          'flex w-full items-center gap-3 rounded-xl border px-3.5 py-3 text-left transition-colors',
+          active ? 'border-neon-400/50 bg-neon-400/10' : 'border-transparent hover:bg-ink-800/60',
+        )}
+      >
+        <span
+          className="border-ink-600 bg-ink-800/70 flex size-8 shrink-0 items-center justify-center rounded-lg border text-base"
+          aria-hidden
+        >
+          {glyph}
+        </span>
+
+        <span className="min-w-0 flex-1">
+          <span className="text-ink-100 block truncate text-sm font-medium">{title}</span>
+          {subtitle ? (
+            <span className="text-ink-400 block truncate text-xs">{subtitle}</span>
+          ) : null}
+        </span>
+
+        {active ? <Check className="text-neon-300 size-4 shrink-0" aria-hidden /> : null}
+      </button>
+    </li>
   )
 }
 

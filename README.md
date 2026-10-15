@@ -159,6 +159,11 @@ the next. "Dừng" ends the session with a summary at any point.
 - Questions are drawn from every published public quiz in **batches of 10**
   (`get_endless_batch()`), keyed by the quiz's topic as the "area of expertise", so there is no
   per-question tagging to maintain.
+- The stream can be **scoped to one subject** with `/endless?topic=<slug>` — the player picks it
+  from a selector in the top bar, and the choice lives in the URL so it survives a refresh and can
+  be shared. The slug resolves against the live topic list, so a stale link falls back to all
+  subjects. `get_endless_batch(..., p_topic_id)` filters the pool; `NULL` keeps the whole
+  catalogue in play.
 - Each answer is graded on its own (`grade_endless_answer()`), which reveals the key for that one
   question and folds the result into `endless_progress` — one row per player and topic. The answer
   key still never reaches the browser.

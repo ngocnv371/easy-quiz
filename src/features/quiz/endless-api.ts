@@ -16,12 +16,15 @@ export const ENDLESS_BATCH_SIZE = 10
 export async function fetchEndlessBatch(
   limit: number = ENDLESS_BATCH_SIZE,
   exclude: string[] = [],
+  topicId: string | null = null,
 ): Promise<EndlessBatch> {
   const supabase = requireSupabase()
 
   const { data, error } = await supabase.rpc('get_endless_batch', {
     p_limit: limit,
     p_exclude: exclude,
+    // `undefined` omits the argument, so the SQL default (all subjects) applies.
+    p_topic_id: topicId ?? undefined,
   })
 
   if (error) throw new Error(errorMessage(error))

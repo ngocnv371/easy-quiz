@@ -324,7 +324,7 @@ isOneToOne: false
 { Args: { "p_uid": string }; Returns: Json
                            },
 "get_endless_batch":
-{ Args: { "p_exclude"?: (string)[],"p_limit"?: number }; Returns: Json
+{ Args: { "p_exclude"?: (string)[],"p_limit"?: number,"p_topic_id"?: string }; Returns: Json
                            },
 "get_quiz_for_play":
 { Args: { "p_slug": string }; Returns: Json

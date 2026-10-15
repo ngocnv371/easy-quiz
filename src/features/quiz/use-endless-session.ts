@@ -77,7 +77,11 @@ function mergeProgress(
  * only grade a signed-in answer — an anonymous guest is signed in too, just
  * disposable.
  */
-export function useEndlessSession(enabled: boolean): EndlessSession {
+export function useEndlessSession(
+  enabled: boolean,
+  /** When set, the stream only draws from this subject. */
+  topicId: string | null = null,
+): EndlessSession {
   const [phase, setPhase] = useState<EndlessPhase>('waiting')
   const [queue, setQueue] = useState<EndlessQuestion[]>([])
   const [selected, setSelected] = useState<string | null>(null)
@@ -117,7 +121,7 @@ export function useEndlessSession(enabled: boolean): EndlessSession {
 
     fetchingRef.current = true
     try {
-      const batch = await fetchEndlessBatch(ENDLESS_BATCH_SIZE, [...seenRef.current])
+      const batch = await fetchEndlessBatch(ENDLESS_BATCH_SIZE, [...seenRef.current], topicId)
 
       if (batch.progress.length > 0) setProgress(batch.progress)
 
@@ -135,7 +139,7 @@ export function useEndlessSession(enabled: boolean): EndlessSession {
     } finally {
       fetchingRef.current = false
     }
-  }, [])
+  }, [topicId])
 
   /** Load the very first batch and open the first question. */
   const begin = useCallback(async () => {
