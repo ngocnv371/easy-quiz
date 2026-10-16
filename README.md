@@ -66,7 +66,7 @@ npm run dev
 - **A demo admin** — `admin@easyquiz.local` / `easyquiz123` (role: admin)
 
 Quizzes are not seeded. Sign in as the admin and use **Nhập câu hỏi** (the CSV bulk import) to load
-them, or invoke the `import-questions` edge function directly.
+them, or run `npm run import:samples` to import every CSV in `samples/` in one go.
 
 Studio is at <http://127.0.0.1:54423> if you want to poke at the data directly.
 
@@ -347,6 +347,7 @@ no stylesheet.
 | `npm run types:gen`                           | Regenerate `src/lib/database.types.ts`            |
 | `npm run sitemap:gen`                         | Rewrite `public/sitemap.xml` from the published quizzes |
 | `npm run og:image`                            | Render `public/og-image.png` from `scripts/og-image.html` |
+| `npm run import:samples`                      | Import every CSV in `samples/` through the edge function |
 | `npm run fn:serve`                            | Serve edge functions with `supabase/functions/.env` |
 
 > `src/lib/database.types.ts` is generated. Change the schema in `supabase/migrations`, then run
