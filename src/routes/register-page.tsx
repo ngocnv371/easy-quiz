@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
-import { KeyRound, Mail, School, UserRound } from 'lucide-react'
+import { KeyRound, Mail, UserRound } from 'lucide-react'
 
 import { Alert } from '@/components/ui/feedback'
 import { Button } from '@/components/ui/button'
@@ -25,7 +25,7 @@ export function RegisterPage() {
   const [nameTouched, setNameTouched] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [school, setSchool] = useState('')
+  const [school] = useState('')
 
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -203,22 +203,6 @@ export function RegisterPage() {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="••••••••"
-              className="pl-10"
-            />
-          </div>
-        </Field>
-
-        <Field label="Trường / tổ chức" htmlFor="school" hint="Không bắt buộc">
-          <div className="relative">
-            <School
-              className="text-ink-400 pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2"
-              aria-hidden
-            />
-            <Input
-              id="school"
-              value={school}
-              onChange={(event) => setSchool(event.target.value)}
-              placeholder="THCS Nguyễn Du"
               className="pl-10"
             />
           </div>
