@@ -1,0 +1,501 @@
+subject,prompt,option_a,option_b,option_c,option_d,correct,explanation
+Logic Trung Học,Câu nào dưới đây là mệnh đề?,Bạn có khỏe không?,Hãy đi nhanh lên.,Trời đẹp quá!,Hà Nội là thủ đô Việt Nam,D,Mệnh đề là câu khẳng định có tính đúng hoặc sai.
+Logic Trung Học,Phủ định của mệnh đề 'Trời đang mưa' là gì?,Trời đang nắng,Trời sắp mưa,Trời đang mưa rất to,Trời không đang mưa,D,Phủ định thêm chữ 'không' vào vị ngữ.
+Logic Trung Học,Phủ định của mệnh đề 'Số 5 là số chẵn' là gì?,Số 5 là số lẻ,Số 5 không là số chẵn,Số 5 chia hết cho 2,Số 5 là số nguyên tố,B,Phủ định của P là 'không P'.
+Logic Trung Học,Phủ định của mệnh đề '3 < 5' là gì?,3 > 5,3 ≥ 5,3 = 5,3 ≤ 5,B,Phủ định của nhỏ hơn là lớn hơn hoặc bằng.
+Logic Trung Học,Phủ định của mệnh đề 'x > 0' là gì?,x ≤ 0,x = 0,x < 0,x ≥ 0,A,Phủ định của 'lớn hơn' là 'nhỏ hơn hoặc bằng'.
+Logic Trung Học,Phủ định của mệnh đề 'a chia hết cho 2' là gì?,a là số nguyên tố,a chia hết cho 3,a không chia hết cho 2,a chia hết cho 4,C,Phủ định là 'không chia hết cho 2'.
+Logic Trung Học,Phủ định của mệnh đề 'Mọi số tự nhiên đều chẵn' là gì?,Mọi số tự nhiên đều lẻ,Tồn tại số tự nhiên không chẵn,Tồn tại số tự nhiên chẵn,Không số tự nhiên nào chẵn,B,Phủ định của 'mọi' là 'tồn tại' kèm phủ định vị ngữ.
+Logic Trung Học,Phủ định của mệnh đề 'Tồn tại x để x² = 4' là gì?,Tồn tại x để x² ≠ 4,Mọi x đều có x² = 4,Mọi x đều có x² ≠ 4,Không x nào có x² = 4,C,Phủ định của 'tồn tại' là 'mọi' kèm phủ định.
+Logic Trung Học,Mệnh đề nào dưới đây đúng về kết quả phép tính 2 + 2?,7 chia hết cho 2,3 là số chẵn,2 + 2 = 5,2 + 2 = 4,D,2 + 2 = 4 là mệnh đề đúng.
+Logic Trung Học,Mệnh đề nào dưới đây sai?,4 chia hết cho 2,3 = 3,1 > 2,2 > 1,C,1 không lớn hơn 2.
+Logic Trung Học,Câu 'x + 1 > 0' (với x chưa xác định) có phải là mệnh đề không?,"Có, là mệnh đề đúng","Có, là mệnh đề sai","Không, đây là mệnh đề chứa biến","Có, là mệnh đề không xác định",C,Chưa biết x nên chưa xác định được tính đúng sai.
+Logic Trung Học,Câu nào dưới đây không phải là mệnh đề?,5 là số lẻ,"Ôi, đẹp quá!",2 < 3,Tam giác có 3 cạnh,B,Câu cảm thán không phải mệnh đề.
+Logic Trung Học,Phủ định của 'Mọi học sinh đều đi học đúng giờ' là gì?,Có học sinh không đi học đúng giờ,Mọi học sinh đi học đúng giờ,Mọi học sinh đi học muộn,Không học sinh nào đi học đúng giờ,A,Phủ định của 'mọi' là 'có ít nhất một'.
+Logic Trung Học,Phủ định của 'Tồn tại số nguyên tố chẵn' là gì?,Mọi số nguyên tố đều lẻ,Mọi số đều chẵn,Tồn tại số nguyên tố lẻ,Không số nào là nguyên tố,A,Có số nguyên tố chẵn là sai nên phủ định là mọi số nguyên tố đều lẻ.
+Logic Trung Học,Phủ định của 'n chia hết cho 3 và n chia hết cho 5' là gì?,n chia hết cho 15,n không chia hết cho 3 hoặc n không chia hết cho 5,n không chia hết cho 3 và không chia hết cho 5,n không chia hết cho 15,B,Phủ định của 'và' là 'hoặc' với các phủ định.
+Logic Trung Học,Phủ định của 'A hoặc B' là gì?,Không A hoặc không B,A và B,A hoặc không B,Không A và không B,D,Luật De Morgan.
+Logic Trung Học,Phủ định của 'A và B' là gì?,Không A và không B,Không A và B,A hoặc B,Không A hoặc không B,D,Luật De Morgan.
+Logic Trung Học,Mệnh đề 'Số 0 là số tự nhiên' đúng hay sai?,Vừa đúng vừa sai,Không xác định,Đúng,Sai,C,0 là số tự nhiên nhỏ nhất.
+Logic Trung Học,Mệnh đề 'Số 1 là số nguyên tố' đúng hay sai?,Sai,Đúng với mọi n,Không xác định,Đúng,A,"Số nguyên tố phải có đúng hai ước, số 1 chỉ có một ước."
+Logic Trung Học,Mệnh đề 'Mọi số nguyên tố đều lẻ' đúng hay sai?,"Sai, vì 2 là số nguyên tố chẵn",Không xác định,Đúng,Đúng với mọi số lớn hơn 0,A,2 là số nguyên tố nhưng là số chẵn.
+Logic Trung Học,Phủ định của mệnh đề 'Hôm nay là thứ hai' là gì?,Ngày mai là thứ ba,Hôm qua là chủ nhật,Hôm nay là chủ nhật,Hôm nay không phải thứ hai,D,Phủ định là 'không phải thứ hai'.
+Logic Trung Học,Phủ định của mệnh đề 'Tam giác ABC là tam giác đều' là gì?,Tam giác ABC vuông,Tam giác ABC cân,Tam giác ABC nhọn,Tam giác ABC không phải tam giác đều,D,Phủ định là 'không phải tam giác đều'.
+Logic Trung Học,Phủ định của mệnh đề 'n là số nguyên dương' là gì?,n > 0,n < 0,n = 0,n ≤ 0,D,Phủ định của n > 0 là n ≤ 0.
+Logic Trung Học,Mệnh đề '15 chia hết cho 4' đúng hay sai?,Đúng,Không xác định,Đúng nếu làm tròn,Sai,D,15 không chia hết cho 4.
+Logic Trung Học,Phủ định của mệnh đề 'Đường thẳng a song song với đường thẳng b' là gì?,Đường thẳng a vuông góc với b,Đường thẳng a song song với b,Đường thẳng a cắt đường thẳng b,Đường thẳng a trùng với b,C,Hai đường thẳng không song song thì cắt nhau.
+Logic Trung Học,Cho mệnh đề P: '3 là số nguyên tố'. Mệnh đề phủ định của P là gì?,3 là số chẵn,3 không là số nguyên tố,3 là số lẻ,3 là hợp số,B,Phủ định của P là '3 không là số nguyên tố'.
+Logic Trung Học,Mệnh đề nào dưới đây là mệnh đề chứa biến?,2 + 2 = 4,5 chia hết cho 3,n chia hết cho 3,7 là số lẻ,C,Có biến n nên là mệnh đề chứa biến.
+Logic Trung Học,"Phủ định của 'Mọi x thuộc R, x² ≥ 0' là gì?","Mọi x thuộc R, x² < 0",Tồn tại x thuộc R để x² < 0,"Mọi x thuộc R, x² > 0","Tồn tại x thuộc R, x² ≥ 0",B,Đổi 'mọi' thành 'tồn tại' và phủ định bất đẳng thức.
+Logic Trung Học,"Phủ định của 'Tồn tại x thuộc R, x² = -1' là gì?",Không x nào có x² = -1,"Mọi x thuộc R, x² = -1","Mọi x thuộc R, x² ≠ -1","Tồn tại x thuộc R, x² ≠ -1",C,Đổi 'tồn tại' thành 'mọi' và phủ định đẳng thức.
+Logic Trung Học,Mệnh đề 'Tồn tại số tự nhiên x sao cho x + 1 = 0' đúng hay sai?,Đúng,Sai,Đúng với x = -1,Không xác định,B,Không có số tự nhiên nào thỏa mãn.
+Logic Trung Học,Phủ định của mệnh đề 'Bình phương của mọi số thực đều không âm' là gì?,Mọi số thực có bình phương âm,Không số thực nào có bình phương dương,Tồn tại số thực có bình phương không âm,Tồn tại số thực có bình phương âm,D,Phủ định là tồn tại số thực có bình phương âm.
+Logic Trung Học,Mệnh đề 'Số 9 là số chính phương' đúng hay sai?,Đúng,Đúng nếu 9 là số lẻ,Sai,Không xác định,A,9 = 3² nên là số chính phương.
+Logic Trung Học,Phủ định của mệnh đề 'a > b' là gì?,a ≤ b,a ≥ b,a = b,a < b,A,Phủ định của 'lớn hơn' là 'nhỏ hơn hoặc bằng'.
+Logic Trung Học,Phủ định của mệnh đề 'a ≠ b' là gì?,a = b,a > b,a ≥ b,a < b,A,Phủ định của 'khác' là 'bằng'.
+Logic Trung Học,Phủ định của mệnh đề 'a chia hết cho b' (với b ≠ 0) là gì?,a không chia hết cho b,a là số lẻ,b chia hết cho a,a chia hết cho 1,A,Phủ định là 'không chia hết'.
+Logic Trung Học,Mệnh đề 'x² = 4 khi và chỉ khi x = 2' đúng hay sai?,Đúng với x dương,Đúng,Không xác định,"Sai, vì x có thể bằng -2",D,x² = 4 còn có nghiệm x = -2.
+Logic Trung Học,Phủ định của mệnh đề 'Có ít nhất một số nguyên tố chẵn' là gì?,Mọi số chẵn đều là nguyên tố,Có số nguyên tố lẻ,Mọi số nguyên tố đều lẻ,Không có số chẵn nào,C,Mọi số nguyên tố đều lẻ.
+Logic Trung Học,Phủ định của mệnh đề 'Nếu A thì B' là gì?,Không A và B,Không A và không B,A hoặc B,A và không B,D,Phủ định của mệnh đề kéo theo là 'A và không B'.
+Logic Trung Học,Cho mệnh đề 'Nếu trời mưa thì tôi ở nhà'. Phủ định của nó là gì?,Trời không mưa và tôi không ở nhà,Trời mưa và tôi không ở nhà,Trời mưa và tôi ở nhà,Trời không mưa và tôi ở nhà,B,Phủ định là 'trời mưa và tôi không ở nhà'.
+Logic Trung Học,Mệnh đề 'Không có số tự nhiên lớn nhất' đúng hay sai?,Đúng,Đúng nếu giới hạn phạm vi,Sai,Không xác định,A,Luôn cộng thêm 1 được số lớn hơn.
+Logic Trung Học,Phủ định của mệnh đề 'Tất cả các số nguyên tố đều là số lẻ' là gì?,Mọi số nguyên tố đều chẵn,Không số nguyên tố nào lẻ,Có ít nhất một số nguyên tố chẵn,Tất cả các số đều lẻ,C,Phủ định là tồn tại số nguyên tố chẵn.
+Logic Trung Học,Mệnh đề 'Số 100 chia hết cho 8' đúng hay sai?,Đúng nếu 100 chia 8 là số nguyên,Không xác định,Đúng,Sai,D,100 : 8 không là số nguyên.
+Logic Trung Học,Phủ định của mệnh đề 'P khi và chỉ khi Q' là gì?,(P và không Q) hoặc (Q và không P),P và Q,Không P và không Q,P hoặc Q,A,Phủ định tương đương là 'khác nhau về chân trị'.
+Logic Trung Học,Mệnh đề nào dưới đây đúng về số chính phương?,Số 4 là số chính phương,Số 7 chia hết cho 3,Số 9 là số chẵn,Số 6 là số nguyên tố,A,4 = 2² nên là số chính phương.
+Logic Trung Học,Mệnh đề 'Mọi số chia hết cho 6 đều chia hết cho 3' đúng hay sai?,Đúng,Sai,Không xác định,Chỉ đúng với số chẵn,A,6 chia hết cho 3 nên bội của 6 cũng chia hết cho 3.
+Logic Trung Học,Mệnh đề 'Nếu a chia hết cho 4 thì a chia hết cho 2' đúng hay sai?,Không xác định,Chỉ đúng khi a dương,Đúng,Sai,C,4 chia hết cho 2 nên mệnh đề đúng.
+Logic Trung Học,Phủ định của mệnh đề 'Mọi tam giác đều có tổng ba góc bằng 180°' là gì?,Tồn tại tam giác có tổng ba góc khác 180°,Tồn tại tam giác có tổng ba góc bằng 180°,Mọi tam giác có tổng ba góc khác 180°,Tam giác có bốn góc,A,Phủ định là tồn tại tam giác có tổng ba góc khác 180°.
+Logic Trung Học,Cặp mệnh đề nào dưới đây là phủ định của nhau?,'5 > 3' và '5 ≤ 3','5 > 3' và '5 = 3','5 > 3' và '3 > 5','5 > 3' và '3 < 5',A,Phủ định của '5 > 3' là '5 ≤ 3'.
+Logic Trung Học,Mệnh đề 'Số nguyên âm là số tự nhiên' đúng hay sai?,Sai,Không xác định,Đúng,Đúng với số nhỏ,A,Số tự nhiên không bao gồm số nguyên âm.
+Logic Trung Học,Phủ định của mệnh đề 'Điểm M nằm trong đường tròn (O)' là gì?,Điểm M là tâm của đường tròn,Điểm M nằm ngoài trục hoành,Điểm M không nằm trong đường tròn (O),Điểm M nằm trên đường tròn (O),C,Phủ định là 'không nằm trong đường tròn'.
+Logic Trung Học,Mệnh đề 'Nếu a chia hết cho 2 thì a là số chẵn' đúng hay sai?,Sai,Không xác định,Đúng,Chỉ đúng khi a > 0,C,Chia hết cho 2 chính là số chẵn.
+Logic Trung Học,Điều kiện đủ để một số chia hết cho 3 là gì?,Số đó là số chẵn,Số đó là số lẻ,Số đó lớn hơn 3,Số đó chia hết cho 9,D,Chia hết cho 9 thì chia hết cho 3.
+Logic Trung Học,Mệnh đề 'Nếu a chia hết cho 2 thì a chia hết cho 4' đúng hay sai?,Không xác định,Đúng,Đúng khi a chẵn,"Sai, ví dụ a = 6",D,6 chia hết cho 2 nhưng không chia hết cho 4.
+Logic Trung Học,Mệnh đề đảo của 'Nếu A thì B' là gì?,Nếu không B thì không A,Nếu không A thì không B,B và A,Nếu B thì A,D,Đảo đề là đổi chỗ giả thiết và kết luận.
+Logic Trung Học,Mệnh đề phản đảo của 'Nếu A thì B' là gì?,Nếu B thì A,Nếu không A thì không B,A hoặc B,Nếu không B thì không A,D,Phản đảo là phủ định và đảo cả hai vế.
+Logic Trung Học,Mệnh đề nào tương đương logic với 'Nếu A thì B'?,A và B,Phủ định của nó,Mệnh đề phản đảo 'Nếu không B thì không A',Mệnh đề đảo 'Nếu B thì A',C,Mệnh đề kéo theo tương đương với phản đảo của nó.
+Logic Trung Học,Cho mệnh đề 'Nếu tứ giác là hình vuông thì tứ giác có 4 góc vuông'. Mệnh đề đảo là gì?,Nếu tứ giác không có 4 góc vuông thì không là hình vuông,Nếu tứ giác có 4 góc vuông thì tứ giác là hình vuông,Nếu tứ giác là hình vuông thì không có 4 góc vuông,Tứ giác có 4 góc vuông,B,Đảo đề đổi chỗ hai vế.
+Logic Trung Học,Điều kiện cần để một số chia hết cho 6 là gì?,Số đó chia hết cho 2,Số đó chia hết cho 12,Số đó chia hết cho 4,Số đó là số lẻ,A,Chia hết cho 6 thì chia hết cho 2.
+Logic Trung Học,Điều kiện đủ để một tứ giác là hình bình hành là gì?,Tứ giác có ba cạnh bằng nhau,Tứ giác có hai cặp cạnh đối song song,Tứ giác có bốn góc vuông,Tứ giác có bốn cạnh bằng nhau,B,Hai cặp cạnh đối song song đủ để là hình bình hành.
+Logic Trung Học,'n là số chẵn' là điều kiện cần hay đủ để 'n chia hết cho 4'?,Đủ nhưng không cần,Không liên quan,Cần và đủ,Cần nhưng không đủ,D,"Chia hết cho 4 thì chẵn, nhưng chẵn chưa chắc chia hết cho 4."
+Logic Trung Học,'n chia hết cho 4' là điều kiện cần hay đủ để 'n là số chẵn'?,Đủ nhưng không cần,Không liên quan,Cần và đủ,Cần nhưng không đủ,A,Chia hết cho 4 thì chắc chắn chẵn.
+Logic Trung Học,Mệnh đề 'A khi và chỉ khi B' đúng khi nào?,A và B cùng đúng hoặc cùng sai,Chỉ khi A đúng,A sai và B đúng,A đúng và B sai,A,Hai mệnh đề phải cùng chân trị.
+Logic Trung Học,Phủ định của mệnh đề 'Nếu tôi học thì tôi đỗ' là gì?,Tôi học và tôi đỗ,Tôi học và tôi không đỗ,Tôi không học và tôi đỗ,Tôi không học và tôi không đỗ,B,Phủ định của kéo theo là 'giả thiết đúng và kết luận sai'.
+Logic Trung Học,'x > 2' là điều kiện đủ để có điều gì?,x < 2,x < 0,x > 0,x = 0,C,x > 2 thì chắc chắn x > 0.
+Logic Trung Học,'x > 0' là điều kiện cần để có điều gì?,x < 2,x > 2,x = -1,x < 0,B,Muốn x > 2 thì trước hết phải có x > 0.
+Logic Trung Học,Mệnh đề 'Nếu n là số nguyên tố thì n là số lẻ' đúng hay sai?,"Sai, vì 2 là số nguyên tố chẵn",Đúng,Không xác định,Đúng khi n > 2,A,2 là số nguyên tố nhưng là số chẵn.
+Logic Trung Học,Mệnh đề 'n chia hết cho 3 khi và chỉ khi n chia hết cho 9' đúng hay sai?,Đúng,Đúng khi n dương,Không xác định,Sai,D,Ví dụ 3 chia hết cho 3 nhưng không chia hết cho 9.
+Logic Trung Học,"Cho P: 'x = 2', Q: 'x² = 4'. Quan hệ nào đúng?",P suy ra Q nhưng Q không suy ra P,P tương đương Q,Q suy ra P nhưng P không suy ra Q,P và Q độc lập,A,"x = 2 thì x² = 4, nhưng x² = 4 còn có x = -2."
+Logic Trung Học,"Cho P: 'n chia hết cho 9', Q: 'n chia hết cho 3'. Quan hệ nào đúng?",Không liên quan,Q suy ra P,P tương đương Q,P suy ra Q,D,Chia hết cho 9 thì chia hết cho 3.
+Logic Trung Học,Từ 'tam giác đều' suy ra điều gì?,Tam giác cân,Tam giác tù,Tam giác thường,Tam giác vuông,A,Tam giác đều có ba cạnh bằng nhau nên cũng là tam giác cân.
+Logic Trung Học,Mệnh đề đảo của 'Nếu hôm nay là chủ nhật thì tôi nghỉ' là gì?,Nếu tôi không nghỉ thì hôm nay không là chủ nhật,Nếu tôi nghỉ thì hôm nay là chủ nhật,Nếu hôm nay không là chủ nhật thì tôi không nghỉ,Hôm nay là chủ nhật,B,Đảo đề đổi chỗ hai vế.
+Logic Trung Học,Phản đảo của 'Nếu n chia hết cho 6 thì n chia hết cho 2' là gì?,Nếu n chia hết cho 2 thì n chia hết cho 6,Nếu n không chia hết cho 6 thì n không chia hết cho 2,Nếu n không chia hết cho 2 thì n không chia hết cho 6,n chia hết cho 6,C,Phản đảo phủ định và đảo cả hai vế.
+Logic Trung Học,'a > 0 và b > 0' là điều kiện gì để 'a + b > 0'?,Không liên quan,Cần nhưng không đủ,Cần và đủ,Đủ nhưng không cần,D,"Cùng dương thì tổng dương, nhưng tổng dương chưa chắc cả hai dương."
+Logic Trung Học,'a + b > 0' là điều kiện gì để 'a > 0 hoặc b > 0'?,Cần nhưng không đủ,Đủ nhưng không cần,Cần và đủ,Không liên quan,B,"Tổng dương thì ít nhất một số dương, nhưng điều ngược lại không đúng."
+Logic Trung Học,'n là số nguyên tố lớn hơn 2' là điều kiện gì để 'n là số lẻ'?,Cần và đủ,Cần nhưng không đủ,Không liên quan,Đủ nhưng không cần,D,"Nguyên tố lớn hơn 2 thì lẻ, nhưng số lẻ chưa chắc nguyên tố."
+Logic Trung Học,Mệnh đề 'A suy ra A' có tính chất gì?,Luôn sai,Phụ thuộc A,Luôn đúng,Không xác định,C,Mệnh đề kéo theo với hai vế giống nhau luôn đúng.
+Logic Trung Học,Mệnh đề 'A suy ra (A hoặc B)' có tính chất gì?,Luôn đúng,Luôn sai,Phụ thuộc A,Không xác định,A,Nếu A đúng thì 'A hoặc B' luôn đúng.
+Logic Trung Học,Mệnh đề '(A và B) suy ra A' có tính chất gì?,Không xác định,Luôn đúng,Phụ thuộc A,Luôn sai,B,Nếu 'A và B' đúng thì A đúng.
+Logic Trung Học,Mệnh đề 'A suy ra (B suy ra A)' có tính chất gì?,Phụ thuộc A,Không xác định,Luôn đúng,Luôn sai,C,Nếu A đúng thì 'B suy ra A' luôn đúng.
+Logic Trung Học,Mệnh đề 'Không (A và B)' tương đương với mệnh đề nào?,A và B,Không A hoặc không B,Không A và không B,A hoặc B,B,Luật De Morgan.
+Logic Trung Học,Mệnh đề 'Không (A hoặc B)' tương đương với mệnh đề nào?,A và B,A hoặc B,Không A hoặc không B,Không A và không B,D,Luật De Morgan.
+Logic Trung Học,Mệnh đề 'A suy ra B' tương đương với mệnh đề nào?,Không A hoặc B,A hoặc không B,A và không B,Không A và B,A,Đây là dạng tương đương quen thuộc của mệnh đề kéo theo.
+Logic Trung Học,Nếu P sai thì mệnh đề 'P suy ra Q' có tính chất gì?,Đúng nếu Q đúng,Luôn sai,Phụ thuộc Q,Luôn đúng,D,"Khi giả thiết sai, mệnh đề kéo theo luôn đúng."
+Logic Trung Học,Mệnh đề 'P suy ra Q' sai khi nào?,P sai và Q đúng,P đúng và Q sai,P và Q cùng sai,P và Q cùng đúng,B,Chỉ sai khi giả thiết đúng và kết luận sai.
+Logic Trung Học,Điều kiện đủ để một số chia hết cho 10 là gì?,Số đó là số lẻ,Số đó chia hết cho 5,Số đó chia hết cho 2,Số đó chia hết cho cả 2 và 5,D,Chia hết cho cả 2 và 5 thì chia hết cho 10.
+Logic Trung Học,Điều kiện cần để một số chia hết cho 10 là gì?,Số đó chia hết cho 4,Số đó chia hết cho 2,Số đó là số lẻ,Số đó chia hết cho 3,B,Chia hết cho 10 thì chia hết cho 2.
+Logic Trung Học,'a = b' là điều kiện gì để 'a² = b²'?,Cần và đủ,Đủ nhưng không cần,Cần nhưng không đủ,Không liên quan,B,"a = b thì a² = b², nhưng a = -b cũng cho a² = b²."
+Logic Trung Học,'a² = b²' là điều kiện gì để 'a = b'?,Đủ nhưng không cần,Cần nhưng không đủ,Đủ và cần,Không liên quan,B,a² = b² chưa đủ vì có thể a = -b.
+Logic Trung Học,Mệnh đề đảo của 'Mọi số chia hết cho 2 đều chẵn' là gì?,Mọi số lẻ đều không chia hết cho 2,Mọi số chẵn đều chia hết cho 2,Mọi số chẵn đều chia hết cho 4,Mọi số chia hết cho 4 đều chẵn,B,Đảo đề đổi chỗ hai vế.
+Logic Trung Học,'Tứ giác có ba góc vuông' là điều kiện gì để 'tứ giác là hình chữ nhật'?,Cần nhưng không đủ,Cần và đủ,Không liên quan,Đủ nhưng không cần,B,"Ba góc vuông kéo theo góc thứ tư vuông, tức là hình chữ nhật."
+Logic Trung Học,'Tứ giác là hình thoi' là điều kiện gì để 'tứ giác có hai đường chéo vuông góc'?,Đủ nhưng không cần,Cần nhưng không đủ,Không liên quan,Cần và đủ,A,"Hình thoi có hai đường chéo vuông góc, nhưng còn hình khác cũng vậy."
+Logic Trung Học,Mệnh đề 'Nếu x > 5 thì x > 3' đúng hay sai?,Sai,Đúng,Phụ thuộc x,Không xác định,B,x > 5 hiển nhiên kéo theo x > 3.
+Logic Trung Học,Mệnh đề 'Nếu x > 3 thì x > 5' đúng hay sai?,Luôn đúng,"Sai, ví dụ x = 4",Đúng,Không xác định,B,x = 4 lớn hơn 3 nhưng không lớn hơn 5.
+Logic Trung Học,Mệnh đề 'x² > 0' có tương đương với 'x ≠ 0' không (với x thực)?,Không,Chỉ với x dương,Có,Chỉ với x nguyên,C,Bình phương khác 0 khi và chỉ khi x khác 0.
+Logic Trung Học,'x > 0' và 'x² > 0' có tương đương không?,Có,Không xác định,Chỉ khi x nguyên,"Không, vì x < 0 cũng có x² > 0",D,Số âm cũng có bình phương dương.
+Logic Trung Học,Điều kiện cần và đủ để 'n là số chẵn' là gì?,n tận cùng là 5,n là số lẻ,n chia hết cho 4,n chia hết cho 2,D,Định nghĩa của số chẵn.
+Logic Trung Học,Điều kiện cần và đủ để 'tam giác ABC cân tại A' là gì?,Ba cạnh bằng nhau,Góc A vuông,AB = BC,AB = AC,D,Cân tại A nghĩa là hai cạnh bên AB và AC bằng nhau.
+Logic Trung Học,Quy tắc suy luận từ 'A suy ra B' và 'B suy ra C' để kết luận 'A suy ra C' gọi là gì?,Tương đương,Đảo đề,Phản chứng,Tam đoạn luận (suy luận bắc cầu),D,Đây là tính bắc cầu của phép kéo theo.
+Logic Trung Học,"Từ 'Mọi số chia hết cho 9 đều chia hết cho 3' và '36 chia hết cho 9', suy ra điều gì?",36 chia hết cho 27,36 chia hết cho 6,Không kết luận được,36 chia hết cho 3,D,Áp dụng mệnh đề kéo theo.
+Logic Trung Học,"Từ 'Nếu tôi có tiền thì tôi mua sách' và 'Tôi mua sách', có suy ra được tôi có tiền không?",Chắc chắn có,Không xác định,Không chắc chắn,Chắc chắn không,C,Đây là ngụy biện khẳng định hậu quả.
+Logic Trung Học,Mệnh đề '0 là số chẵn hoặc số lẻ' là gì?,"Mệnh đề đúng, vì 0 là số chẵn",Không xác định,Không phải mệnh đề,Mệnh đề sai,A,0 chia hết cho 2 nên là số chẵn.
+Logic Trung Học,Phủ định của 'n là số lẻ hoặc n chia hết cho 5' là gì?,n chẵn và n không chia hết cho 5,n lẻ và n chia hết cho 5,n chẵn và n chia hết cho 5,n chẵn hoặc n không chia hết cho 5,A,Phủ định của 'hoặc' là 'và' với các phủ định.
+Logic Trung Học,Nếu 'A khi và chỉ khi B' đúng thì mệnh đề đảo của 'A suy ra B' thế nào?,Luôn sai,Chỉ đúng khi A sai,Không xác định,Cũng đúng,D,A và B tương đương nên cả hai chiều đều đúng.
+Logic Trung Học,Mệnh đề 'x + 1 = 2 suy ra x = 1' đúng hay sai?,Đúng,Sai,Phụ thuộc x,Không xác định,A,Từ x + 1 = 2 suy ra x = 1.
+Logic Trung Học,Mệnh đề 'x = 1 suy ra x + 1 = 2' đúng hay sai?,Không xác định,Phụ thuộc x,Đúng,Sai,C,Thay x = 1 vào được 2 = 2.
+Logic Trung Học,'a chia hết cho 3 và 4' tương đương với điều gì?,a chia hết cho 24,a chia hết cho 6,a chia hết cho 7,a chia hết cho 12,D,3 và 4 nguyên tố cùng nhau nên tích là 12.
+Logic Trung Học,'a chia hết cho 2 và 3' tương đương với điều gì?,a chia hết cho 9,a chia hết cho 6,a chia hết cho 12,a chia hết cho 5,B,2 và 3 nguyên tố cùng nhau nên tích là 6.
+Logic Trung Học,Điều kiện nào là đủ để 'a + b là số chẵn'?,a = 2 và b = 3,a và b đều chẵn,a = 1 và b = 2,a chẵn và b lẻ,B,Tổng hai số chẵn là số chẵn.
+Logic Trung Học,Điều kiện cần để 'a × b là số lẻ' là gì?,a > b,a là số lẻ,a là số chẵn,a = 0,B,Muốn tích lẻ thì cả hai thừa số phải lẻ.
+Logic Trung Học,Điều kiện cần và đủ để 'a × b là số chẵn' là gì?,Cả hai số chẵn,a = 0,Cả hai số lẻ,Có ít nhất một trong hai số chẵn,D,Tích lẻ khi và chỉ khi cả hai thừa số lẻ.
+Logic Trung Học,Bảng chân trị của 'P và Q' cho kết quả đúng khi nào?,P đúng hoặc Q đúng,P sai,Q,P đúng và Q đúng,D,Phép và chỉ đúng khi cả hai cùng đúng.
+Logic Trung Học,Bảng chân trị của 'P hoặc Q' cho kết quả sai khi nào?,P sai và Q sai,P đúng và Q sai,P sai và Q đúng,P và Q đều đúng,A,Phép hoặc chỉ sai khi cả hai cùng sai.
+Logic Trung Học,Bảng chân trị của biểu thức 2 biến có bao nhiêu dòng?,4,8,2,3,A,2² = 4 dòng.
+Logic Trung Học,Bảng chân trị của biểu thức 3 biến có bao nhiêu dòng?,6,9,8,12,C,2³ = 8 dòng.
+Logic Trung Học,Mệnh đề nào dưới đây là hằng đúng?,P hoặc không P,Không P suy ra P,P suy ra không P,P và không P,A,Luật bài trung luôn đúng.
+Logic Trung Học,Mệnh đề nào dưới đây là hằng sai?,P hoặc không P,P suy ra P,Không P suy ra không P,P và không P,D,P và không P không thể cùng đúng.
+Logic Trung Học,'P hoặc không P' được gọi là gì?,Luật đồng nhất,Luật phản chứng,Luật bắc cầu,Luật bài trung (loại trừ cái thứ ba),D,Mỗi mệnh đề hoặc đúng hoặc sai.
+Logic Trung Học,'Không (không P) tương đương P' được gọi là gì?,Luật phủ định kép,Luật kết hợp,Luật giao hoán,Luật phân phối,A,Phủ định hai lần trả về mệnh đề gốc.
+Logic Trung Học,'P và Q' tương đương với mệnh đề nào?,Không P,P hoặc Q,P suy ra Q,Q và P,D,Phép và có tính giao hoán.
+Logic Trung Học,'P hoặc Q' tương đương với mệnh đề nào?,Q hoặc P,Không P và Q,P suy ra không Q,P và Q,A,Phép hoặc có tính giao hoán.
+Logic Trung Học,'P và (Q hoặc R)' tương đương với mệnh đề nào?,(P và Q) hoặc (P và R),P và Q và R,(P hoặc Q) và R,P hoặc Q hoặc R,A,Luật phân phối của phép và với phép hoặc.
+Logic Trung Học,'P hoặc (Q và R)' tương đương với mệnh đề nào?,P và Q hoặc R,(P hoặc Q) và (P hoặc R),P hoặc Q,P và Q,B,Luật phân phối của phép hoặc với phép và.
+Logic Trung Học,"Trong bảng chân trị 2 biến, 'P và Q' có bao nhiêu dòng cho kết quả đúng?",2,4,1,3,C,Chỉ đúng khi cả hai cùng đúng.
+Logic Trung Học,"Trong bảng chân trị 2 biến, 'P hoặc Q' có bao nhiêu dòng cho kết quả đúng?",3,1,2,4,A,Có 3 cặp giá trị cho kết quả đúng.
+Logic Trung Học,Biểu thức '(P suy ra Q) và (Q suy ra P)' tương đương với mệnh đề nào?,P hoặc Q,P khi và chỉ khi Q,P và Q,Không P,B,Hai chiều kéo theo chính là tương đương.
+Logic Trung Học,'P suy ra Q' và 'Q suy ra P' cùng đúng khi nào?,P sai và Q đúng,Không bao giờ,P và Q cùng chân trị,P đúng và Q sai,C,Hai mệnh đề có cùng giá trị chân trị.
+Logic Trung Học,Biểu thức luôn đúng với mọi giá trị của biến được gọi là gì?,Mệnh đề chứa biến,Mệnh đề phủ định,Hằng sai,Hằng đúng,D,Đó là định nghĩa hằng đúng.
+Logic Trung Học,Biểu thức 'P suy ra (P hoặc Q)' là gì?,Không xác định,Tùy theo P,Hằng đúng,Hằng sai,C,Nếu P đúng thì 'P hoặc Q' đúng.
+Logic Trung Học,Biểu thức 'P và (không P)' là gì?,Hằng đúng,Tùy theo P,Không xác định,Hằng sai,D,P và phủ định của nó không thể cùng đúng.
+Logic Trung Học,'Không (P suy ra Q)' tương đương với mệnh đề nào?,P hoặc không Q,P và không Q,Không P và Q,Không P hoặc Q,B,Phủ định của kéo theo.
+Logic Trung Học,'Không (P khi và chỉ khi Q)' tương đương với mệnh đề nào?,(P và không Q) hoặc (không P và Q),P và Q,P hoặc Q,Không P và không Q,A,Phủ định của tương đương.
+Logic Trung Học,"Trong bảng chân trị 2 biến, có bao nhiêu tổ hợp giá trị của P và Q?",2,3,8,4,D,2² = 4 tổ hợp.
+Logic Trung Học,"Trong bảng chân trị 3 biến, có bao nhiêu tổ hợp giá trị?",3,8,9,6,B,2³ = 8 tổ hợp.
+Logic Trung Học,'P suy ra Q' có bao nhiêu dòng sai trong bảng chân trị 2 biến?,2,3,1,0,C,Chỉ sai khi P đúng và Q sai.
+Logic Trung Học,'P khi và chỉ khi Q' có bao nhiêu dòng đúng trong bảng chân trị 2 biến?,2,1,4,3,A,Đúng khi cùng đúng hoặc cùng sai.
+Logic Trung Học,Hai mệnh đề tương đương logic khi bảng chân trị của chúng thế nào?,Khác nhau ở mọi dòng,Giống nhau ở mọi dòng,Giống nhau ở một dòng,Không so sánh được,B,Tương đương logic nghĩa là cùng bảng chân trị.
+Logic Trung Học,'P suy ra Q' tương đương với mệnh đề nào sau đây?,Q suy ra P,Không P suy ra không Q,P và Q,Không Q suy ra không P,D,Phản đảo tương đương với mệnh đề gốc.
+Logic Trung Học,'P suy ra Q' KHÔNG tương đương với mệnh đề nào?,Không (P và không Q),Không Q suy ra không P,Không P hoặc Q,Q suy ra P,D,Mệnh đề đảo không tương đương với mệnh đề gốc.
+Logic Trung Học,"Từ 'P hoặc Q' và 'không P', suy ra điều gì?",Không Q,Không P,Q,P,C,Nếu một vế sai thì vế còn lại phải đúng.
+Logic Trung Học,"Từ 'P hoặc Q' và 'không P', kết luận Q. Quy tắc này gọi là gì?",Tam đoạn luận tuyển,Phản chứng,Modus ponens,Modus tollens,A,Đây là tam đoạn luận tuyển.
+Logic Trung Học,"Luật tam đoạn luận giả định nói rằng từ P suy ra Q và Q suy ra R, suy ra điều gì?",R suy ra P,P và R,P suy ra R,Không kết luận được,C,Tính bắc cầu của phép kéo theo.
+Logic Trung Học,"'Modus ponens' là quy tắc: từ P suy ra Q và P, suy ra điều gì?",Q,Không Q,Không P,P,A,Modus ponens là khẳng định tiền đề.
+Logic Trung Học,"'Modus tollens' là quy tắc: từ P suy ra Q và không Q, suy ra điều gì?",Không Q,Không P,Q,P,B,Modus tollens là phủ định hậu quả.
+Logic Trung Học,"Ngụy biện 'khẳng định hậu quả': từ P suy ra Q và Q, kết luận P. Kết luận này thế nào?",Là modus ponens,Không hợp lệ,Luôn đúng,Hợp lệ,B,Q đúng chưa đủ để suy ra P.
+Logic Trung Học,"Ngụy biện 'phủ định tiền đề': từ P suy ra Q và không P, kết luận không Q. Điều này thế nào?",Hợp lệ,Không hợp lệ,Là modus tollens,Luôn đúng,B,Không P chưa đủ để suy ra không Q.
+Logic Trung Học,Biểu thức '(P và Q) suy ra P' là gì?,Tùy theo P,Hằng đúng,Không xác định,Hằng sai,B,Nếu 'P và Q' đúng thì P đúng.
+Logic Trung Học,Biểu thức '(P suy ra Q) hoặc (Q suy ra P)' là gì?,Hằng đúng,Hằng sai,Tùy theo P,Không xác định,A,Luôn có ít nhất một chiều kéo theo đúng.
+Logic Trung Học,Biểu thức 'P khi và chỉ khi (không P)' là gì?,Không xác định,Hằng sai,Tùy theo P,Hằng đúng,B,P và phủ định của nó không thể tương đương.
+Logic Trung Học,Có bao nhiêu hàm chân trị khác nhau của 2 biến?,8,4,32,16,D,2^(2²) = 16.
+Logic Trung Học,Có bao nhiêu hàm chân trị khác nhau của 3 biến?,64,16,8,256,D,2^(2³) = 256.
+Logic Trung Học,Mọi người đều phải chết. Socrates là người. Suy ra điều gì?,Socrates phải chết,Socrates là thần,Không kết luận được,Socrates bất tử,A,Tam đoạn luận kinh điển.
+Logic Trung Học,Mọi kim loại dẫn điện. Đồng là kim loại. Suy ra điều gì?,Không kết luận được,Đồng cách điện,Đồng là phi kim,Đồng dẫn điện,D,Đồng thuộc nhóm kim loại dẫn điện.
+Logic Trung Học,Mọi số chia hết cho 6 đều chia hết cho 3. 24 chia hết cho 6. Suy ra điều gì?,Không kết luận được,24 chia hết cho 3,24 chia hết cho 9,24 chia hết cho 12,B,24 chia hết cho 6 nên chia hết cho 3.
+Logic Trung Học,Mọi con chim đều có lông. Đại bàng là chim. Suy ra điều gì?,Đại bàng là thú,Không kết luận được,Đại bàng có lông,Đại bàng bay được,C,Đại bàng là chim nên có lông.
+Logic Trung Học,Không con cá nào sống trên cạn. Cá mập là cá. Suy ra điều gì?,Cá mập không sống trên cạn,Cá mập là thú,Không kết luận được,Cá mập sống trên cạn,A,Cá mập là cá nên không sống trên cạn.
+Logic Trung Học,Một số học sinh thích Toán. Nam là học sinh. Suy ra Nam có thích Toán không?,Chắc chắn không thích,Không chắc chắn,Chắc chắn thích,Không xác định,B,Chỉ một số học sinh thích Toán nên không suy ra được cho Nam.
+Logic Trung Học,Mọi số chẵn đều chia hết cho 2. 7 không chia hết cho 2. Suy ra điều gì?,7 là số lẻ,7 chia hết cho 3,7 là số chẵn,Không kết luận được,A,Không chia hết cho 2 thì là số lẻ.
+Logic Trung Học,Mọi hình vuông đều là hình chữ nhật. Hình M không là hình chữ nhật. Suy ra điều gì?,Hình M không là hình vuông,Hình M là hình thoi,Hình M là hình vuông,Không kết luận được,A,Nếu là hình vuông thì phải là hình chữ nhật.
+Logic Trung Học,Tất cả giáo viên đều biết chữ. Anh A không biết chữ. Suy ra điều gì?,Không kết luận được,Anh A là học sinh,Anh A là giáo viên,Anh A không là giáo viên,D,Giáo viên phải biết chữ.
+Logic Trung Học,Mọi thực vật đều quang hợp. Cây lúa là thực vật. Suy ra điều gì?,Cây lúa quang hợp,Cây lúa là động vật,Không kết luận được,Cây lúa hô hấp,A,Cây lúa là thực vật nên quang hợp.
+Logic Trung Học,Mọi bác sĩ đều học y. Bà B là bác sĩ. Suy ra điều gì?,Bà B là y tá,Không kết luận được,Bà B học y,Bà B học luật,C,Bác sĩ thì đã học y.
+Logic Trung Học,Không ai vừa ở Hà Nội vừa ở Huế cùng lúc. Nam đang ở Hà Nội. Suy ra điều gì?,Không kết luận được,Nam ở Đà Nẵng,Nam không ở Huế cùng lúc đó,Nam ở cả Huế,C,Một người chỉ ở một nơi tại một thời điểm.
+Logic Trung Học,Mọi số nguyên tố lớn hơn 2 đều lẻ. 13 là số nguyên tố lớn hơn 2. Suy ra điều gì?,Không kết luận được,13 là số lẻ,13 là số chẵn,13 chia hết cho 2,B,13 là số nguyên tố lớn hơn 2 nên lẻ.
+Logic Trung Học,Tất cả học sinh giỏi đều chăm học. Hoa không chăm học. Suy ra điều gì?,Không kết luận được,Hoa là học sinh giỏi,Hoa là học sinh khá,Hoa không phải học sinh giỏi,D,Không chăm học thì không thể là học sinh giỏi.
+Logic Trung Học,Mọi số chia hết cho 10 đều tận cùng bằng 0. Số 45 tận cùng khác 0. Suy ra điều gì?,45 chia hết cho 3,45 chia hết cho 10,Không kết luận được,45 không chia hết cho 10,D,Không tận cùng bằng 0 thì không chia hết cho 10.
+Logic Trung Học,Nếu trời mưa thì sân ướt. Sân không ướt. Suy ra điều gì?,Trời không mưa,Trời mưa,Trời nắng,Không kết luận được,A,Modus tollens.
+Logic Trung Học,Mọi loài chim đều có cánh. Chim cánh cụt là chim. Suy ra điều gì?,Chim cánh cụt là cá,Chim cánh cụt bay được,Chim cánh cụt có cánh,Không kết luận được,C,Chim cánh cụt có cánh dù không bay.
+Logic Trung Học,Tất cả các số tự nhiên đều lớn hơn hoặc bằng 0. -1 là số âm. Suy ra điều gì?,-1 không là số tự nhiên,-1 lớn hơn 0,Không kết luận được,-1 là số tự nhiên,A,Số tự nhiên không âm.
+Logic Trung Học,Mọi hình thoi đều có hai đường chéo vuông góc. Hình M không có hai đường chéo vuông góc. Suy ra điều gì?,Hình M không là hình thoi,Không kết luận được,Hình M là hình bình hành,Hình M là hình thoi,A,Thiếu tính chất đặc trưng nên không là hình thoi.
+Logic Trung Học,Mọi người lớn đều có căn cước công dân. Cậu C không có căn cước công dân. Suy ra điều gì?,Cậu C là trẻ em,Cậu C không phải người lớn,Không kết luận được,Cậu C là người lớn,B,Chưa có căn cước nên chưa phải người lớn theo dữ kiện.
+Logic Trung Học,Nếu một số chia hết cho 4 thì chia hết cho 2. Số x chia hết cho 4. Suy ra điều gì?,x chia hết cho 8,Không kết luận được,x chia hết cho 6,x chia hết cho 2,D,Chia hết cho 4 thì chia hết cho 2.
+Logic Trung Học,Nếu một số chia hết cho 4 thì chia hết cho 2. Số x chia hết cho 2. Suy ra x có chia hết cho 4 không?,Không xác định,Chắc chắn chia hết,Chắc chắn không chia hết,"Không chắc chắn, ví dụ 6",D,Không được dùng mệnh đề đảo.
+Logic Trung Học,Mọi tam giác đều có ba cạnh. Hình H không có ba cạnh. Suy ra điều gì?,Hình H là tứ giác,Hình H là tam giác,Hình H không là tam giác,Không kết luận được,C,Không có ba cạnh thì không là tam giác.
+Logic Trung Học,Không có số nào vừa chẵn vừa lẻ. Số 8 là số chẵn. Suy ra điều gì?,Không kết luận được,8 là số lẻ,8 là số nguyên tố,8 không là số lẻ,D,Một số không thể vừa chẵn vừa lẻ.
+Logic Trung Học,Tất cả số chia hết cho 9 đều chia hết cho 3. Số 20 không chia hết cho 3. Suy ra điều gì?,Không kết luận được,20 chia hết cho 9,20 chia hết cho 6,20 không chia hết cho 9,D,Nếu chia hết cho 9 thì phải chia hết cho 3.
+Logic Trung Học,Mọi con mèo đều thích cá. Mun không thích cá. Suy ra điều gì?,Không kết luận được,Mun không là mèo,Mun là chó,Mun là mèo,B,Modus tollens.
+Logic Trung Học,Tất cả học sinh lớp 9 đều dự thi tốt nghiệp. Bạn A không dự thi tốt nghiệp. Suy ra điều gì?,Bạn A không là học sinh lớp 9,Không kết luận được,Bạn A thi lại,Bạn A là học sinh lớp 9,A,Không dự thi thì không phải học sinh lớp 9.
+Logic Trung Học,Mọi người ở đây đều biết tiếng Anh. Ông X không biết tiếng Anh. Suy ra điều gì?,Ông X ở đây,Không kết luận được,Ông X không ở đây,Ông X biết tiếng Pháp,C,Ông X không thỏa điều kiện của mọi người ở đây.
+Logic Trung Học,Nếu a > b và b > c thì suy ra điều gì?,Không kết luận được,a = c,a < c,a > c,D,Tính bắc cầu của bất đẳng thức.
+Logic Trung Học,Nếu a ≥ b và b ≥ c thì suy ra điều gì?,a ≤ c,a ≥ c,a = c,Không kết luận được,B,Tính bắc cầu của quan hệ lớn hơn hoặc bằng.
+Logic Trung Học,Nếu a > b thì a + c và b + c có quan hệ gì (với c bất kỳ)?,a + c < b + c,Không kết luận được,a + c > b + c,a + c = b + c,C,Cộng cùng một số vào hai vế không đổi chiều.
+Logic Trung Học,"Từ 'mọi số chẵn chia hết cho 2', có suy ra 'mọi số chia hết cho 2 đều chẵn' không?",Luôn đúng,Có,Không xác định,"Không, đó là mệnh đề đảo",D,Không được suy từ mệnh đề sang mệnh đề đảo.
+Logic Trung Học,"Nếu P(1) đúng và P(n) suy ra P(n+1), thì suy ra điều gì?",P(n) đúng với mọi n nguyên dương,P(n) sai với mọi n,P(n) chỉ đúng với n nào đó,Không kết luận được,A,Đó là nguyên lý quy nạp toán học.
+Logic Trung Học,Mọi số nguyên tố lớn hơn 3 đều có dạng 6k ± 1. Số 37 là số nguyên tố lớn hơn 3. Suy ra điều gì?,37 chia hết cho 6,37 có dạng 6k ± 1 (37 = 6 x 6 + 1),37 = 6k,Không kết luận được,B,37 = 6 x 6 + 1.
+Logic Trung Học,Tất cả các loài thú đều có vú. Cá voi có vú. Suy ra điều gì?,Cá voi là bò sát,Cá voi là thú,Cá voi là cá,Không kết luận được,B,Cá voi là thú sống dưới nước.
+Logic Trung Học,Mọi học sinh trong lớp đều đạt điểm trên 5. Bạn B được 4 điểm. Suy ra điều gì?,Không kết luận được,Bạn B không ở trong lớp đó,Bạn B ở trong lớp,Bạn B vẫn đạt,B,Nếu ở trong lớp thì phải đạt trên 5.
+Logic Trung Học,Nếu P thì Q. Nếu Q thì R. Ta có P. Suy ra điều gì?,R,Không kết luận được,Không R,Q và không R,A,Áp dụng modus ponens hai lần.
+Logic Trung Học,Nếu P thì Q. Nếu Q thì R. Ta có không R. Suy ra điều gì?,Không P,Q,P,Không kết luận được,A,Áp dụng modus tollens.
+Logic Trung Học,"Từ A suy ra B và B suy ra C, kết luận A suy ra C. Quy tắc này gọi là gì?",Phủ định kép,Modus tollens,Ngụy biện,Tam đoạn luận giả định,D,Đây là tam đoạn luận giả định.
+Logic Trung Học,Từ 'P hoặc Q' và 'không P' suy ra Q. Quy tắc này gọi là gì?,Tam đoạn luận tuyển,Phản chứng,Modus tollens,Modus ponens,A,Đây là tam đoạn luận tuyển.
+Logic Trung Học,Mọi sinh viên đều có thẻ. Nam có thẻ. Suy ra Nam có phải sinh viên không?,Không chắc chắn,Chắc chắn không phải sinh viên,Không xác định,Chắc chắn là sinh viên,A,Có thẻ chưa chắc đã là sinh viên.
+Logic Trung Học,Mọi số chia hết cho 3 đều có tổng các chữ số chia hết cho 3. Số 123 có tổng chữ số là 6. Suy ra điều gì?,Không kết luận được,123 chia hết cho 6,123 chia hết cho 9,123 chia hết cho 3,D,Tổng chữ số chia hết cho 3 nên 123 chia hết cho 3.
+Logic Trung Học,Nếu một hình có 4 cạnh bằng nhau thì đó là hình thoi. Hình vuông có 4 cạnh bằng nhau. Suy ra điều gì?,Không kết luận được,Hình vuông là hình thang cân,Hình vuông không là hình thoi,Hình vuông là một dạng hình thoi,D,Hình vuông cũng có 4 cạnh bằng nhau nên là hình thoi đặc biệt.
+Logic Trung Học,Tất cả cây trong vườn đều là cây ăn quả. Cây M không phải cây ăn quả. Suy ra điều gì?,Cây M ở trong vườn,Cây M là cây cảnh,Cây M không ở trong vườn,Không kết luận được,C,Nếu ở trong vườn thì phải là cây ăn quả.
+Logic Trung Học,Nếu hôm nay là thứ hai thì mai là thứ ba. Hôm nay không phải thứ hai. Suy ra mai có phải thứ ba không?,Chắc chắn không phải thứ ba,Chắc chắn là thứ ba,Không chắc chắn,Không xác định,C,Phủ định tiền đề không dẫn tới phủ định hậu quả.
+Logic Trung Học,Mọi số tự nhiên đều chia hết cho 1. Số y là số tự nhiên. Suy ra điều gì?,y chia hết cho 1,Không kết luận được,y chia hết cho 2,y chia hết cho 0,A,Mọi số tự nhiên đều chia hết cho 1.
+Logic Trung Học,"Từ 'mọi A là B' và 'mọi B là C', suy ra điều gì?",Không kết luận được,Mọi C là A,Mọi A là C,Một số A là C,C,Suy luận bắc cầu của bao hàm.
+Logic Trung Học,"Từ 'mọi A là B', có suy ra 'mọi B là A' không?",Không xác định,Không,Có nếu A hữu hạn,Có,B,Không được suy từ mệnh đề sang mệnh đề đảo.
+Logic Trung Học,"Từ 'không A nào là B', có suy ra 'không B nào là A' không?",Không,Chỉ đôi khi,Có,Không xác định,C,Quan hệ 'không giao nhau' có tính đối xứng.
+Logic Trung Học,Mọi học sinh đều có cặp sách. An có cặp sách. Suy ra An có phải học sinh không?,Chắc chắn không phải học sinh,Không xác định,Không chắc chắn,Chắc chắn là học sinh,C,Có cặp sách chưa đủ để khẳng định.
+Logic Trung Học,Suy luận 'Nếu P thì Q; P đúng; vậy Q đúng' có hợp lệ không?,Hợp lệ,Không xác định,Không hợp lệ,Đôi khi,A,Đây là modus ponens.
+Logic Trung Học,Suy luận 'Nếu P thì Q; Q đúng; vậy P đúng' có hợp lệ không?,Hợp lệ,Không xác định,Luôn đúng,Không hợp lệ,D,Đây là ngụy biện khẳng định hậu quả.
+Logic Trung Học,Suy luận 'Nếu P thì Q; không P; vậy không Q' có hợp lệ không?,Không xác định,Luôn đúng,Hợp lệ,Không hợp lệ,D,Đây là ngụy biện phủ định tiền đề.
+Logic Trung Học,Suy luận 'Nếu P thì Q; không Q; vậy không P' có hợp lệ không?,Hợp lệ,Đôi khi,Không xác định,Không hợp lệ,A,Đây là modus tollens.
+Logic Trung Học,"Từ 'P hoặc Q' và 'P sai', suy ra Q. Suy luận này có hợp lệ không?",Hợp lệ,Không xác định,Không hợp lệ,Đôi khi,A,Tam đoạn luận tuyển.
+Logic Trung Học,"Từ 'P và Q', suy ra P. Suy luận này có hợp lệ không?",Không hợp lệ,Không xác định,Hợp lệ,Đôi khi,C,Phép và kéo theo từng thành phần.
+Logic Trung Học,"Từ P, suy ra 'P hoặc Q'. Suy luận này có hợp lệ không?",Đôi khi,Không xác định,Không hợp lệ,Hợp lệ,D,Đây là quy tắc thêm tuyển.
+Logic Trung Học,Mọi số chẵn đều chia hết cho 2. Số 14 chia hết cho 2. Suy ra 14 là số chẵn?,Chắc chắn là số chẵn,Không xác định,Chắc chắn không phải,Không chắc chắn theo mệnh đề đã cho,D,Đây là dùng mệnh đề đảo nên không hợp lệ.
+Logic Trung Học,Mệnh đề đảo của 'n chia hết cho 3 suy ra tổng chữ số chia hết cho 3' là 'tổng chữ số chia hết cho 3 suy ra n chia hết cho 3'. Mệnh đề đảo này đúng hay sai?,Đôi khi,Sai,Không xác định,Đúng,D,Dấu hiệu chia hết cho 3 đúng cả hai chiều.
+Logic Trung Học,"Từ 'mọi A đều B' và 'x không là B', suy ra 'x không là A'. Quy tắc này là gì?",Ngụy biện,Quy nạp,Modus tollens,Modus ponens,C,Đây là modus tollens.
+Logic Trung Học,Trên đảo có hai loại người: người trung thực luôn nói thật và kẻ nói dối luôn nói dối. A nói: 'Tôi là kẻ nói dối.' Điều này có thể xảy ra không?,"Có, A là người trung thực","Có, A là kẻ nói dối","Không, vì tạo ra nghịch lý","Có, A là người bình thường",C,"Nếu A nói thật thì A là kẻ nói dối (vô lý), nếu A nói dối thì câu đó lại đúng."
+Logic Trung Học,A nói: 'Tôi là người trung thực.' A là ai?,Không thể xảy ra,Chắc chắn trung thực,"Không xác định, cả hai đều có thể",Chắc chắn nói dối,C,Cả người trung thực lẫn kẻ nói dối đều có thể nói câu này.
+Logic Trung Học,A nói: '2 + 2 = 4.' A là người trung thực hay nói dối?,Cả hai,Người trung thực,Không xác định,Kẻ nói dối,B,2 + 2 = 4 là đúng nên A nói thật.
+Logic Trung Học,A nói: '2 + 2 = 5.' A là ai?,Kẻ nói dối,Không xác định,Người trung thực,Không thể xảy ra,A,2 + 2 = 5 là sai nên A nói dối.
+Logic Trung Học,A nói: 'B là kẻ nói dối.' B nói: 'A là người trung thực.' Hãy xác định.,"A trung thực, B nói dối","A nói dối, B trung thực",Không thể xảy ra (mâu thuẫn),Cả hai trung thực,C,Mọi cách gán đều dẫn tới mâu thuẫn.
+Logic Trung Học,A nói: 'Chúng tôi khác loại.' B nói: 'A là người trung thực.' Hãy xác định.,Cả hai trung thực,"A nói dối, B trung thực",Cả hai nói dối,"A trung thực, B nói dối",B,"Nếu A trung thực thì B nói dối, nhưng B nói 'A trung thực' lại đúng, mâu thuẫn."
+Logic Trung Học,A nói: 'B là kẻ nói dối.' B nói: 'Chúng tôi cùng loại.' Hãy xác định.,"A trung thực, B nói dối",Cả hai nói dối,Cả hai trung thực,"A nói dối, B trung thực",A,"A trung thực thì B nói dối và câu 'cùng loại' là sai, hợp lý."
+Logic Trung Học,A nói: 'Tôi và B đều là người trung thực.' B nói: 'A là kẻ nói dối.' Hãy xác định.,"A trung thực, B nói dối","A nói dối, B trung thực",Cả hai trung thực,Cả hai nói dối,B,"Nếu A trung thực thì B cũng trung thực, nhưng B nói A nói dối, mâu thuẫn."
+Logic Trung Học,A nói: 'B là người trung thực.' B nói: 'A là kẻ nói dối.' Hãy xác định.,Cả hai nói dối,"A trung thực, B nói dối",Không thể xảy ra (mâu thuẫn),"A nói dối, B trung thực",C,Cả hai cách gán đều dẫn tới mâu thuẫn.
+Logic Trung Học,A nói: 'B là kẻ nói dối.' B nói: 'A là người trung thực.' Hãy xác định A và B.,"A trung thực, B nói dối",Cả hai trung thực,Không thể xảy ra (mâu thuẫn),Cả hai nói dối,C,Hai câu này không thể cùng đúng với quy tắc của đảo.
+Logic Trung Học,A nói: 'Chúng tôi cùng loại.' B nói: 'Chúng tôi cùng loại.' Hãy xác định.,Cả hai nói dối,"A nói dối, B trung thực",Cả hai trung thực,"A trung thực, B nói dối",C,"Nếu cùng nói dối thì câu 'cùng loại' là đúng, vô lý."
+Logic Trung Học,A nói: 'Chúng tôi khác loại.' B nói: 'Chúng tôi khác loại.' Hãy xác định.,"A nói dối, B trung thực",Cả hai trung thực,Cả hai nói dối,"A trung thực, B nói dối",C,"Cùng nói dối thì 'khác loại' là sai, phù hợp."
+Logic Trung Học,A nói: 'Tôi là người trung thực.' B nói: 'A là kẻ nói dối.' Hãy xác định.,Cả hai trung thực,"A trung thực, B nói dối",Cả hai nói dối,Không xác định duy nhất,D,Có hai cách gán đều phù hợp.
+Logic Trung Học,A nói: '3 là số lẻ.' B nói: 'A là kẻ nói dối.' Hãy xác định.,"A nói dối, B trung thực",Cả hai trung thực,"A trung thực, B nói dối",Cả hai nói dối,C,"3 là số lẻ nên A trung thực, do đó B nói dối."
+Logic Trung Học,A nói: '3 là số chẵn.' B nói: 'A là người trung thực.' Hãy xác định.,"A trung thực, B nói dối",Cả hai nói dối,Cả hai trung thực,"A nói dối, B trung thực",B,"3 là số lẻ nên A nói dối, do đó B nói dối."
+Logic Trung Học,A nói: 'B là kẻ nói dối.' B nói: '5 là số nguyên tố.' Hãy xác định.,Cả hai trung thực,"A nói dối, B trung thực",Cả hai nói dối,"A trung thực, B nói dối",B,"5 là số nguyên tố nên B trung thực, do đó A nói dối."
+Logic Trung Học,A nói: 'B là kẻ nói dối.' B nói: '5 là số chẵn.' Hãy xác định.,"A trung thực, B nói dối",Cả hai nói dối,"A nói dối, B trung thực",Cả hai trung thực,A,"5 là số lẻ nên B nói dối, do đó A nói thật."
+Logic Trung Học,A nói: 'Chúng tôi khác loại.' B nói: '9 là số chính phương.' Hãy xác định.,"A trung thực, B nói dối","A nói dối, B trung thực",Cả hai trung thực,Cả hai nói dối,D,9 là số chính phương nên B trung thực; A nói 'khác loại' là sai nên A nói dối.
+Logic Trung Học,A nói: 'Chúng tôi cùng loại.' B nói: '9 là số chẵn.' Hãy xác định.,Cả hai nói dối,Cả hai trung thực,"A trung thực, B nói dối",Không thể xảy ra (mâu thuẫn),D,"9 là số lẻ nên B nói dối; khi đó cả hai cùng loại mà A nói 'cùng loại' lại đúng, vô lý."
+Logic Trung Học,A nói: 'B là kẻ nói dối.' B nói: 'C là kẻ nói dối.' C nói: '2 + 2 = 4.' Hãy xác định.,Cả ba nói dối,Cả ba trung thực,"A trung thực, B nói dối, C trung thực","A nói dối, B trung thực, C nói dối",C,"C nói đúng nên trung thực, do đó B nói dối và A trung thực."
+Logic Trung Học,A nói: 'B là kẻ nói dối.' B nói: 'C là kẻ nói dối.' C nói: '2 + 2 = 5.' Hãy xác định.,"A trung thực, B nói dối, C trung thực",Cả ba trung thực,Cả ba nói dối,"A nói dối, B trung thực, C nói dối",D,"C nói sai nên nói dối, do đó B nói thật và A nói dối."
+Logic Trung Học,A nói: 'C là người trung thực.' B nói: 'A là kẻ nói dối.' C nói: '3 là số nguyên tố.' Hãy xác định.,Cả ba nói dối,"A trung thực, B nói dối, C trung thực","A nói dối, B trung thực, C nói dối",Cả ba trung thực,B,3 là số nguyên tố nên C trung thực; A nói đúng nên A trung thực và B nói dối.
+Logic Trung Học,A nói: 'C là người trung thực.' B nói: 'A là kẻ nói dối.' C nói: '3 là số chẵn.' Hãy xác định.,Cả ba trung thực,"A nói dối, B trung thực, C nói dối","A trung thực, B nói dối, C trung thực",Cả ba nói dối,B,3 là số lẻ nên C nói dối; A nói sai nên A nói dối và B trung thực.
+Logic Trung Học,A nói: 'B và C cùng loại.' B nói: 'C là kẻ nói dối.' C nói: '4 là số chẵn.' Hãy xác định.,"A trung thực, B nói dối, C trung thực",Cả ba trung thực,"A nói dối, B trung thực, C nói dối","A nói dối, B nói dối, C trung thực",D,C trung thực nên B nói dối; B và C khác loại nên A nói dối.
+Logic Trung Học,A nói: 'B và C cùng loại.' B nói: 'C là kẻ nói dối.' C nói: '4 là số lẻ.' Hãy xác định.,Cả ba nói dối,"A trung thực, B nói dối, C nói dối","A nói dối, B nói dối, C trung thực","A nói dối, B trung thực, C nói dối",D,C nói dối nên B nói thật; B và C khác loại nên A nói dối.
+Logic Trung Học,A nói: 'B là người trung thực.' B nói: 'C là người trung thực.' C nói: '6 chia hết cho 3.' Hãy xác định.,Cả ba trung thực,"A nói dối, B trung thực, C trung thực","A trung thực, B nói dối, C nói dối",Cả ba nói dối,A,"C nói đúng nên trung thực, suy ra B và A đều trung thực."
+Logic Trung Học,A nói: 'B là người trung thực.' B nói: 'C là người trung thực.' C nói: '6 chia hết cho 4.' Hãy xác định.,"A trung thực, B trung thực, C nói dối","A nói dối, B nói dối, C trung thực",Cả ba nói dối,Cả ba trung thực,C,"C nói sai nên nói dối, suy ra B và A đều nói dối."
+Logic Trung Học,A nói: 'B là kẻ nói dối.' B nói: 'C là người trung thực.' C nói: '5 là số nguyên tố.' Hãy xác định.,"A trung thực, B nói dối, C nói dối","A nói dối, B trung thực, C trung thực",Cả ba nói dối,Cả ba trung thực,B,"C nói đúng nên trung thực, B nói đúng nên trung thực, A nói sai nên nói dối."
+Logic Trung Học,A nói: 'B là kẻ nói dối.' B nói: 'C là người trung thực.' C nói: '5 là số chẵn.' Hãy xác định.,Cả ba nói dối,"A trung thực, B nói dối, C nói dối",Cả ba trung thực,"A nói dối, B trung thực, C trung thực",B,"C nói sai nên nói dối, B nói sai nên nói dối, A nói đúng nên trung thực."
+Logic Trung Học,"Có hai cánh cửa, một dẫn tới kho báu. Một người canh luôn nói thật và một người luôn nói dối, nhưng bạn không biết ai là ai. Bạn hỏi một người: 'Người kia sẽ chỉ cửa nào?' Người đó chỉ vào cửa X. Vậy cửa dẫn tới kho báu là cửa nào?",Không xác định được,Chính cửa X,Cả hai cửa,"Cửa còn lại, không phải X",D,Câu hỏi khiến cả hai người đều chỉ sai cửa.
+Logic Trung Học,A nói: 'Có ít nhất một trong hai chúng ta là kẻ nói dối.' Hãy xác định A và B.,Cả hai nói dối,Cả hai trung thực,"A trung thực, B nói dối","A nói dối, B trung thực",C,"Nếu A nói dối thì câu đó sai, tức cả hai trung thực, mâu thuẫn."
+Logic Trung Học,A nói: 'Cả hai chúng ta đều là kẻ nói dối.' Hãy xác định.,"A trung thực, B nói dối",Cả hai nói dối,Cả hai trung thực,"A nói dối, B trung thực",D,"Nếu A nói dối thì câu đó sai, tức không cùng nói dối, nên B trung thực."
+Logic Trung Học,A nói: 'B là kẻ nói dối.' B nói: 'Có ít nhất một trong hai chúng ta là người trung thực.' Hãy xác định.,Cả hai trung thực,"A trung thực, B nói dối",Cả hai nói dối,"A nói dối, B trung thực",D,"Nếu A trung thực thì B nói dối, nhưng câu của B lại đúng, mâu thuẫn."
+Logic Trung Học,A nói: 'Chúng ta đều là người trung thực.' B nói: 'A là kẻ nói dối.' Hãy xác định.,"A nói dối, B trung thực","A trung thực, B nói dối",Cả hai trung thực,Cả hai nói dối,A,"Nếu A trung thực thì B cũng trung thực, nhưng B nói A nói dối, mâu thuẫn."
+Logic Trung Học,A nói: '11 là số nguyên tố.' B nói: 'A là kẻ nói dối.' Hãy xác định.,Cả hai nói dối,Cả hai trung thực,"A trung thực, B nói dối","A nói dối, B trung thực",C,11 là số nguyên tố nên A trung thực và B nói dối.
+Logic Trung Học,A nói: '11 là số chẵn.' B nói: 'A là người trung thực.' Hãy xác định.,Cả hai trung thực,"A trung thực, B nói dối",Cả hai nói dối,"A nói dối, B trung thực",C,11 là số lẻ nên A nói dối và B nói dối.
+Logic Trung Học,A nói: 'B là kẻ nói dối.' B nói: '11 là số nguyên tố.' Hãy xác định.,Cả hai nói dối,"A trung thực, B nói dối","A nói dối, B trung thực",Cả hai trung thực,C,11 là số nguyên tố nên B trung thực và A nói dối.
+Logic Trung Học,A nói: 'B là kẻ nói dối.' B nói: '11 là số chẵn.' Hãy xác định.,"A trung thực, B nói dối","A nói dối, B trung thực",Cả hai nói dối,Cả hai trung thực,A,11 là số lẻ nên B nói dối và A trung thực.
+Logic Trung Học,A nói: 'Tổng 2 + 3 bằng 5.' B nói: 'Tổng 2 + 3 bằng 6.' Hãy xác định.,"A trung thực, B nói dối",Cả hai trung thực,Cả hai nói dối,"A nói dối, B trung thực",A,"2 + 3 = 5 nên A nói thật, B nói dối."
+Logic Trung Học,A nói: 'B là người trung thực.' B nói: 'Chúng ta khác loại.' Hãy xác định.,Cả hai nói dối,"A nói dối, B trung thực",Cả hai trung thực,"A trung thực, B nói dối",A,"Nếu A trung thực thì B trung thực, nhưng câu 'khác loại' là sai, mâu thuẫn."
+Logic Trung Học,"Tập hợp A = {1, 2, 3}. Số phần tử của A là bao nhiêu?",4,1,2,3,D,A có 3 phần tử.
+Logic Trung Học,"A = {a, b}, B = {b, c}. Giao của A và B là gì?","{a, b, c}",∅,{b},"{a, c}",C,Phần tử chung duy nhất là b.
+Logic Trung Học,"A = {1, 2}, B = {2, 3}. Hợp của A và B là gì?","{1, 3}",{2},∅,"{1, 2, 3}",D,Hợp gồm mọi phần tử của cả hai tập.
+Logic Trung Học,"A = {1, 2, 3}, B = {2, 3, 4}. Hiệu A \ B là gì?","{2, 3}","{1, 4}",{1},{4},C,A \ B gồm phần tử thuộc A mà không thuộc B.
+Logic Trung Học,"A = {1, 2, 3, 4}, B = {3, 4, 5}. Giao của A và B là gì?",{5},"{3, 4}","{1, 2}","{1, 2, 5}",B,Phần tử chung là 3 và 4.
+Logic Trung Học,Tập hợp rỗng được kí hiệu là gì?,∅,∞,∈,⊂,A,Kí hiệu ∅ chỉ tập hợp không có phần tử nào.
+Logic Trung Học,Tập hợp các số tự nhiên nhỏ hơn 5 là tập nào?,"{1, 2, 3, 4, 5}","{1, 2, 3, 4}","{0, 1, 2, 3, 4, 5}","{0, 1, 2, 3, 4}",D,Nhỏ hơn 5 và gồm cả 0.
+Logic Trung Học,Tập hợp các số nguyên tố nhỏ hơn 10 là tập nào?,"{1, 2, 3, 5, 7}","{3, 5, 7}","{2, 3, 5, 7, 9}","{2, 3, 5, 7}",D,"Các số nguyên tố nhỏ hơn 10 là 2, 3, 5, 7."
+Logic Trung Học,Một tập hợp có 1 phần tử thì có bao nhiêu tập con?,4,3,2,1,C,Gồm tập rỗng và chính nó.
+Logic Trung Học,Một tập hợp có 2 phần tử thì có bao nhiêu tập con?,4,2,3,8,A,2² = 4 tập con.
+Logic Trung Học,Một tập hợp có 3 phần tử thì có bao nhiêu tập con?,8,3,9,6,A,2³ = 8 tập con.
+Logic Trung Học,Tập hợp có n phần tử thì có bao nhiêu tập con?,n!,2^n,n^2,2n,B,Công thức số tập con là 2 mũ n.
+Logic Trung Học,"A = {1, 2, 3}. Tập nào dưới đây là tập con của A?","{2, 5}","{1, 4}","{3, 4}","{1, 2}",D,"Mọi phần tử của {1, 2} đều thuộc A."
+Logic Trung Học,"Phần tử 2 có thuộc tập {1, 2, 3} không?",Chỉ khi 2 là số chẵn,Không,Không xác định,"Có, 2 là phần tử của tập hợp",D,"2 nằm trong tập {1, 2, 3}."
+Logic Trung Học,"Số 4 có thuộc tập {1, 2, 3} không?",Không,Có,Có nếu 4 < 5,Không xác định,A,4 không nằm trong tập.
+Logic Trung Học,Kí hiệu A ⊂ B có nghĩa là gì?,A bằng B,Mọi phần tử của A đều thuộc B,Mọi phần tử của B thuộc A,A và B rời nhau,B,⊂ nghĩa là tập con.
+Logic Trung Học,Nếu A ⊂ B và B ⊂ A thì suy ra điều gì?,A là tập con thực sự của B,A khác B,Không kết luận được,A bằng B,D,Bao hàm cả hai chiều nghĩa là hai tập bằng nhau.
+Logic Trung Học,A hợp với tập rỗng bằng gì?,Không xác định,Tập rỗng,Toàn bộ không gian,A,D,Hợp với tập rỗng không thêm phần tử nào.
+Logic Trung Học,A giao với tập rỗng bằng gì?,A hợp với tập rỗng,A,Tập rỗng,Không xác định,C,Không có phần tử chung nào.
+Logic Trung Học,Hai tập hợp không có phần tử chung được gọi là gì?,Tập con của nhau,Bằng nhau,Rời nhau,Giao nhau,C,Đó là hai tập rời nhau.
+Logic Trung Học,"A = {1, 2, 3}, B = {3, 4, 5}. Tập {3} là gì của A và B?",Hiệu B \ A,Hiệu A \ B,Hợp của A và B,Giao của A và B,D,3 là phần tử chung duy nhất.
+Logic Trung Học,"A = {x | x là số chẵn, 0 < x < 10}. A là tập nào?","{1, 3, 5, 7, 9}","{0, 2, 4, 6, 8}","{2, 4, 6, 8}","{2, 4, 6, 8, 10}",C,Số chẵn lớn hơn 0 và nhỏ hơn 10.
+Logic Trung Học,"B = {x | x là số lẻ, 0 < x ≤ 9}. B là tập nào?","{1, 3, 5, 7, 9}","{2, 4, 6, 8}","{1, 3, 5, 7}","{0, 1, 3, 5, 7, 9}",A,Số lẻ lớn hơn 0 và không vượt quá 9.
+Logic Trung Học,Tập hợp các số tự nhiên dương chia hết cho 5 và nhỏ hơn 21 là tập nào?,"{5, 10, 15, 20}","{5, 10, 15}","{0, 5, 10, 15, 20}","{0, 5, 10, 15}",A,Liệt kê bội dương của 5 nhỏ hơn 21.
+Logic Trung Học,"Tập {1, 2, 2, 3, 3, 3} có bao nhiêu phần tử (kể cả phần tử trùng nhau)?",3,4,2,6,D,Có 6 kí hiệu phần tử được liệt kê.
+Logic Trung Học,"Tập con của {1, 2, 3, 4} có thể có nhiều nhất bao nhiêu phần tử?",5,4,8,3,B,Tập con lớn nhất chính là tập đã cho.
+Logic Trung Học,"Hai tập {1, 2} và {1, 2} có bằng nhau không?",Không,Không xác định,Chỉ khác thứ tự,Có,D,Hai tập có cùng các phần tử.
+Logic Trung Học,"Hai tập {1, 2} và {2, 1} có bằng nhau không?",Không xác định,Có,Chỉ khi các phần tử là số nguyên,Không,B,Thứ tự liệt kê không ảnh hưởng tập hợp.
+Logic Trung Học,"Hai tập {1} và {1, 1} có bằng nhau không?",Có,Tùy cách viết,Không xác định,Không,A,Phần tử trùng chỉ tính một lần.
+Logic Trung Học,Nếu A có 4 phần tử thì A có bao nhiêu tập con?,4,32,8,16,D,2⁴ = 16 tập con.
+Logic Trung Học,Tập hợp các ước của 6 là tập nào?,"{1, 2, 3, 6}","{1, 2, 3}","{2, 3}",{6},A,"Ước của 6 là 1, 2, 3, 6."
+Logic Trung Học,Tập hợp các ước của 4 là tập nào?,"{1, 2, 3, 4}","{1, 2, 4}","{1, 4}","{2, 4}",B,"Ước của 4 là 1, 2, 4."
+Logic Trung Học,Tập hợp ước chung của 6 và 8 là tập nào?,"{1, 2, 4}","{2, 4}","{1, 2, 4, 8}","{1, 2}",D,Ước chung của 6 và 8 là 1 và 2.
+Logic Trung Học,Bội chung nhỏ nhất của 4 và 6 bằng bao nhiêu?,24,8,2,12,D,"BCNN(4, 6) = 12."
+Logic Trung Học,A = {x | x² = 9}. A là tập nào?,{9},{-3},"{-3, 3}",{3},C,Phương trình x² = 9 có hai nghiệm -3 và 3.
+Logic Trung Học,A = {x thuộc N | x < 3}. A là tập nào?,"{1, 2, 3}","{1, 2}","{0, 1, 2}","{0, 1, 2, 3}",C,"Số tự nhiên nhỏ hơn 3 gồm 0, 1, 2."
+Logic Trung Học,A = {x thuộc N* | x < 4}. A là tập nào?,"{1, 2, 3}","{2, 3}","{1, 2, 3, 4}","{0, 1, 2, 3}",A,N* không gồm 0.
+Logic Trung Học,"Trong tập {2, 4, 6, 8}, số nào lớn nhất?",4,8,6,2,B,8 là số lớn nhất trong tập.
+Logic Trung Học,Giao của tập các số chẵn và tập các số lẻ là gì?,Toàn bộ số nguyên,{1},Tập rỗng,{0},C,Không có số nào vừa chẵn vừa lẻ.
+Logic Trung Học,Hợp của tập các số chẵn và tập các số lẻ là gì?,Tập các số lẻ,Tập các số chẵn,Tập các số nguyên,Tập rỗng,C,Mọi số nguyên đều chẵn hoặc lẻ.
+Logic Trung Học,"A = {1, 2, 3, 4}, B = {3, 4, 5, 6}. Hợp của A và B có bao nhiêu phần tử?",2,4,6,8,C,"Hợp là {1, 2, 3, 4, 5, 6} nên có 6 phần tử."
+Logic Trung Học,"Với A = {1, 2, 3, 4} và B = {3, 4, 5, 6}, giao của A và B có bao nhiêu phần tử?",4,3,2,1,C,"Giao là {3, 4} nên có 2 phần tử."
+Logic Trung Học,Tập hợp các số tự nhiên là hữu hạn hay vô hạn?,Không xác định,Vô hạn,Hữu hạn,Rỗng,B,Không có số tự nhiên lớn nhất.
+Logic Trung Học,Kí hiệu ∈ được dùng để chỉ điều gì?,Phép giao,Tập con,Phần tử thuộc tập hợp,Phép hợp,C,∈ chỉ quan hệ thuộc.
+Logic Trung Học,Kí hiệu ⊂ được dùng để chỉ điều gì?,Phép hợp,Tập con,Phép giao,Phần tử,B,⊂ chỉ quan hệ bao hàm.
+Logic Trung Học,"Mỗi học sinh thích ít nhất một môn trong Toán, Văn. Biết 30 bạn thích Toán, 20 bạn thích Văn, 10 bạn thích cả hai. Lớp có bao nhiêu học sinh?",60,40,50,30,B,30 + 20 - 10 = 40 học sinh.
+Logic Trung Học,"30 bạn thích Toán, 20 bạn thích Văn và không ai thích cả hai. Tổng số bạn là bao nhiêu?",40,10,50,30,C,Hai tập rời nhau nên cộng trực tiếp.
+Logic Trung Học,"Trong lớp 40 học sinh, 25 bạn học tiếng Anh, 15 bạn học tiếng Pháp, 5 bạn học cả hai. Có bao nhiêu bạn không học ngoại ngữ nào?",5,0,15,10,A,"25 + 15 - 5 = 35, còn 40 - 35 = 5."
+Logic Trung Học,Tập A luôn là tập con của chính nó. Điều này đúng hay sai?,Đúng,Tùy tập,Không xác định,Sai,A,Mọi tập hợp đều là tập con của chính nó.
+Logic Trung Học,Tập rỗng là tập con của mọi tập hợp. Điều này đúng hay sai?,Đúng,Tùy tập,Sai,Không xác định,A,Tập rỗng không có phần tử nào nên luôn là tập con.
+Logic Trung Học,Một tập hợp có 2 phần tử thì có bao nhiêu tập con khác rỗng?,4,1,2,3,D,"Có 4 tập con, trừ tập rỗng còn 3."
+Logic Trung Học,Tập rỗng có bao nhiêu tập con?,1,0,2,vô số,A,Tập rỗng chỉ có một tập con là chính nó.
+Logic Trung Học,A = {a}. A có bao nhiêu tập con?,1,4,2,3,C,Hai tập con là tập rỗng và {a}.
+Logic Trung Học,Tập nghiệm của phương trình x² = 4 trên tập số thực là gì?,{2},"{-2, 2}",{-2},{4},B,Phương trình có hai nghiệm -2 và 2.
+Logic Trung Học,Tập nghiệm của phương trình x + 3 = 5 là gì?,{8},{-2},{2},∅,C,x = 5 - 3 = 2.
+Logic Trung Học,Tập nghiệm của phương trình x² = -1 trên tập số thực là gì?,{-1},Tập rỗng,"{-1, 1}",{1},B,Không có số thực nào bình phương bằng -1.
+Logic Trung Học,"A = {1, 2, 3}, B = {1, 2, 3}. Hiệu A \ B là gì?","{1, 2, 3}",Không xác định,{1},Tập rỗng,D,Mọi phần tử của A đều thuộc B.
+Logic Trung Học,"A = {1, 2}, B = {3, 4}. Giao của A và B là gì?",{2},{1},"{1, 2, 3, 4}",Tập rỗng,D,Hai tập không có phần tử chung.
+Logic Trung Học,"Với A và B rời nhau, số phần tử của A hợp B bằng |A| + |B| trừ đi bao nhiêu?",|B|,0,|A|,1,B,Hai tập rời nhau thì không có phần tử chung.
+Logic Trung Học,"Trong 100 người, 60 người đọc báo, 50 người xem tin và 20 người làm cả hai. Số người làm ít nhất một việc là bao nhiêu?",90,70,80,110,A,60 + 50 - 20 = 90.
+Logic Trung Học,"Phủ định của 'mọi x, P(x)' là gì?",Tồn tại x để P(x) sai,"Tồn tại x, P(x)","Mọi x, P(x) sai",Không x nào có P(x),A,Đổi 'mọi' thành 'tồn tại' và phủ định vị ngữ.
+Logic Trung Học,"Phủ định của 'tồn tại x, P(x)' là gì?",Mọi x đều có P(x) sai,"Tồn tại x, P(x) sai","Mọi x, P(x)",Không x nào có P(x) sai,A,Đổi 'tồn tại' thành 'mọi' và phủ định vị ngữ.
+Logic Trung Học,"'Mọi x thuộc R, x² ≥ 0' đúng hay sai?",Đúng với x > 0,Sai,Không xác định,Đúng,D,Bình phương luôn không âm.
+Logic Trung Học,"'Tồn tại x thuộc R, x² = -1' đúng hay sai?",Không xác định,Sai,Đúng,Đúng với số phức,B,Không có số thực nào bình phương bằng -1.
+Logic Trung Học,"'Tồn tại x thuộc Z, 2x = 5' đúng hay sai?",Không xác định,Đúng,"Sai, vì x = 2,5 không nguyên",Đúng với x = 5/2,C,Không có số nguyên nào nhân 2 bằng 5.
+Logic Trung Học,"'Mọi n thuộc N, n + 1 > n' đúng hay sai?",Đúng,Không xác định,Đúng với n > 0,Sai,A,Cộng thêm 1 luôn lớn hơn.
+Logic Trung Học,"'Tồn tại n thuộc N, n² = n' đúng hay sai?",Không xác định,Chỉ với n = 0,Sai,"Đúng, vì n = 0 hoặc n = 1",D,0² = 0 và 1² = 1.
+Logic Trung Học,"'Mọi n thuộc N, n chia hết cho 1' đúng hay sai?",Đúng,Sai,Không xác định,Đúng với n > 0,A,Mọi số đều chia hết cho 1.
+Logic Trung Học,"'Mọi x thuộc R, x > 0' đúng hay sai?",Đúng với x nguyên,Không xác định,"Sai, ví dụ x = -1",Đúng,C,Có số thực âm nên mệnh đề sai.
+Logic Trung Học,"'Tồn tại x thuộc R, x < 0' đúng hay sai?",Chỉ với x nguyên,Không xác định,Đúng,Sai,C,"Có số thực âm, ví dụ -1."
+Logic Trung Học,Phủ định của 'Mọi số nguyên đều là số tự nhiên' là gì?,Mọi số tự nhiên là số nguyên,Có số nguyên không là số tự nhiên,Không số nào là số tự nhiên,Mọi số nguyên là số tự nhiên,B,Phủ định là tồn tại số nguyên không là số tự nhiên.
+Logic Trung Học,Phủ định của 'Mọi học sinh đều thích thể thao' là gì?,Mọi học sinh ghét thể thao,Không học sinh nào thích thể thao,Có học sinh không thích thể thao,Mọi học sinh thích thể thao,C,Phủ định là có học sinh không thích thể thao.
+Logic Trung Học,Phủ định của 'Tồn tại số chính phương chẵn' là gì?,Mọi số chính phương đều lẻ,Tồn tại số chính phương lẻ,Mọi số chẵn đều chính phương,Không số nào chính phương,A,Tồn tại số chính phương chẵn là sai nên phủ định là mọi số chính phương đều lẻ.
+Logic Trung Học,"'Mọi x thuộc R, tồn tại y thuộc R: x + y = 0' đúng hay sai?",Sai,Chỉ đúng với x > 0,Không xác định,"Đúng, chọn y = -x",D,Với mỗi x luôn chọn được y đối của nó.
+Logic Trung Học,"'Tồn tại y thuộc R, mọi x thuộc R: x + y = 0' đúng hay sai?",Sai,Đúng với y = 0,Không xác định,Đúng,A,Không có y cố định nào thỏa với mọi x.
+Logic Trung Học,"Mệnh đề 'mọi x, P(x)' mạnh hơn hay yếu hơn 'tồn tại x, P(x)'?",Mạnh hơn,Yếu hơn,Bằng nhau,Không liên quan,A,'Mọi' kéo theo 'tồn tại' nên mạnh hơn.
+Logic Trung Học,'Mọi số tự nhiên đều chia hết cho chính nó' đúng hay sai?,Sai,Đúng,Chỉ số dương,Không xác định,B,a chia hết cho a với mọi a khác 0.
+Logic Trung Học,'Tồn tại số tự nhiên lớn nhất' đúng hay sai?,Không xác định,Đúng với số một chữ số,Sai,Đúng,C,Luôn cộng thêm 1 được số lớn hơn.
+Logic Trung Học,'Mọi số lẻ đều chia hết cho 3' đúng hay sai?,Không xác định,Sai,Đúng,Chỉ đúng với số lớn,B,Ví dụ 5 là số lẻ nhưng không chia hết cho 3.
+Logic Trung Học,'Tồn tại số tự nhiên chia hết cho 7' đúng hay sai?,Sai,Không xác định,Chỉ với số dương lớn,"Đúng, ví dụ 7",D,7 chia hết cho 7.
+Logic Trung Học,"'Mọi n thuộc N, n² ≥ n' đúng hay sai?",Chỉ với n > 1,Đúng,Không xác định,Sai,B,"Với số tự nhiên n, n² - n = n(n - 1) ≥ 0."
+Logic Trung Học,"'Mọi x thuộc R, |x| ≥ 0' đúng hay sai?",Chỉ với x ≠ 0,Không xác định,Đúng,Sai,C,Giá trị tuyệt đối luôn không âm.
+Logic Trung Học,Phủ định của 'Mọi số nguyên tố đều là số lẻ' là gì?,Không số nào nguyên tố,Mọi số chẵn là nguyên tố,Tồn tại số nguyên tố chẵn,Mọi số nguyên tố chẵn,C,"Phủ định là tồn tại số nguyên tố chẵn, đó là 2."
+Logic Trung Học,"'Mọi x > 1, x² > x' đúng hay sai?",Sai,Không xác định,Đúng,Chỉ với x nguyên,C,Với x > 1 thì x² - x = x(x - 1) > 0.
+Logic Trung Học,"Phủ định của 'Mọi x, f(x) > 0' là gì?",Tồn tại x để f(x) ≥ 0,Tồn tại x để f(x) ≤ 0,"Mọi x, f(x) ≤ 0",Tồn tại x để f(x) < 0,B,Phủ định của lớn hơn là nhỏ hơn hoặc bằng.
+Logic Trung Học,"'Tồn tại x thuộc N, x < 0' đúng hay sai?",Đúng,Không xác định,Sai,Đúng với x nguyên,C,Số tự nhiên không âm.
+Logic Trung Học,"'Mọi a, b thuộc R: a > b suy ra a² > b²' đúng hay sai?",Đúng,"Đúng với a, b > 0","Sai, ví dụ a = 1 và b = -2",Không xác định,C,1 > -2 nhưng 1² < (-2)².
+Logic Trung Học,"'Tồn tại x thuộc R, x² + 1 = 0' đúng hay sai?",Đúng với số phức,Đúng,Sai,Không xác định,C,x² ≥ 0 nên x² + 1 > 0.
+Logic Trung Học,"'Mọi n thuộc N, 2n là số chẵn' đúng hay sai?",Sai,Không xác định,Chỉ với n > 0,Đúng,D,2n luôn chia hết cho 2.
+Logic Trung Học,"'Mọi n thuộc N, 2n + 1 là số lẻ' đúng hay sai?",Chỉ với n > 0,Đúng,Sai,Không xác định,B,2n + 1 không chia hết cho 2.
+Logic Trung Học,"Muốn chứng minh mệnh đề P bằng phản chứng, ta giả sử điều gì?",P đúng,P sai rồi kết luận ngay,Không giả sử gì,Phủ định của P rồi dẫn tới mâu thuẫn,D,Đó là nội dung phương pháp phản chứng.
+Logic Trung Học,Nếu giả sử căn bậc hai của 2 là số hữu tỉ dẫn đến mâu thuẫn thì căn bậc hai của 2 là gì?,Số tự nhiên,Số vô tỉ,Số hữu tỉ,Số nguyên,B,Phản chứng cho thấy nó không hữu tỉ.
+Logic Trung Học,"Chứng minh 'nếu n² lẻ thì n lẻ' bằng phản chứng, ta giả sử điều gì?",n chẵn,n = 0,n² chẵn,n lẻ,A,"Giả sử ngược lại kết luận, tức n chẵn."
+Logic Trung Học,Vì sao số nguyên tố lớn hơn 2 luôn là số lẻ?,Vì nếu chẵn thì chia hết cho 2,Không có lý do,Vì định nghĩa quy ước,Vì nó lớn,A,Số chẵn lớn hơn 2 chia hết cho 2 nên không nguyên tố.
+Logic Trung Học,Tích của hai số lẻ là số gì?,Không xác định,Có thể chẵn,Số chẵn,Số lẻ,D,Ví dụ 3 × 7 = 21 là số lẻ.
+Logic Trung Học,Tổng của một số chẵn và một số lẻ là số gì?,Có thể chẵn,Không xác định,Số chẵn,Số lẻ,D,Ví dụ 4 + 5 = 9 là số lẻ.
+Logic Trung Học,Nếu n lẻ thì n² lẻ. Vì sao?,Vì định nghĩa,Không có lý do,Vì n lẻ nên bình phương chẵn,Vì lẻ nhân lẻ bằng lẻ,D,Bình phương là tích của hai số lẻ.
+Logic Trung Học,Có tồn tại số nguyên tố chẵn không?,Không,"Có, đó là số 2",Không xác định,"Có, đó là số 4",B,2 là số nguyên tố chẵn duy nhất.
+Logic Trung Học,Số nào dưới đây là số chính phương?,12,16,20,18,B,16 = 4².
+Logic Trung Học,Nếu a chia hết cho 6 thì a chia hết cho những số nào?,5,2,7,4,B,6 = 2 × 3 nên a chia hết cho 2.
+Logic Trung Học,Nếu a chia hết cho 12 thì a chia hết cho những số nào?,7,8,3,5,C,12 = 3 × 4 nên a chia hết cho 3.
+Logic Trung Học,Tổng các số từ 1 đến n bằng công thức nào?,n(n + 1)/2,2n,n²,n(n - 1)/2,A,Công thức tổng dãy số tự nhiên.
+Logic Trung Học,Tổng các số lẻ đầu tiên 1 + 3 + 5 + ... + (2n - 1) bằng gì?,n²,2n,n(n + 1),n³,A,Tổng n số lẻ đầu tiên bằng n².
+Logic Trung Học,Số 28 có phải là số hoàn hảo không?,Chỉ số nguyên tố mới hoàn hảo,"Có, vì 1 + 2 + 4 + 7 + 14 = 28",Không,Không xác định,B,Tổng các ước thực sự bằng chính nó.
+Logic Trung Học,Vì sao số 6 là số hoàn hảo?,Vì 6 là số chẵn,Vì 1 + 2 + 3 = 6,Vì 1 + 2 = 6,Vì 6 chia hết cho 3,B,"Các ước thực sự 1, 2, 3 có tổng bằng 6."
+Logic Trung Học,Số nguyên tố là số có đúng bao nhiêu ước?,4,1,3,2,D,Chỉ có hai ước là 1 và chính nó.
+Logic Trung Học,Số 1 có bao nhiêu ước?,2,4,1,3,C,Số 1 chỉ có một ước là chính nó.
+Logic Trung Học,Một số có đúng 3 ước là số như thế nào?,Số chẵn,Số hoàn hảo,Số nguyên tố,Số chính phương của một số nguyên tố,D,"Ví dụ 4 = 2² có các ước 1, 2, 4."
+Logic Trung Học,Nếu n chia hết cho 5 thì n² chia hết cho những số nào?,5,Cả 5 và 25,10,25,B,n = 5k nên n² = 25k².
+Logic Trung Học,Nếu n chia hết cho 3 thì n² chia hết cho những số nào?,Cả 3 và 9,9,6,3,A,n = 3k nên n² = 9k².
+Logic Trung Học,Chứng minh 'có vô hạn số nguyên tố' thường dùng phương pháp nào?,Trực tiếp,Tổ hợp,Phản chứng,Quy nạp,C,Giả sử hữu hạn rồi dẫn tới mâu thuẫn.
+Logic Trung Học,"Giả sử chỉ có hữu hạn số nguyên tố, nhân tất cả rồi cộng 1. Số mới có tính chất gì?",Là số nguyên tố nhỏ,Bằng 1,Chia hết cho mọi số cũ,"Có ước nguyên tố mới, gây mâu thuẫn",D,Số mới không chia hết cho số nguyên tố cũ nào.
+Logic Trung Học,Số vô tỉ là số như thế nào?,Là số tự nhiên,Không biểu diễn được dưới dạng phân số,Biểu diễn được dạng phân số,Là số nguyên,B,Đó là định nghĩa số vô tỉ.
+Logic Trung Học,Căn bậc hai của 4 thuộc tập nào?,Số vô tỉ,Số tự nhiên,Số phức,Số âm,B,Căn bậc hai của 4 bằng 2.
+Logic Trung Học,Số pi là số gì?,Số vô tỉ,Số hữu tỉ,Số tự nhiên,Số nguyên,A,Pi là số vô tỉ.
+Logic Trung Học,"Số 0,(9) bằng số nào?",Không xác định,0,"0,9",1,D,"Số thập phân vô hạn tuần hoàn 0,(9) bằng 1."
+Logic Trung Học,Nếu x là số nguyên chẵn thì x + 1 là số gì?,Số chính phương,Số nguyên tố,Số chẵn,Số lẻ,D,Chẵn cộng 1 thành lẻ.
+Logic Trung Học,"Trong dãy 2n (n tự nhiên), các số đều là gì?",Số chẵn,Số chính phương,Số lẻ,Số nguyên tố,A,2n luôn chia hết cho 2.
+Logic Trung Học,Nếu a và b cùng chẵn thì a + b là số gì?,Không xác định,Số lẻ,Số chẵn,Có thể lẻ,C,Tổng hai số chẵn là số chẵn.
+Logic Trung Học,Nếu a chẵn và b lẻ thì a + b là số gì?,Bằng 0,Số chẵn,Không xác định,Số lẻ,D,Chẵn cộng lẻ thành lẻ.
+Logic Trung Học,Nếu a chẵn và b lẻ thì a × b là số gì?,Bằng 0,Số lẻ,Số chẵn,Không xác định,C,Tích có thừa số chẵn nên chẵn.
+Logic Trung Học,Tổng 1 + 3 + 5 bằng bao nhiêu?,8,9,15,10,B,1 + 3 + 5 = 9.
+Logic Trung Học,"Trung bình cộng của các số 2, 4, 6, 8 bằng bao nhiêu?",5,20,6,4,A,(2 + 4 + 6 + 8) : 4 = 5.
+Logic Trung Học,Nếu một số chia hết cho 2 và 3 thì chia hết cho số nào?,8,12,6,5,C,2 và 3 nguyên tố cùng nhau nên tích là 6.
+Logic Trung Học,"Để chứng minh 'mọi n, P(n)' bằng quy nạp, cần kiểm tra điều gì?",P(0) sai,P(0) đúng và P(k) suy ra P(k+1),Chỉ cần P(0),Chỉ cần P(k+1),B,Đó là hai bước của quy nạp.
+Logic Trung Học,"Dãy số 2, 6, 12, 20, 30, ... số tiếp theo là số nào?",36,40,44,42,D,Đây là dãy n(n + 1): 6 × 7 = 42.
+Logic Trung Học,"Cho dãy số chính phương 1, 4, 9, 16, ... Số tiếp theo là số nào?",24,20,25,36,C,Đây là dãy n²: 5² = 25.
+Logic Trung Học,"Cho dãy số lập phương 1, 8, 27, 64, ... Số tiếp theo là số nào?",216,81,100,125,D,Đây là dãy n³: 5³ = 125.
+Logic Trung Học,"Cho dãy Fibonacci bắt đầu 1, 1, 2, 3, 5, 8. Số hạng tiếp theo là số nào?",12,10,13,11,C,Mỗi số bằng tổng hai số liền trước: 5 + 8 = 13.
+Logic Trung Học,"Cho dãy số nguyên tố 2, 3, 5, 7, 11, ... Số tiếp theo là số nào?",12,15,13,14,C,Số nguyên tố tiếp theo sau 11 là 13.
+Logic Trung Học,"Cho dãy số tam giác 1, 3, 6, 10, 15, ... Số tiếp theo là số nào?",20,25,21,18,C,Các hiệu tăng dần nên tiếp theo cộng 6: 15 + 6 = 21.
+Logic Trung Học,"Dãy số 3, 6, 11, 18, 27, ... số tiếp theo là số nào?",38,36,44,40,A,"Các hiệu là 3, 5, 7, 9, 11 nên 27 + 11 = 38."
+Logic Trung Học,"Dãy số 2, 12, 36, 80, ... số tiếp theo là số nào?",150,144,120,160,A,Đây là dãy n³ + n²: 5³ + 5² = 150.
+Logic Trung Học,"Dãy số 5, 11, 23, 47, ... số tiếp theo là số nào?",93,96,95,94,C,Mỗi số bằng số trước nhân 2 rồi cộng 1.
+Logic Trung Học,"Cho dãy giai thừa 1, 2, 6, 24, 120, ... Số tiếp theo là số nào?",5040,840,600,720,D,"Nhân lần lượt với 2, 3, 4, 5, 6: 120 × 6 = 720."
+Logic Trung Học,"Dãy số 100, 96, 88, 76, ... số tiếp theo là số nào?",64,56,68,60,D,"Các hiệu là -4, -8, -12, -16 nên 76 - 16 = 60."
+Logic Trung Học,"Cho dãy số mũ của 10: 1, 10, 100, 1000, ... Số tiếp theo là số nào?",100000,10000,10001,1100,B,Mỗi số gấp mười lần số trước.
+Logic Trung Học,"Dãy số 1, 4, 10, 22, 46, ... số tiếp theo là số nào?",90,92,88,94,D,Mỗi số bằng số trước nhân 2 rồi cộng 2.
+Logic Trung Học,"Cho dãy số n² + 1: 2, 5, 10, 17, 26, ... Số tiếp theo là số nào?",37,39,35,40,A,6² + 1 = 37.
+Logic Trung Học,"Cho dãy số n² - 1: 0, 3, 8, 15, 24, ... Số tiếp theo là số nào?",48,36,33,35,D,6² - 1 = 35.
+Logic Trung Học,"Cho dãy 1, 2, 4, 7, 11, 16, ... Số tiếp theo là số nào?",20,24,22,21,C,"Các hiệu tăng dần 1, 2, 3, 4, 5 nên 16 + 6 = 22."
+Logic Trung Học,"Cho dãy số 3, 5, 9, 17, 33, ... Số tiếp theo là số nào?",67,63,65,61,C,Mỗi số bằng số trước nhân 2 rồi trừ 1.
+Logic Trung Học,"Cho dãy số 1, 3, 7, 15, 31, ... Số tiếp theo là số nào?",62,63,60,64,B,Mỗi số bằng số trước nhân 2 rồi cộng 1.
+Logic Trung Học,"Cho dãy số 2, 4, 12, 48, ... Số tiếp theo là số nào?",120,96,240,192,C,"Nhân lần lượt với 2, 3, 4, 5: 48 × 5 = 240."
+Logic Trung Học,"Cho dãy số 1, 6, 11, 16, ... Số hạng thứ 10 là số nào?",51,45,41,46,D,Số hạng thứ n là 1 + 5(n - 1) nên số hạng thứ 10 là 46.
+Logic Trung Học,"Cho dãy số 3, 7, 11, 15, ... Số hạng thứ 20 là số nào?",75,79,83,80,B,Số hạng thứ n là 3 + 4(n - 1) nên số hạng thứ 20 là 79.
+Logic Trung Học,"Cho dãy số 100, 95, 90, ... Số hạng thứ 10 là số nào?",55,45,50,60,A,Số hạng thứ n là 100 - 5(n - 1) nên số hạng thứ 10 là 55.
+Logic Trung Học,"Cho dãy số chẵn 2, 4, 6, ... Số hạng thứ 15 là số nào?",26,28,30,32,C,Số chẵn thứ n là 2n nên số hạng thứ 15 là 30.
+Logic Trung Học,"Cho dãy số lẻ 1, 3, 5, ... Số hạng thứ 12 là số nào?",21,23,19,25,B,Số lẻ thứ n là 2n - 1 nên số hạng thứ 12 là 23.
+Logic Trung Học,Tổng các số từ 1 đến 100 bằng bao nhiêu?,5050,10100,4950,5000,A,(1 + 100) × 100 : 2 = 5050.
+Logic Trung Học,Tổng 2 + 4 + 6 + ... + 100 bằng bao nhiêu?,2450,2500,5050,2550,D,Đây là tổng 50 số chẵn đầu tiên: 2(1 + 2 + ... + 50) = 2 × 1275 = 2550.
+Logic Trung Học,Tổng 1 + 3 + 5 + ... + 99 bằng bao nhiêu?,5050,2550,2401,2500,D,Tổng 50 số lẻ đầu tiên bằng 50² = 2500.
+Logic Trung Học,Tổng 1 + 2 + ... + 50 bằng bao nhiêu?,1275,1225,2550,1250,A,(1 + 50) × 50 : 2 = 1275.
+Logic Trung Học,Tổng 5 + 10 + 15 + ... + 50 bằng bao nhiêu?,275,250,300,325,A,5 × (1 + 2 + ... + 10) = 5 × 55 = 275.
+Logic Trung Học,"Số hạng tổng quát của dãy 2, 4, 6, 8, ... là gì?",2n,2n - 1,n²,n + 1,A,Số hạng thứ n bằng 2n.
+Logic Trung Học,"Số hạng tổng quát của dãy 1, 3, 5, 7, ... là gì?",n²,2n - 1,2n,n + 1,B,Số hạng thứ n bằng 2n - 1.
+Logic Trung Học,"Số hạng tổng quát của dãy 1, 4, 9, 16, ... là gì?",n!,n + 1,n²,2n,C,Dãy số chính phương có số hạng tổng quát n².
+Logic Trung Học,"Số hạng tổng quát của dãy 3, 6, 9, 12, ... là gì?",n + 3,3n,3n - 1,n³,B,Bội của 3 là 3n.
+Logic Trung Học,"Số hạng tổng quát của dãy 1, 2, 4, 8, 16, ... là gì?",n²,2n,2^(n-1),2^n,C,Số hạng thứ n bằng 2 mũ n - 1.
+Logic Trung Học,Nếu a1 = 3 và an = a(n-1) + 2 thì a5 bằng bao nhiêu?,11,9,10,13,A,"Dãy là 3, 5, 7, 9, 11."
+Logic Trung Học,Nếu a1 = 1 và an = 3 × a(n-1) thì a4 bằng bao nhiêu?,81,3,27,9,C,"Dãy là 1, 3, 9, 27."
+Logic Trung Học,"Cho dãy 12, 24, 48, 96, ... Số tiếp theo là số nào?",192,120,144,108,A,Mỗi số gấp đôi số trước.
+Logic Trung Học,"Cho dãy 7, 11, 15, 19, ... Số tiếp theo là số nào?",23,25,21,27,A,Mỗi số hơn số trước 4 đơn vị.
+Logic Trung Học,"Cho dãy 6, 12, 24, 48, ... Số hạng thứ 6 là số nào?",96,384,192,168,C,Số hạng thứ n là 6 × 2^(n-1) nên số hạng thứ 6 là 192.
+Logic Trung Học,"Số nào không thuộc dãy 3, 6, 9, 12, 16?",6,16,9,12,B,16 không chia hết cho 3.
+Logic Trung Học,"Số nào không thuộc dãy 2, 4, 8, 16, 24?",24,16,8,4,A,24 không phải lũy thừa của 2.
+Logic Trung Học,"Quy luật của dãy 1, 2, 4, 8 là gì?",Cộng 2 mỗi bước,Nhân đôi mỗi bước,Cộng 1 mỗi bước,Bình phương mỗi bước,B,Mỗi số gấp đôi số trước.
+Logic Trung Học,"Quy luật của dãy 100, 90, 80 là gì?",Chia 2 mỗi bước,Giảm 5 mỗi bước,Giảm 10 mỗi bước,Tăng 10 mỗi bước,C,Mỗi số kém số trước 10 đơn vị.
+Logic Trung Học,"Dãy 1, 4, 7, 10, ... là dãy gì?",Nhân với tỉ số không đổi,Cộng với hiệu không đổi,Không có quy luật,Hỗn hợp,B,Hiệu giữa hai số liền nhau luôn bằng 3.
+Logic Trung Học,"Dãy 2, 4, 8, 16 là dãy gì?",Nhân với tỉ số không đổi,Dãy hằng,Cộng với hiệu không đổi,Dãy đặc biệt,A,Tỉ số giữa hai số liền nhau luôn bằng 2.
+Logic Trung Học,Tính tổng 2 + 4 + 6 + 8 + 10.,28,32,20,30,D,Tổng bằng 30.
+Logic Trung Học,Tính tích 1 × 2 × 3 × 4 × 5.,120,100,60,24,A,5! = 120.
+Logic Trung Học,"Số hạng tiếp theo của dãy Fibonaci 2, 2, 4, 6, 10, 16 là số nào?",26,22,20,24,A,Mỗi số bằng tổng hai số liền trước: 10 + 16 = 26.
+Logic Trung Học,"Dãy 1, 3, 6, 10, 15 được gọi là dãy gì?",Số nguyên tố,Số chính phương,Số tam giác,Số hoàn hảo,C,Đó là các số tam giác.
+Logic Trung Học,"Dãy 1, 4, 9, 16 được gọi là dãy gì?",Số chính phương,Số lập phương,Số nguyên tố,Số tam giác,A,Đó là các số chính phương.
+Logic Trung Học,"Dãy 1, 8, 27, 64 được gọi là dãy gì?",Số lập phương,Số tam giác,Số chính phương,Số nguyên tố,A,Đó là các số lập phương.
+Logic Trung Học,"Số tiếp theo của dãy 5, 10, 20, 40 là số nào?",80,100,50,60,A,Mỗi số gấp đôi số trước.
+Logic Trung Học,"Số tiếp theo của dãy 1, 2, 5, 10, 17 là số nào?",20,26,24,28,B,Quy luật n² + 1 nên số tiếp theo là 5² + 1 = 26.
+Logic Trung Học,"Số tiếp theo của dãy 0, 1, 1, 2, 3, 5 là số nào?",6,4,10,8,D,Mỗi số bằng tổng hai số liền trước: 3 + 5 = 8.
+Logic Trung Học,"Số tiếp theo của dãy 100, 81, 64, 49 là số nào?",25,16,36,30,C,Đây là các số chính phương giảm dần: 6² = 36.
+Logic Trung Học,"Số tiếp theo của dãy 1000, 100, 10 là số nào?",0,10000,1,100,C,Mỗi số chia 10.
+Logic Trung Học,"Cho dãy 2, 6, 18, 54, ... Số hạng thứ 5 là số nào?",108,486,216,162,D,Số hạng thứ n là 2 × 3^(n-1) nên số hạng thứ 5 là 162.
+Logic Trung Học,"Số tiếp theo của dãy 1, 5, 9, 13 là số nào?",16,15,18,17,D,Mỗi số hơn số trước 4 đơn vị.
+Logic Trung Học,"Số tiếp theo của dãy 4, 8, 12, 16 là số nào?",22,24,20,18,C,Mỗi số hơn số trước 4 đơn vị.
+Logic Trung Học,"Số tiếp theo của dãy 9, 18, 27, 36 là số nào?",40,54,45,44,C,Mỗi số hơn số trước 9 đơn vị.
+Logic Trung Học,"Số tiếp theo của dãy 2, 5, 11, 23, 47 là số nào?",94,93,95,96,C,Mỗi số bằng số trước nhân 2 rồi cộng 1.
+Logic Trung Học,"Số tiếp theo của dãy 3, 4, 6, 9, 13 là số nào?",17,16,18,19,C,"Các hiệu tăng dần 1, 2, 3, 4 nên 13 + 5 = 18."
+Logic Trung Học,"Cho dãy số 1, 1, 2, 3, 5, 8, 13, ... Số tiếp theo là số nào?",26,18,20,21,D,Mỗi số bằng tổng hai số liền trước: 8 + 13 = 21.
+Logic Trung Học,"Cho dãy số 1, 2, 2, 4, 8, 32, ... Số tiếp theo là số nào?",128,48,64,256,D,Mỗi số bằng tích hai số liền trước: 8 × 32 = 256.
+Logic Trung Học,"Cho dãy số 1, 3, 6, 10, 15, 21, ... Số tiếp theo là số nào?",26,24,27,28,D,Các hiệu tăng dần nên 21 + 7 = 28.
+Logic Trung Học,Số cách sắp xếp 3 người vào 3 ghế là bao nhiêu?,9,27,6,3,C,3! = 6 cách.
+Logic Trung Học,Số cách chọn 2 người từ 5 người (không quan tâm thứ tự) là bao nhiêu?,5,10,20,25,B,5 × 4 : 2 = 10.
+Logic Trung Học,Số cách sắp xếp 4 người vào 4 ghế là bao nhiêu?,12,16,24,4,C,4! = 24 cách.
+Logic Trung Học,Công thức tính số cách chọn 2 từ n phần tử là gì?,n(n - 1)/2,n²,n(n + 1)/2,n!,A,Công thức tổ hợp chập 2 của n.
+Logic Trung Học,Số cách chọn 1 viên bi từ 5 viên đỏ và 3 viên xanh là bao nhiêu?,5,8,3,15,B,Có tất cả 8 viên bi.
+Logic Trung Học,"Tung một đồng xu hai lần, xác suất được hai mặt ngửa là bao nhiêu?",1/2,3/4,1/3,1/4,D,"Có 4 kết quả, một kết quả là hai ngửa."
+Logic Trung Học,"Tung một xúc xắc, xác suất ra số chẵn là bao nhiêu?",1/2,2/3,1/3,1/6,A,Ba mặt chẵn trong sáu mặt.
+Logic Trung Học,"Tung một xúc xắc, xác suất ra số 6 là bao nhiêu?",1/3,1,1/2,1/6,D,Chỉ một mặt trong sáu mặt là số 6.
+Logic Trung Học,"Tung một xúc xắc, xác suất ra số lớn hơn 4 là bao nhiêu?",1/2,1/3,2/3,1/6,B,Có hai mặt là 5 và 6 nên xác suất là 2/6 = 1/3.
+Logic Trung Học,"Rút một thẻ từ 10 thẻ đánh số 1 đến 10, xác suất rút được thẻ số chẵn là bao nhiêu?",1/10,2/5,1/5,1/2,D,Có 5 thẻ số chẵn trong 10 thẻ.
+Logic Trung Học,Xác suất của một biến cố chắc chắn xảy ra bằng bao nhiêu?,0,100,1/2,1,D,Biến cố chắc chắn có xác suất bằng 1.
+Logic Trung Học,Xác suất của một biến cố không thể xảy ra bằng bao nhiêu?,-1,0,1,1/2,B,Biến cố không thể có xác suất bằng 0.
+Logic Trung Học,Số hoán vị của 5 phần tử là bao nhiêu?,5,25,100,120,D,5! = 120.
+Logic Trung Học,Số cách xếp 5 học sinh thành một hàng là bao nhiêu?,5,25,20,120,D,5! = 120 cách.
+Logic Trung Học,Số cách chọn 3 người từ 5 người để lập một nhóm là bao nhiêu?,5,10,15,60,B,5 × 4 × 3 : 6 = 10.
+Logic Trung Học,"Từ ba chữ số 1, 2, 3 lập được bao nhiêu số có ba chữ số khác nhau?",3,6,27,9,B,3! = 6 số.
+Logic Trung Học,"Từ bốn chữ số 1, 2, 3, 4 lập được bao nhiêu số có hai chữ số khác nhau?",8,16,6,12,D,4 × 3 = 12 số.
+Logic Trung Học,Một tập hợp có 4 phần tử có bao nhiêu tập con?,4,32,16,8,C,2⁴ = 16 tập con.
+Logic Trung Học,Một lớp có 5 nam và 4 nữ. Có bao nhiêu cách chọn 1 bạn?,20,5,9,4,C,5 + 4 = 9 cách.
+Logic Trung Học,Có bao nhiêu cách chọn 1 nam và 1 nữ từ 5 nam và 4 nữ?,10,16,20,9,C,5 × 4 = 20 cách.
+Logic Trung Học,"Tung hai đồng xu, xác suất có ít nhất một mặt ngửa là bao nhiêu?",1,1/2,3/4,1/4,C,Chỉ có một kết quả không có ngửa nên xác suất là 3/4.
+Logic Trung Học,"Tung hai xúc xắc, xác suất tổng số chấm bằng 7 là bao nhiêu?",1/12,1/6,1/9,1/36,B,Có 6 kết quả thuận lợi trong 36.
+Logic Trung Học,"Tung hai xúc xắc, xác suất tổng số chấm bằng 2 là bao nhiêu?",1/18,1/12,1/36,1/6,C,"Chỉ có kết quả (1, 1)."
+Logic Trung Học,Có 4 đôi giày khác nhau. Có bao nhiêu cách chọn 1 đôi?,2,4,16,8,B,Có 4 đôi nên có 4 cách chọn.
+Logic Trung Học,Có bao nhiêu cách phân 2 người vào 2 công việc khác nhau?,1,3,2,4,C,Hai người có thể đổi vai cho nhau.
+Logic Trung Học,Có 3 con đường từ A đến B và 2 con đường từ B đến C. Có bao nhiêu cách đi từ A đến C qua B?,6,5,9,3,A,3 × 2 = 6 cách.
+Logic Trung Học,Có bao nhiêu cách xếp thứ tự về đích của 3 người?,6,9,3,27,A,3! = 6 cách.
+Logic Trung Học,Xác suất tung một đồng xu được mặt sấp là bao nhiêu?,1,1/2,0,1/4,B,Đồng xu có hai mặt như nhau.
+Logic Trung Học,Một hộp có 5 bi đỏ và 5 bi xanh. Xác suất rút ra bi đỏ là bao nhiêu?,1/10,2/5,1/2,1/5,C,Có 5 bi đỏ trong 10 bi.
+Logic Trung Học,"Một bộ bài có 52 lá, trong đó có 4 lá Át. Xác suất rút được lá Át là bao nhiêu?",1/13,4/13,1/52,1/4,A,4/52 = 1/13.
+Logic Trung Học,Một lục giác có bao nhiêu đường chéo?,6,9,15,12,B,n(n - 3)/2 = 6 × 3 : 2 = 9.
+Logic Trung Học,Một tứ giác có bao nhiêu đường chéo?,3,4,1,2,D,Tứ giác có 2 đường chéo.
+Logic Trung Học,Một ngũ giác có bao nhiêu đường chéo?,5,4,3,10,A,5 × 2 : 2 = 5 đường chéo.
+Logic Trung Học,"Từ ba chữ số 1, 2, 3 (cho phép lặp) lập được bao nhiêu số có ba chữ số?",27,9,3,6,A,3 × 3 × 3 = 27 số.
+Logic Trung Học,"Có bao nhiêu cặp (a, b) với a, b thuộc {0, 1}?",8,3,2,4,D,2 × 2 = 4 cặp.
+Logic Trung Học,"Một mã PIN gồm 2 chữ số (0 đến 9, cho phép lặp). Có bao nhiêu mã có thể lập?",90,20,100,10,C,10 × 10 = 100 mã.
+Logic Trung Học,Xếp 3 quyển sách khác nhau lên kệ có bao nhiêu cách?,3,9,27,6,D,3! = 6 cách.
+Logic Trung Học,Chọn một đội trưởng và một đội phó từ 5 người có bao nhiêu cách?,20,10,5,25,A,5 × 4 = 20 cách.
+Logic Trung Học,"Tung 3 đồng xu, có bao nhiêu kết quả có thể xảy ra?",8,9,6,3,A,2³ = 8 kết quả.
+Logic Trung Học,Xác suất tung 3 đồng xu được cả 3 mặt ngửa là bao nhiêu?,3/8,1/3,1/6,1/8,D,Chỉ có một kết quả thuận lợi trong 8.
+Logic Trung Học,"Ba người A, B, C có tuổi khác nhau. Biết A lớn hơn B và B lớn hơn C. Ai nhỏ tuổi nhất?",Không rõ,C,B,A,B,A > B > C nên C nhỏ tuổi nhất.
+Logic Trung Học,"Bạn có 2 sợi dây, mỗi sợi cháy hết trong 1 giờ với tốc độ không đều. Muốn đo 45 phút thì làm thế nào?",Đốt cả hai sợi ở cả hai đầu,Không thể đo được,Đốt một sợi một đầu,"Đốt một sợi cả hai đầu và sợi kia một đầu, khi sợi đầu cháy hết thì đốt đầu còn lại của sợi kia",D,"Sợi đốt hai đầu cháy hết trong 30 phút, lúc đó đốt đầu còn lại của sợi kia sẽ cháy thêm 15 phút."
+Logic Trung Học,"Có 8 viên bi, trong đó 1 viên nặng hơn. Dùng cân đĩa, cần ít nhất mấy lần cân để tìm ra viên nặng?",1,4,2,3,C,Cân 3 viên với 3 viên rồi cân tiếp nhóm chứa viên nặng.
+Logic Trung Học,"Có 3 bóng đèn và 3 công tắc trong phòng kín, chỉ được vào phòng công tắc một lần. Nên làm thế nào?",Bật tất cả công tắc,Không thể làm được,Đoán bừa,Bật một công tắc cho bóng nóng rồi bật một công tắc khác,D,Bóng nóng và bóng sáng giúp phân biệt ba công tắc.
+Logic Trung Học,"Một người có một con sói, một con dê và một bắp cải. Thuyền chỉ chở được người và một thứ. Vì sao phải đưa dê đi trước?",Không có lý do,Vì sói ăn cải,Vì sói ăn dê và dê ăn cải,Vì dê nặng nhất,C,Phải tách dê khỏi sói và khỏi cải.
+Logic Trung Học,"Trong một cuộc đua, bạn vượt qua người đang ở vị trí thứ hai. Bạn đang ở vị trí thứ mấy?",Không rõ,Thứ nhất,Thứ hai,Thứ ba,C,Vượt người thứ hai thì bạn chiếm vị trí thứ hai.
+Logic Trung Học,Nếu bạn vượt qua người đang chạy cuối cùng thì bạn đang ở vị trí nào?,Không thể vượt người cuối cùng,Thứ nhất,Thứ hai,Thứ ba,A,Không thể vượt người đứng cuối cùng trong cuộc đua.
+Logic Trung Học,"Một con ếch ở đáy giếng sâu 10 m. Mỗi ngày nó leo lên 3 m, ban đêm tuột xuống 2 m. Hỏi sau bao nhiêu ngày nó ra khỏi giếng?",7 ngày,10 ngày,8 ngày,9 ngày,C,"Sau 7 ngày ở độ cao 7 m, ngày thứ 8 leo thêm 3 m là ra khỏi giếng."
+Logic Trung Học,"Có 4 người qua cầu ban đêm, tối đa 2 người một lần và phải có đèn. Thời gian qua cầu lần lượt là 1, 2, 5, 10 phút. Thời gian ngắn nhất để tất cả qua cầu là bao nhiêu?",12 phút,19 phút,15 phút,17 phút,D,"1 và 2 qua (2), 1 về (1), 5 và 10 qua (10), 2 về (2), 1 và 2 qua (2): tổng 17."
+Logic Trung Học,"Ba hộp có nhãn đều dán sai: 'táo', 'cam', 'táo và cam'. Bạn lấy 1 quả từ hộp nhãn 'táo và cam' và được quả táo. Hộp nhãn 'táo và cam' thực chất chứa gì?",Chỉ táo,Không xác định,Chỉ cam,Cả táo và cam,A,Vì nhãn sai nên hộp này không thể chứa cả hai.
+Logic Trung Học,Một người nói: 'Tất cả người dân trên đảo này đều nói dối.' Câu nói này dẫn tới điều gì?,"Nghịch lý, không thể tự nhất quán",Người đó nói thật,Trung lập,Người đó nói dối một cách nhất quán,A,"Nếu đúng thì người nói cũng nói dối, còn nếu sai thì có người nói thật."
+Logic Trung Học,"Có 9 quả bóng, 1 quả nặng hơn các quả còn lại. Dùng cân đĩa, có thể tìm ra quả nặng chỉ trong 2 lần cân không?","Không, cần 3 lần","Có, chia thành 3 nhóm 3 quả","Không, cần 4 lần","Có, chỉ cần 1 lần",B,Cân 3 với 3 để xác định nhóm chứa quả nặng rồi cân tiếp.
+Logic Trung Học,Có bao nhiêu số 9 trong dãy số từ 1 đến 100 (đếm ở mọi hàng)?,10,19,11,20,B,"10 số ở hàng đơn vị, 10 số ở hàng chục, trừ 1 số trùng nên có 19."
+Logic Trung Học,"Trong một gia đình, mỗi con trai đều có một chị gái và mỗi chị gái đều có một em trai. Gia đình có ít nhất mấy người con?",3,2,5,4,B,Chỉ cần một chị gái và một em trai.
+Logic Trung Học,"Có 6 quả táo chia cho 6 người, mỗi người 1 quả nhưng vẫn còn 1 quả trong rổ. Làm thế nào?",Cắt quả táo ra,Ăn trước 1 quả,Đưa cả rổ cùng quả táo cho người cuối,Không thể làm được,C,Người cuối nhận cả rổ vẫn còn 1 quả trong đó.
+Logic Trung Học,"Số nhỏ nhất chia hết cho 1, 2, 3, 4, 5, 6 là số nào?",120,60,12,30,B,"BCNN của 1, 2, 3, 4, 5, 6 bằng 60."
+Logic Trung Học,Số có ba chữ số bé nhất mà chữ số hàng chục lớn hơn chữ số hàng đơn vị và chữ số hàng đơn vị lớn hơn 0 là số nào?,102,110,121,101,C,"Chọn hàng trăm là 1, hàng chục là 2, hàng đơn vị là 1."
+Logic Trung Học,Tổng của ba số nguyên dương liên tiếp bằng 24. Số lớn nhất trong ba số là bao nhiêu?,8,7,9,10,C,"Ba số là 7, 8, 9 nên số lớn nhất là 9."
+Logic Trung Học,Một người sinh vào ngày 29 tháng 2. Sinh nhật theo ngày dương lịch của người đó chính xác bao lâu có một lần?,2 năm một lần,Không bao giờ,1 năm một lần,4 năm một lần,D,"Năm nhuận có ngày 29 tháng 2, thường 4 năm một lần."
+Logic Trung Học,"Ba bạn A, B, C thi chạy. Biết A không về nhất, B không về ba và C về sau A. Thứ tự về đích là gì?","A nhất, B nhì, C ba","B nhất, A nhì, C ba","C nhất, A nhì, B ba","B nhất, C nhì, A ba",B,"C về sau A, A không nhất và B không ba nên B nhất, A nhì, C ba."

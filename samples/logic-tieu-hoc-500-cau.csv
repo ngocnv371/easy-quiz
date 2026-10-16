@@ -1,0 +1,501 @@
+subject,prompt,option_a,option_b,option_c,option_d,correct,explanation
+Logic Tiểu Học,"Dãy số 2, 4, 6, 8, ... số tiếp theo là số nào?",11,12,9,10,D,"Dãy số chẵn tăng dần, số tiếp theo là 10."
+Logic Tiểu Học,"Dãy số 1, 3, 5, 7, ... số tiếp theo là số nào?",8,10,11,9,D,"Dãy số lẻ tăng dần, số tiếp theo là 9."
+Logic Tiểu Học,"Dãy số 5, 10, 15, 20, ... số tiếp theo là số nào?",21,25,35,30,B,Mỗi số hơn số trước 5 đơn vị nên số tiếp theo là 25.
+Logic Tiểu Học,"Dãy số 10, 20, 30, ... số tiếp theo là số nào?",31,40,35,50,B,Mỗi số hơn số trước 10 đơn vị nên số tiếp theo là 40.
+Logic Tiểu Học,"Dãy số 3, 6, 9, 12, ... số tiếp theo là số nào?",15,16,13,14,A,Mỗi số hơn số trước 3 đơn vị nên số tiếp theo là 15.
+Logic Tiểu Học,"Dãy số 20, 18, 16, 14, ... số tiếp theo là số nào?",15,10,12,13,C,Mỗi số kém số trước 2 đơn vị nên số tiếp theo là 12.
+Logic Tiểu Học,"Dãy số 100, 90, 80, 70, ... số tiếp theo là số nào?",50,60,65,55,B,Mỗi số kém số trước 10 đơn vị nên số tiếp theo là 60.
+Logic Tiểu Học,"Dãy số 7, 14, 21, 28, ... số tiếp theo là số nào?",30,40,35,42,C,Mỗi số hơn số trước 7 đơn vị nên số tiếp theo là 35.
+Logic Tiểu Học,"Dãy số 4, 8, 12, 16, ... số tiếp theo là số nào?",22,24,18,20,D,Mỗi số hơn số trước 4 đơn vị nên số tiếp theo là 20.
+Logic Tiểu Học,"Dãy số 6, 12, 18, 24, ... số tiếp theo là số nào?",36,32,30,28,C,Mỗi số hơn số trước 6 đơn vị nên số tiếp theo là 30.
+Logic Tiểu Học,"Dãy số 50, 45, 40, 35, ... số tiếp theo là số nào?",25,32,30,20,C,Mỗi số kém số trước 5 đơn vị nên số tiếp theo là 30.
+Logic Tiểu Học,"Dãy số 2, 5, 8, 11, ... số tiếp theo là số nào?",12,14,15,13,B,Mỗi số hơn số trước 3 đơn vị nên số tiếp theo là 14.
+Logic Tiểu Học,"Dãy số 1, 6, 11, 16, ... số tiếp theo là số nào?",21,26,20,22,A,Mỗi số hơn số trước 5 đơn vị nên số tiếp theo là 21.
+Logic Tiểu Học,"Dãy số 3, 7, 11, 15, ... số tiếp theo là số nào?",19,20,18,23,A,Mỗi số hơn số trước 4 đơn vị nên số tiếp theo là 19.
+Logic Tiểu Học,"Dãy số 9, 18, 27, 36, ... số tiếp theo là số nào?",46,45,40,54,B,Mỗi số hơn số trước 9 đơn vị nên số tiếp theo là 45.
+Logic Tiểu Học,"Dãy số 8, 16, 24, 32, ... số tiếp theo là số nào?",36,42,44,40,D,Mỗi số hơn số trước 8 đơn vị nên số tiếp theo là 40.
+Logic Tiểu Học,"Dãy số 12, 24, 36, 48, ... số tiếp theo là số nào?",50,72,56,60,D,Mỗi số hơn số trước 12 đơn vị nên số tiếp theo là 60.
+Logic Tiểu Học,"Dãy số 25, 50, 75, 100, ... số tiếp theo là số nào?",150,120,125,105,C,Mỗi số hơn số trước 25 đơn vị nên số tiếp theo là 125.
+Logic Tiểu Học,"Dãy số 11, 22, 33, 44, ... số tiếp theo là số nào?",55,44,66,50,A,Mỗi số hơn số trước 11 đơn vị nên số tiếp theo là 55.
+Logic Tiểu Học,"Dãy số 5, 9, 13, 17, ... số tiếp theo là số nào?",21,20,19,25,A,Mỗi số hơn số trước 4 đơn vị nên số tiếp theo là 21.
+Logic Tiểu Học,"Dãy số 1, 2, 4, 8, ... số tiếp theo là số nào?",14,10,12,16,D,Mỗi số gấp đôi số trước nên số tiếp theo là 16.
+Logic Tiểu Học,"Dãy số 2, 4, 8, 16, ... số tiếp theo là số nào?",24,30,20,32,D,Mỗi số gấp đôi số trước nên số tiếp theo là 32.
+Logic Tiểu Học,"Dãy số 3, 6, 12, 24, ... số tiếp theo là số nào?",30,36,42,48,D,Mỗi số gấp đôi số trước nên số tiếp theo là 48.
+Logic Tiểu Học,"Dãy số 1, 3, 9, 27, ... số tiếp theo là số nào?",54,72,90,81,D,Mỗi số gấp ba số trước nên số tiếp theo là 81.
+Logic Tiểu Học,"Dãy số 5, 10, 20, 40, ... số tiếp theo là số nào?",60,100,80,70,C,Mỗi số gấp đôi số trước nên số tiếp theo là 80.
+Logic Tiểu Học,"Dãy số 2, 6, 18, 54, ... số tiếp theo là số nào?",216,162,150,108,B,Mỗi số gấp ba số trước nên số tiếp theo là 162.
+Logic Tiểu Học,"Dãy số 1, 5, 25, 125, ... số tiếp theo là số nào?",150,250,625,500,C,Mỗi số gấp năm số trước nên số tiếp theo là 625.
+Logic Tiểu Học,"Dãy số 4, 8, 16, 32, ... số tiếp theo là số nào?",48,64,72,56,B,Mỗi số gấp đôi số trước nên số tiếp theo là 64.
+Logic Tiểu Học,"Dãy số 10, 20, 40, 80, ... số tiếp theo là số nào?",140,100,160,120,C,Mỗi số gấp đôi số trước nên số tiếp theo là 160.
+Logic Tiểu Học,"Dãy số 1, 4, 16, 64, ... số tiếp theo là số nào?",128,256,200,196,B,Mỗi số gấp bốn số trước nên số tiếp theo là 256.
+Logic Tiểu Học,"Dãy số 1, 1, 2, 3, 5, 8, ... số tiếp theo là số nào?",11,10,12,13,D,Mỗi số bằng tổng hai số liền trước: 5 + 8 = 13.
+Logic Tiểu Học,"Dãy số 2, 2, 4, 6, 10, ... số tiếp theo là số nào?",16,18,12,14,A,Mỗi số bằng tổng hai số liền trước: 6 + 10 = 16.
+Logic Tiểu Học,"Dãy số 1, 4, 9, 16, ... số tiếp theo là số nào?",25,24,36,20,A,Đây là các số chính phương: 5² = 25.
+Logic Tiểu Học,"Dãy số 4, 9, 16, 25, ... số tiếp theo là số nào?",36,30,32,49,A,Đây là các số chính phương: 6² = 36.
+Logic Tiểu Học,"Dãy số 1, 8, 27, 64, ... số tiếp theo là số nào?",125,216,100,81,A,Đây là các số lập phương: 5³ = 125.
+Logic Tiểu Học,"Dãy số 2, 3, 5, 8, 12, ... số tiếp theo là số nào?",18,15,16,17,D,"Các hiệu tăng dần 1, 2, 3, 4 nên tiếp theo cộng 5: 12 + 5 = 17."
+Logic Tiểu Học,"Dãy số 1, 2, 4, 7, 11, ... số tiếp theo là số nào?",17,14,16,15,C,"Các hiệu tăng dần 1, 2, 3, 4 nên tiếp theo cộng 5: 11 + 5 = 16."
+Logic Tiểu Học,"Dãy số 3, 4, 6, 9, 13, ... số tiếp theo là số nào?",16,17,19,18,D,"Các hiệu tăng dần 1, 2, 3, 4 nên tiếp theo cộng 5: 13 + 5 = 18."
+Logic Tiểu Học,"Dãy số 10, 9, 7, 4, ... số tiếp theo là số nào?",3,0,2,1,B,"Các hiệu là -1, -2, -3 nên tiếp theo trừ 4: 4 - 4 = 0."
+Logic Tiểu Học,"Dãy số 20, 19, 17, 14, ... số tiếp theo là số nào?",10,12,9,11,A,"Các hiệu là -1, -2, -3 nên tiếp theo trừ 4: 14 - 4 = 10."
+Logic Tiểu Học,"Dãy số 1, 3, 6, 10, 15, ... số tiếp theo là số nào?",18,20,21,25,C,"Các hiệu tăng dần 2, 3, 4, 5 nên tiếp theo cộng 6: 15 + 6 = 21."
+Logic Tiểu Học,"Dãy số 2, 6, 12, 20, 30, ... số tiếp theo là số nào?",46,40,36,42,D,"Các hiệu tăng dần 4, 6, 8, 10 nên tiếp theo cộng 12: 30 + 12 = 42."
+Logic Tiểu Học,"Dãy số 1, 2, 6, 24, 120, ... số tiếp theo là số nào?",720,240,600,840,A,"Mỗi số nhân 2, 3, 4, 5, 6: 120 × 6 = 720."
+Logic Tiểu Học,"Dãy số 81, 27, 9, ... số tiếp theo là số nào?",3,0,6,1,A,Mỗi số chia 3: 9 : 3 = 3.
+Logic Tiểu Học,"Dãy số 64, 32, 16, 8, ... số tiếp theo là số nào?",4,2,6,0,A,Mỗi số chia đôi: 8 : 2 = 4.
+Logic Tiểu Học,"Dãy số 3, 9, 27, 81, ... số tiếp theo là số nào?",162,216,243,108,C,Mỗi số gấp ba: 81 × 3 = 243.
+Logic Tiểu Học,"Dãy số 5, 6, 8, 11, 15, ... số tiếp theo là số nào?",20,19,18,21,A,"Các hiệu tăng dần 1, 2, 3, 4 nên tiếp theo cộng 5: 15 + 5 = 20."
+Logic Tiểu Học,"Dãy số 2, 10, 50, 250, ... số tiếp theo là số nào?",1250,1000,500,2500,A,Mỗi số gấp năm: 250 × 5 = 1250.
+Logic Tiểu Học,"Dãy số 7, 21, 63, 189, ... số tiếp theo là số nào?",567,756,378,189,A,Mỗi số gấp ba: 189 × 3 = 567.
+Logic Tiểu Học,"Dãy số 1, 10, 100, 1000, ... số tiếp theo là số nào?",9999,1001,10000,1100,C,Mỗi số gấp mười: 1000 × 10 = 10000.
+Logic Tiểu Học,"Trong các số 2, 4, 7, 8, số nào khác loại?",2,4,7,8,C,"7 là số lẻ, còn lại là số chẵn."
+Logic Tiểu Học,"Trong các số 3, 5, 9, 11, số nào khác loại?",5,3,11,9,D,"9 là hợp số, còn lại là số nguyên tố."
+Logic Tiểu Học,"Trong các số 6, 10, 15, 20, số nào khác loại?",10,6,20,15,D,"15 là số lẻ, còn lại là số chẵn."
+Logic Tiểu Học,"Trong các số 1, 4, 9, 12, số nào khác loại?",4,1,9,12,D,12 không phải là số chính phương.
+Logic Tiểu Học,"Trong các số 5, 10, 15, 22, số nào khác loại?",5,10,15,22,D,22 không chia hết cho 5.
+Logic Tiểu Học,"Trong các số 12, 18, 24, 25, số nào khác loại?",24,18,25,12,C,25 không chia hết cho 6.
+Logic Tiểu Học,"Trong các số 2, 3, 5, 9, số nào khác loại?",2,9,3,5,B,"9 là hợp số, còn lại là số nguyên tố."
+Logic Tiểu Học,"Trong các số 8, 16, 24, 30, số nào khác loại?",30,24,8,16,A,30 không chia hết cho 8.
+Logic Tiểu Học,"Trong các số 11, 13, 17, 21, số nào khác loại?",17,21,13,11,B,21 không phải là số nguyên tố.
+Logic Tiểu Học,"Trong các số 4, 16, 25, 40, số nào khác loại?",4,25,16,40,D,40 không phải là số chính phương.
+Logic Tiểu Học,"Trong các số 1, 3, 6, 8, số nào khác loại?",8,6,3,1,A,"8 không thuộc dãy số tam giác 1, 3, 6, 10."
+Logic Tiểu Học,"Trong các số 30, 60, 90, 100, số nào khác loại?",100,90,60,30,A,100 không chia hết cho 30.
+Logic Tiểu Học,"Trong các số 7, 14, 21, 25, số nào khác loại?",14,25,7,21,B,25 không chia hết cho 7.
+Logic Tiểu Học,"Trong các số 6, 36, 60, 64, số nào khác loại?",60,6,64,36,C,64 không chia hết cho 6.
+Logic Tiểu Học,"Trong các số 3, 6, 9, 14, số nào khác loại?",9,14,6,3,B,14 không chia hết cho 3.
+Logic Tiểu Học,"Trong các số 10, 20, 30, 45, số nào khác loại?",45,10,20,30,A,45 không chia hết cho 10.
+Logic Tiểu Học,"Trong các số 2, 4, 6, 9, số nào khác loại?",2,6,4,9,D,"9 là số lẻ, còn lại là số chẵn."
+Logic Tiểu Học,"Trong các số 5, 15, 25, 34, số nào khác loại?",34,5,15,25,A,34 không chia hết cho 5.
+Logic Tiểu Học,"Trong các số 16, 32, 48, 50, số nào khác loại?",48,16,32,50,D,50 không chia hết cho 16.
+Logic Tiểu Học,"Trong các số 1, 2, 4, 5, số nào khác loại?",5,2,4,1,A,"5 là số lẻ, còn lại là số chẵn."
+Logic Tiểu Học,"Trong các số 9, 27, 81, 82, số nào khác loại?",27,82,9,81,B,82 không chia hết cho 3.
+Logic Tiểu Học,"Trong các số 4, 9, 16, 18, số nào khác loại?",4,9,18,16,C,18 không phải là số chính phương.
+Logic Tiểu Học,"Trong các số 12, 24, 36, 40, số nào khác loại?",36,12,24,40,D,40 không chia hết cho 12.
+Logic Tiểu Học,"Trong các số 7, 21, 35, 40, số nào khác loại?",7,40,21,35,B,40 không chia hết cho 7.
+Logic Tiểu Học,"Trong các số 100, 200, 300, 350, số nào khác loại?",200,100,300,350,D,350 không chia hết cho 100.
+Logic Tiểu Học,"Trong các nhóm sau, nhóm nào khác loại: con mèo, con chó, con gà, cái bàn?",con mèo,con chó,cái bàn,con gà,C,"Cái bàn là đồ vật, còn lại là con vật."
+Logic Tiểu Học,"Trong các nhóm sau, nhóm nào khác loại: táo, cam, chuối, cà rốt?",cà rốt,táo,cam,chuối,A,"Cà rốt là rau củ, còn lại là trái cây."
+Logic Tiểu Học,"Trong các nhóm sau, nhóm nào khác loại: ô tô, xe đạp, xe máy, cái ghế?",xe máy,cái ghế,xe đạp,ô tô,B,Cái ghế không phải phương tiện giao thông.
+Logic Tiểu Học,"Trong các nhóm sau, nhóm nào khác loại: bút chì, thước kẻ, tẩy, cái ca?",thước kẻ,tẩy,cái ca,bút chì,C,Cái ca không phải đồ dùng học tập.
+Logic Tiểu Học,"Trong các nhóm sau, nhóm nào khác loại: mắt, tai, mũi, cái mũ?",mũi,cái mũ,mắt,tai,B,Cái mũ không phải bộ phận cơ thể.
+Logic Tiểu Học,"Trong các nhóm sau, nhóm nào khác loại: mưa, nắng, gió, màu đỏ?",nắng,gió,mưa,màu đỏ,D,Màu đỏ không phải hiện tượng thời tiết.
+Logic Tiểu Học,"Trong các nhóm sau, nhóm nào khác loại: thứ hai, thứ ba, tháng sáu, thứ tư?",tháng sáu,thứ hai,thứ tư,thứ ba,A,Tháng sáu không phải thứ trong tuần.
+Logic Tiểu Học,"Trong các nhóm sau, nhóm nào khác loại: chó, mèo, hổ, chuối?",mèo,chó,hổ,chuối,D,Chuối không phải con vật.
+Logic Tiểu Học,"Trong các nhóm sau, nhóm nào khác loại: Hà Nội, Đà Nẵng, Huế, sông Hồng?",Hà Nội,sông Hồng,Huế,Đà Nẵng,B,Sông Hồng không phải thành phố.
+Logic Tiểu Học,"Trong các nhóm sau, nhóm nào khác loại: voi, ngựa, trâu, cây cau?",trâu,ngựa,voi,cây cau,D,Cây cau không phải con vật.
+Logic Tiểu Học,"Trong các nhóm sau, nhóm nào khác loại: bút bi, bút chì, bút mực, cái chén?",bút bi,cái chén,bút chì,bút mực,B,Cái chén không phải bút.
+Logic Tiểu Học,"Trong các nhóm sau, nhóm nào khác loại: cam, quýt, bưởi, khoai lang?",cam,khoai lang,quýt,bưởi,B,Khoai lang không thuộc họ cam quýt.
+Logic Tiểu Học,"Trong các nhóm sau, nhóm nào khác loại: đàn ghi ta, đàn vi-ô-lông, sáo, cái bảng?",đàn vi-ô-lông,cái bảng,đàn ghi ta,sáo,B,Cái bảng không phải nhạc cụ.
+Logic Tiểu Học,"Trong các nhóm sau, nhóm nào khác loại: cá, tôm, cua, con chim?",tôm,con chim,cá,cua,B,"Chim sống trên cạn, còn lại sống dưới nước."
+Logic Tiểu Học,"Trong các nhóm sau, nhóm nào khác loại: xuân, hạ, thu, mưa?",hạ,mưa,thu,xuân,B,Mưa không phải một mùa.
+Logic Tiểu Học,"Trong các nhóm sau, nhóm nào khác loại: bàn, ghế, tủ, cái nón?",cái nón,ghế,tủ,bàn,A,Cái nón không phải đồ nội thất.
+Logic Tiểu Học,"Trong các nhóm sau, nhóm nào khác loại: số hai, số ba, số bốn, chữ A?",số hai,chữ A,số bốn,số ba,B,Chữ A không phải số.
+Logic Tiểu Học,"Trong các nhóm sau, nhóm nào khác loại: hình vuông, hình tròn, hình tam giác, số 5?",hình tam giác,số 5,hình vuông,hình tròn,B,Số 5 không phải hình.
+Logic Tiểu Học,"Trong các nhóm sau, nhóm nào khác loại: quần, áo, mũ, đôi đũa?",quần,áo,đôi đũa,mũ,C,Đôi đũa không phải quần áo.
+Logic Tiểu Học,"Trong các nhóm sau, nhóm nào khác loại: gấu, hươu, thỏ, cây thông?",gấu,thỏ,hươu,cây thông,D,Cây thông không phải con vật.
+Logic Tiểu Học,"Trong các nhóm sau, nhóm nào khác loại: xe buýt, tàu hỏa, máy bay, bông hoa?",tàu hỏa,máy bay,xe buýt,bông hoa,D,Bông hoa không phải phương tiện giao thông.
+Logic Tiểu Học,"Trong các nhóm sau, nhóm nào khác loại: cơm, phở, bún, nước cam?",bún,phở,cơm,nước cam,D,"Nước cam là đồ uống, còn lại là món ăn."
+Logic Tiểu Học,"Trong các nhóm sau, nhóm nào khác loại: bác sĩ, giáo viên, kỹ sư, cây bút?",kỹ sư,giáo viên,bác sĩ,cây bút,D,Cây bút không phải nghề nghiệp.
+Logic Tiểu Học,"Trong các nhóm sau, nhóm nào khác loại: thước kẻ, com-pa, ê-ke, quả bóng?",thước kẻ,com-pa,ê-ke,quả bóng,D,Quả bóng không phải dụng cụ vẽ hình.
+Logic Tiểu Học,"Trong các nhóm sau, nhóm nào khác loại: tháng một, tháng hai, tuần lễ, tháng ba?",tháng một,tháng ba,tuần lễ,tháng hai,C,Tuần lễ không phải một tháng.
+Logic Tiểu Học,Chim : bầu trời = cá : ?,nước,đất,nhà,cây,A,Cá sống dưới nước.
+Logic Tiểu Học,Bàn : gỗ = áo : ?,vải,sắt,giấy,nhựa,A,Áo được may bằng vải.
+Logic Tiểu Học,Bác sĩ : bệnh viện = giáo viên : ?,công viên,nhà máy,siêu thị,lớp học,D,Giáo viên dạy học ở lớp học.
+Logic Tiểu Học,Tay : găng = chân : ?,tất,mũ,khăn,kính,A,"Chân đi tất, tay đeo găng."
+Logic Tiểu Học,Mắt : nhìn = tai : ?,ngửi,sờ,nghe,nếm,C,Tai dùng để nghe.
+Logic Tiểu Học,Bò : sữa = gà : ?,mỏ,lông,thịt,trứng,D,"Gà đẻ trứng, bò cho sữa."
+Logic Tiểu Học,Mèo : meo = chó : ?,gầm,gâu,gáy,ò,B,Chó kêu gâu gâu.
+Logic Tiểu Học,Bút : viết = kéo : ?,xóa,cắt,vẽ,dán,B,Kéo dùng để cắt.
+Logic Tiểu Học,Ngày : mặt trời = đêm : ?,đám mây,mặt trăng,ngôi sao,đèn ngủ,B,"Ban ngày có mặt trời, ban đêm có mặt trăng."
+Logic Tiểu Học,Cây : lá = người : ?,tay,chân,mắt,tóc,D,"Lá mọc trên cây, tóc mọc trên đầu người."
+Logic Tiểu Học,Nóng : lửa = lạnh : ?,hơi nước,mùa hè,ánh nắng,nước đá,D,"Lửa nóng, nước đá lạnh."
+Logic Tiểu Học,Đầu : mũ = tay : ?,găng tay,giày,khăn,kính,A,"Đầu đội mũ, tay đeo găng tay."
+Logic Tiểu Học,Sách : đọc = nhạc : ?,nghe,viết,xem,ngửi,A,"Sách để đọc, nhạc để nghe."
+Logic Tiểu Học,Hoa : vườn = cá : ?,tổ,chuồng,hồ,rừng,C,"Hoa ở trong vườn, cá ở trong hồ."
+Logic Tiểu Học,Bác sĩ : khám bệnh = đầu bếp : ?,nấu ăn,may vá,lái xe,dạy học,A,"Bác sĩ khám bệnh, đầu bếp nấu ăn."
+Logic Tiểu Học,Voi : to = kiến : ?,nhanh,khỏe,cao,nhỏ,D,"Voi to, kiến nhỏ."
+Logic Tiểu Học,Bút mực : mực = bút chì : ?,gỗ,giấy,tẩy,chì,D,"Bút mực dùng mực, bút chì dùng chì."
+Logic Tiểu Học,Chân : đi = mắt : ?,nhìn,nói,nghe,ăn,A,"Chân dùng để đi, mắt dùng để nhìn."
+Logic Tiểu Học,Tủ lạnh : lạnh = lò vi sóng : ?,ấm,lạnh,mát,nóng,D,"Tủ lạnh làm lạnh, lò vi sóng làm nóng."
+Logic Tiểu Học,Số 2 : chẵn = số 3 : ?,lẻ,lớn,nhỏ,chẵn,A,"2 là số chẵn, 3 là số lẻ."
+Logic Tiểu Học,Con gà : trứng = cây : ?,hạt giống,hoa,lá,rễ,A,"Gà sinh sản bằng trứng, cây sinh sản bằng hạt giống."
+Logic Tiểu Học,Bàn chân : giày = bàn tay : ?,mũ,găng tay,tất,áo,B,"Bàn chân đi giày, bàn tay đeo găng tay."
+Logic Tiểu Học,Cái cốc : uống nước = cái bát : ?,uống nước,cắt,ăn cơm,viết,C,"Cốc dùng để uống nước, bát dùng để ăn cơm."
+Logic Tiểu Học,Mùa đông : áo ấm = mùa hè : ?,áo mát,khăn len,áo ấm,găng tay,A,"Mùa đông mặc áo ấm, mùa hè mặc áo mát."
+Logic Tiểu Học,Cam : quả = cà rốt : ?,lá,củ,quả,hạt,B,"Cam là quả, cà rốt là củ."
+Logic Tiểu Học,"Sắp xếp các số 5, 2, 8, 1 theo thứ tự tăng dần.","8,5,2,1","2,1,5,8","1,2,5,8","5,2,8,1",C,"Tăng dần từ bé đến lớn: 1, 2, 5, 8."
+Logic Tiểu Học,"Sắp xếp các số 9, 3, 7, 4 theo thứ tự giảm dần.","7,9,4,3","4,7,9,3","3,4,7,9","9,7,4,3",D,"Giảm dần từ lớn đến bé: 9, 7, 4, 3."
+Logic Tiểu Học,"Số lớn nhất trong các số 23, 45, 19, 40 là số nào?",40,19,45,23,C,45 là số lớn nhất.
+Logic Tiểu Học,"Số bé nhất trong các số 67, 76, 61, 70 là số nào?",67,76,70,61,D,61 là số bé nhất.
+Logic Tiểu Học,"Trong các số 100, 99, 101, 98, số lớn nhất là số nào?",98,101,99,100,B,"101 lớn hơn cả 100, 99 và 98."
+Logic Tiểu Học,"Trong các số 250, 205, 520, 502, số bé nhất là số nào?",205,250,502,520,A,205 là số bé nhất.
+Logic Tiểu Học,So sánh 3 × 4 và 2 × 7. Dấu nào đúng?,3 × 4 > 2 × 7,3 × 4 = 2 × 7,Không so sánh được,3 × 4 < 2 × 7,D,3 × 4 = 12 và 2 × 7 = 14 nên 12 < 14.
+Logic Tiểu Học,So sánh 5 × 5 và 20 + 5. Dấu nào đúng?,5 × 5 > 20 + 5,5 × 5 = 20 + 5,Không so sánh được,5 × 5 < 20 + 5,B,5 × 5 = 25 và 20 + 5 = 25 nên hai vế bằng nhau.
+Logic Tiểu Học,So sánh 100 - 20 và 30 + 40. Dấu nào đúng?,100 - 20 = 30 + 40,Không so sánh được,100 - 20 > 30 + 40,100 - 20 < 30 + 40,C,100 - 20 = 80 và 30 + 40 = 70 nên 80 > 70.
+Logic Tiểu Học,"Nam cao 120 cm, Bắc cao 115 cm. Ai cao hơn?",Nam,Bắc,Không rõ,Bằng nhau,A,120 cm > 115 cm nên Nam cao hơn.
+Logic Tiểu Học,"Lan có 5 quả táo, Hồng có 8 quả táo. Ai nhiều táo hơn?",Lan,Hồng,Bằng nhau,Không rõ,B,8 > 5 nên Hồng nhiều táo hơn.
+Logic Tiểu Học,Số nào vừa lớn hơn 30 vừa bé hơn 40?,29,30,41,35,D,35 lớn hơn 30 và bé hơn 40.
+Logic Tiểu Học,Số nào vừa lớn hơn 50 vừa chia hết cho 10?,52,55,45,60,D,60 lớn hơn 50 và chia hết cho 10.
+Logic Tiểu Học,"Sắp xếp các số 15, 8, 23, 4, 11 theo thứ tự tăng dần.","8,4,11,15,23","15,11,8,4,23","4,8,11,15,23","23,15,11,8,4",C,"Tăng dần: 4, 8, 11, 15, 23."
+Logic Tiểu Học,"Sắp xếp các số 30, 12, 45, 27 theo thứ tự giảm dần.","45,30,27,12","27,30,45,12","12,27,30,45","30,27,45,12",A,"Giảm dần: 45, 30, 27, 12."
+Logic Tiểu Học,"Trong dãy 2, 4, 6, 8 số nào lớn nhất?",2,4,8,6,C,8 là số lớn nhất trong dãy.
+Logic Tiểu Học,"Trong dãy 10, 20, 30, 40 số nào bé nhất?",10,20,40,30,A,10 là số bé nhất trong dãy.
+Logic Tiểu Học,Số 500 lớn hơn số 499 bao nhiêu đơn vị?,100,1,10,2,B,500 - 499 = 1.
+Logic Tiểu Học,Số liền sau của số 999 là số nào?,990,1000,1001,998,B,Số liền sau hơn 1 đơn vị: 999 + 1 = 1000.
+Logic Tiểu Học,Số liền trước của số 1000 là số nào?,1001,999,900,990,B,Số liền trước kém 1 đơn vị: 1000 - 1 = 999.
+Logic Tiểu Học,Cặp số nào có tổng bằng 100?,50 và 40,40 và 60,20 và 70,30 và 60,B,40 + 60 = 100.
+Logic Tiểu Học,Cặp số nào có hiệu bằng 10?,25 và 15,20 và 5,30 và 15,40 và 25,A,25 - 15 = 10.
+Logic Tiểu Học,Cặp số nào có tích bằng 24?,2 và 10,4 và 6,5 và 5,3 và 7,B,4 × 6 = 24.
+Logic Tiểu Học,Cặp số nào có thương bằng 4?,15 và 5,12 và 4,18 và 3,20 và 5,D,20 : 5 = 4.
+Logic Tiểu Học,"Tổng của số lớn nhất và số bé nhất trong các số 4, 9, 2, 7 bằng bao nhiêu?",9,16,6,11,D,"Số lớn nhất là 9, số bé nhất là 2, tổng 9 + 2 = 11."
+Logic Tiểu Học,Nhận xét nào đúng về số chẵn?,Mọi số chẵn đều chia hết cho 2,Mọi số chẵn đều chia hết cho 4,Số 0 là số lẻ,Mọi số lẻ đều chia hết cho 2,A,Số chẵn luôn chia hết cho 2.
+Logic Tiểu Học,Nhận xét nào đúng về số nguyên tố?,9 là số nguyên tố,1 là số nguyên tố,4 là số nguyên tố,2 là số nguyên tố nhỏ nhất,D,2 chỉ chia hết cho 1 và chính nó nên là số nguyên tố nhỏ nhất.
+Logic Tiểu Học,Nhận xét nào đúng về hình vuông?,Hình chữ nhật có 5 cạnh,Hình vuông có 4 cạnh bằng nhau,Hình tam giác có 4 cạnh,Hình tròn có góc,B,Hình vuông có 4 cạnh bằng nhau.
+Logic Tiểu Học,Nhận xét nào đúng về số 0?,1 bé hơn 0,0 không phải số tự nhiên,0 là số tự nhiên bé nhất,0 là số tự nhiên lớn nhất,C,"Trong các số tự nhiên, 0 là số bé nhất."
+Logic Tiểu Học,Nhận xét nào đúng về phép chia cho 1?,Mọi số đều chia hết cho 1,Số 0 chia hết cho 0,5 không chia hết cho 1,Số 1 chia hết cho mọi số,A,Số nào chia cho 1 cũng là chính nó.
+Logic Tiểu Học,Nhận xét nào đúng về tổng hai số lẻ?,Tổng hai số chẵn là số lẻ,Tổng hai số lẻ là số chẵn,Tổng hai số lẻ là số lẻ,Hiệu hai số chẵn là số lẻ,B,Ví dụ 3 + 5 = 8 là số chẵn.
+Logic Tiểu Học,Nhận xét nào đúng về tích hai số chẵn?,Tích hai số chẵn là số chẵn,Tích hai số lẻ là số chẵn,Tích hai số chẵn là số lẻ,Mọi số nhân 2 đều là số lẻ,A,Ví dụ 2 × 4 = 8 là số chẵn.
+Logic Tiểu Học,Nhận xét nào đúng về một ngày?,Một ngày có 24 giờ,Một năm có 10 tháng,Một tuần có 5 ngày,Một giờ có 100 phút,A,Một ngày có 24 giờ.
+Logic Tiểu Học,Nhận xét nào đúng về một năm?,Một tuần có 10 ngày,Một ngày có 12 giờ,Tháng 2 có 30 ngày,Một năm có 12 tháng,D,Một năm có 12 tháng.
+Logic Tiểu Học,Nhận xét nào đúng về tam giác đều?,Tam giác đều có 3 cạnh bằng nhau,Tam giác có 3 góc vuông,Hình tròn có 5 cạnh,Tam giác đều có 4 cạnh,A,Tam giác đều có 3 cạnh bằng nhau.
+Logic Tiểu Học,Nhận xét nào đúng về số liền sau của 99?,Số liền trước của 99 là 100,99 là số bé nhất có hai chữ số,Số liền sau của 99 là 100,Số liền sau của 99 là 98,C,99 + 1 = 100.
+Logic Tiểu Học,Nhận xét nào đúng về số có hai chữ số?,100 có hai chữ số,99 là số bé nhất có hai chữ số,10 là số bé nhất có hai chữ số,10 là số lớn nhất có hai chữ số,C,Số bé nhất có hai chữ số là 10.
+Logic Tiểu Học,Nhận xét nào đúng về phép nhân với 0?,Số 0 chia hết cho mọi số,Số 0 nhân với số nào cũng bằng 0,Số 0 nhân với số nào cũng bằng số đó,Số 1 nhân với số nào cũng bằng 0,B,Số 0 nhân với bất kì số nào cũng bằng 0.
+Logic Tiểu Học,Nhận xét nào đúng về phép nhân với 1?,Số nào chia 1 cũng bằng 0,Số nào nhân với 0 cũng bằng chính nó,Số nào cộng 0 cũng gấp đôi,Số nào nhân với 1 cũng bằng chính nó,D,Nhân với 1 thì giữ nguyên giá trị.
+Logic Tiểu Học,Nhận xét nào đúng về hai đường thẳng song song?,Hình tròn có góc vuông,Hai đường thẳng song song cắt nhau tại một điểm,Hình vuông có 3 cạnh,Hai đường thẳng song song thì không cắt nhau,D,Hai đường thẳng song song không cắt nhau.
+Logic Tiểu Học,Nhận xét nào đúng về số 25?,Số 25 chia hết cho 5,Số 25 chia hết cho 2,Số 24 chia hết cho 5,Số 30 chia hết cho 4,A,25 tận cùng là 5 nên chia hết cho 5.
+Logic Tiểu Học,Nhận xét nào đúng về số 100?,Số 100 chỉ chia hết cho 5,Số 100 chỉ chia hết cho 2,Số 100 chia hết cho cả 2 và 5,Số 100 không chia hết cho 10,C,100 tận cùng là 0 nên chia hết cho cả 2 và 5.
+Logic Tiểu Học,Nhận xét nào đúng về hình lập phương?,Hình lập phương có 6 mặt,Hình lập phương có 4 mặt,Hình lập phương có 12 mặt,Hình lập phương có 8 mặt,A,Hình lập phương có 6 mặt.
+Logic Tiểu Học,Nhận xét nào đúng về đơn vị đo khối lượng?,1 kg bằng 1000 g,1 km bằng 100 m,1 kg bằng 10 g,1 kg bằng 100 g,A,1 kg = 1000 g.
+Logic Tiểu Học,Nhận xét nào đúng về đơn vị đo độ dài?,1 m bằng 1000 cm,1 m bằng 100 cm,1 km bằng 100 cm,1 m bằng 10 cm,B,1 m = 100 cm.
+Logic Tiểu Học,Nhận xét nào đúng về kết quả phép tính 7 + 8?,7 + 8 bằng 16,6 × 6 bằng 12,9 × 9 bằng 18,7 + 8 bằng 15,D,7 + 8 = 15.
+Logic Tiểu Học,Nhận xét nào đúng về số chẵn có một chữ số?,Số chẵn bé nhất là 1,Số chẵn lớn nhất có một chữ số là 9,Số lẻ bé nhất là 0,Số chẵn lớn nhất có một chữ số là 8,D,"Các số chẵn có một chữ số là 0, 2, 4, 6, 8."
+Logic Tiểu Học,Nhận xét nào đúng về một tuần?,Một tháng có 40 ngày,Một tuần có 5 ngày,Một tuần có 7 ngày,Một năm có 10 tháng,C,Một tuần có 7 ngày.
+Logic Tiểu Học,Nhận xét nào đúng về số góc của tam giác?,Hình tròn có 1 góc,Tam giác có 4 góc,Tứ giác có 3 góc,Tam giác có 3 góc,D,Tam giác có 3 đỉnh và 3 góc.
+Logic Tiểu Học,Nhận xét nào đúng về số có ba chữ số?,Số lớn nhất có hai chữ số là 100,Số lớn nhất có ba chữ số là 900,Số bé nhất có ba chữ số là 1,Số lớn nhất có ba chữ số là 999,D,Số lớn nhất có ba chữ số là 999.
+Logic Tiểu Học,"Ba bạn An, Bình, Cường có ba con vật: mèo, chó, cá. Biết An không nuôi mèo và Bình nuôi cá. Cường nuôi con gì?",Không rõ,mèo,cá,chó,B,"Bình nuôi cá nên An và Cường còn mèo và chó; An không nuôi mèo nên An nuôi chó, Cường nuôi mèo."
+Logic Tiểu Học,"Ba bạn Hoa, Lan, Mai có ba màu áo đỏ, xanh, vàng. Biết Hoa mặc áo đỏ và Lan không mặc áo xanh. Lan mặc áo màu gì?",vàng,Không rõ,xanh,đỏ,A,Còn xanh và vàng; Lan không mặc xanh nên Lan mặc vàng.
+Logic Tiểu Học,"Có ba hộp đựng bút, tẩy, thước. Biết hộp 1 không có bút và hộp 2 có tẩy. Hộp 3 có gì?",tẩy,Không rõ,bút,thước,C,"Hộp 2 có tẩy nên còn bút và thước; hộp 1 không có bút nên hộp 1 có thước, hộp 3 có bút."
+Logic Tiểu Học,"Bốn số 1, 2, 3, 4 được gán cho bốn bạn. Biết A có số 1, B có số 2 và C có số 4. D có số nào?",4,2,1,3,D,Còn lại số 3 nên D có số 3.
+Logic Tiểu Học,"Hôm nay không phải thứ hai, không phải thứ tư và không phải chủ nhật. Hôm nay là thứ mấy?",thứ hai,thứ ba,thứ tư,chủ nhật,B,Chỉ còn thứ ba là thỏa mãn.
+Logic Tiểu Học,"Ba ghế xếp hàng theo thứ tự 1, 2, 3. Biết An ngồi ghế 1 và Bình không ngồi ghế 3. Cường ngồi ghế nào?",1,Không rõ,3,2,C,"An ngồi ghế 1 nên còn 2 và 3; Bình không ngồi ghế 3 nên Bình ngồi ghế 2, Cường ngồi ghế 3."
+Logic Tiểu Học,"Trong ba số 5, 8, 11, biết một số chia hết cho 5 và số chia hết cho 5 không phải là số lẻ duy nhất. Số chia hết cho 5 là số nào?",11,8,Không rõ,5,D,Chỉ có 5 chia hết cho 5.
+Logic Tiểu Học,"Có ba loại quả: táo, cam, nho. Biết bạn A thích táo và bạn B không thích cam. Bạn B thích quả gì?",nho,cam,táo,Không rõ,A,A thích táo nên còn cam và nho; B không thích cam nên B thích nho.
+Logic Tiểu Học,"Bốn bạn xếp hàng. Biết Nam đứng thứ nhất, Hà đứng thứ tư và Lan đứng trước Minh. Lan đứng thứ mấy?",thứ tư,thứ hai,thứ ba,thứ nhất,B,Còn vị trí 2 và 3 cho Lan và Minh; Lan đứng trước Minh nên Lan đứng thứ hai.
+Logic Tiểu Học,"Ba chiếc hộp chứa kẹo, bánh, sữa. Biết hộp xanh có kẹo và hộp đỏ không có bánh. Hộp vàng có gì?",sữa,bánh,kẹo,Không rõ,B,"Còn bánh và sữa; hộp đỏ không có bánh nên hộp đỏ có sữa, hộp vàng có bánh."
+Logic Tiểu Học,"Ba số 2, 4, 6 xếp theo thứ tự. Biết số đầu là 2 và số 6 không ở giữa. Số ở giữa là số nào?",Không rõ,4,2,6,B,"Đầu là 2, số 6 không ở giữa nên số 6 ở cuối, số ở giữa là 4."
+Logic Tiểu Học,"Ba bạn An, Bình, Cường xếp thứ 1, 2, 3. Biết An thứ nhất và Bình không thứ hai. Ai về thứ ba?",Bình,Không rõ,Cường,An,A,An thứ nhất nên còn 2 và 3; Bình không thứ hai nên Bình thứ ba.
+Logic Tiểu Học,"Ba con vật mèo, chó, gà xếp theo thứ tự 1, 2, 3. Biết con kêu gâu ở vị trí 1 và gà ở vị trí 3. Con ở vị trí 2 là con gì?",mèo,gà,chó,Không rõ,A,"Chó kêu gâu nên chó ở vị trí 1, gà ở vị trí 3, còn lại mèo ở vị trí 2."
+Logic Tiểu Học,"Bốn hộp có khối lượng khác nhau. Biết hộp 4 nhẹ nhất, hộp 3 nặng nhất và hộp 1 nhẹ hơn hộp 2. Hộp nào nặng thứ hai?",3,1,4,2,D,"Hộp 3 nặng nhất, hộp 4 nhẹ nhất, còn hộp 1 và 2; hộp 2 nặng hơn hộp 1 nên hộp 2 nặng thứ hai."
+Logic Tiểu Học,"Ba số 3, 6, 9 xếp theo thứ tự. Biết số cuối là 9 và số đầu không phải 3. Số ở giữa là số nào?",3,Không rõ,9,6,A,"Số cuối là 9, số đầu không phải 3 nên số đầu là 6, số ở giữa là 3."
+Logic Tiểu Học,"Bốn bạn A, B, C, D thích các môn Toán, Văn, Anh, Nhạc. Biết A thích Toán, B không thích Văn và C thích Nhạc. D thích môn gì?",Văn,Anh,Nhạc,Toán,A,"A thích Toán, C thích Nhạc nên còn Văn và Anh; B không thích Văn nên B thích Anh, D thích Văn."
+Logic Tiểu Học,"Ba túi đựng bi xanh, bi đỏ, bi vàng. Biết túi 1 có bi xanh và túi 3 không có bi vàng. Túi 3 có bi màu gì?",Không rõ,xanh,vàng,đỏ,D,Túi 1 có bi xanh nên còn đỏ và vàng; túi 3 không có vàng nên túi 3 có bi đỏ.
+Logic Tiểu Học,"Ba người bạn đến từ Hà Nội, Huế, Đà Nẵng. Biết An không đến từ Hà Nội và Bình đến từ Huế. Cường đến từ đâu?",Không rõ,Đà Nẵng,Huế,Hà Nội,D,"Bình đến từ Huế nên còn Hà Nội và Đà Nẵng; An không từ Hà Nội nên An từ Đà Nẵng, Cường từ Hà Nội."
+Logic Tiểu Học,"Ba chữ cái A, B, C xếp theo thứ tự. Biết chữ đầu là B và chữ ở giữa không phải A. Chữ cuối là gì?",B,C,A,Không rõ,C,"Đầu là B, giữa không phải A nên giữa là C, chữ cuối là A."
+Logic Tiểu Học,"Ba số 1, 2, 3. Biết số 1 lớn hơn số 2 và số 2 lớn hơn số 3. Số nào lớn nhất?",3,2,1,Không rõ,C,1 > 2 > 3 nên số 1 là số lớn nhất.
+Logic Tiểu Học,"Ba hộp quà: đỏ, xanh, vàng. Biết quà trong hộp đỏ không phải sách và quà trong hộp xanh là bánh. Hộp vàng đựng gì?",sách,Không rõ,kẹo,bánh,A,"Hộp xanh là bánh nên còn sách và kẹo; hộp đỏ không phải sách nên hộp đỏ là kẹo, hộp vàng là sách."
+Logic Tiểu Học,"Bốn bạn A, B, C, D có số tuổi 8, 9, 10, 11. Biết A ít tuổi nhất, B 11 tuổi và C 9 tuổi. D bao nhiêu tuổi?",11,8,10,9,C,"A 8 tuổi, C 9 tuổi, B 11 tuổi nên D 10 tuổi."
+Logic Tiểu Học,"Ba số 4, 8, 12 xếp theo thứ tự. Biết số thứ nhất là 4 và số thứ hai gấp đôi số thứ nhất. Số thứ ba là số nào?",Không rõ,12,8,4,B,"Số thứ hai là 8, vậy số thứ ba là 12."
+Logic Tiểu Học,"Ba người xếp hàng: bác sĩ, giáo viên, kỹ sư. Biết người đầu không phải bác sĩ và người cuối là kỹ sư. Người ở giữa là ai?",giáo viên,kỹ sư,bác sĩ,Không rõ,C,"Người cuối là kỹ sư nên còn bác sĩ và giáo viên; người đầu không phải bác sĩ nên người đầu là giáo viên, người giữa là bác sĩ."
+Logic Tiểu Học,"Ba quả cam, táo, lê xếp theo thứ tự. Biết quả đầu không phải cam và quả cuối là táo. Quả ở giữa là quả gì?",lê,Không rõ,cam,táo,C,"Quả cuối là táo nên còn cam và lê; quả đầu không phải cam nên quả đầu là lê, quả giữa là cam."
+Logic Tiểu Học,Một hàng có 5 bạn. Bạn A đứng thứ hai từ trái. Có bao nhiêu bạn đứng bên trái A?,1,3,0,2,A,A đứng thứ hai nên có 1 bạn đứng trước.
+Logic Tiểu Học,Một hàng có 6 bạn. Bạn B đứng thứ năm từ trái. Có bao nhiêu bạn đứng bên phải B?,0,3,2,1,D,6 - 5 = 1 bạn đứng sau B.
+Logic Tiểu Học,"Trong hàng 7 bạn, Dũng đứng thứ tư từ trái. Dũng đứng thứ mấy từ phải?",2,5,3,4,D,7 - 4 + 1 = 4.
+Logic Tiểu Học,Lan đứng thứ ba từ phải trong hàng 5 bạn. Lan đứng thứ mấy từ trái?,3,4,1,2,A,5 - 3 + 1 = 3.
+Logic Tiểu Học,Một hàng có 10 bạn. Minh đứng thứ 7 từ trái. Minh đứng thứ mấy từ phải?,4,6,3,5,A,10 - 7 + 1 = 4.
+Logic Tiểu Học,Có 4 bạn xếp hàng. Biết Hà đứng trước Lan và Lan đứng trước Mai. Ai đứng đầu?,Lan,Không rõ,Hà,Mai,C,"Thứ tự là Hà, Lan, Mai nên Hà đứng đầu."
+Logic Tiểu Học,"Có 4 bạn. Biết Nam cao nhất, Bắc thấp nhất và Hoa cao hơn Đông. Ai cao thứ hai?",Bắc,Đông,Nam,Hoa,D,"Nam cao nhất, Bắc thấp nhất, còn Hoa và Đông; Hoa cao hơn Đông nên Hoa cao thứ hai."
+Logic Tiểu Học,"Ba bạn A, B, C. Biết A đứng trước B và B đứng trước C. Ai đứng cuối?",A,Không rõ,B,C,D,"Thứ tự là A, B, C nên C đứng cuối."
+Logic Tiểu Học,Năm bạn xếp hàng. Biết bạn thứ nhất là An và bạn thứ năm là Bình. Ai đứng giữa hàng?,Không rõ,bạn thứ hai,bạn thứ tư,bạn thứ ba,D,Hàng 5 bạn thì bạn ở giữa là bạn thứ ba.
+Logic Tiểu Học,"Trong hàng, biết Tâm đứng ngay sau Bảo và Bảo đứng thứ tư. Tâm đứng thứ mấy?",thứ tư,thứ sáu,thứ năm,thứ ba,C,Bảo thứ tư nên Tâm đứng ngay sau là thứ năm.
+Logic Tiểu Học,"Trong hàng, biết Nam đứng ngay trước Hằng và Hằng đứng thứ hai. Nam đứng thứ mấy?",thứ hai,thứ ba,thứ nhất,thứ tư,C,Hằng thứ hai nên Nam đứng ngay trước là thứ nhất.
+Logic Tiểu Học,Ba bạn xếp theo chiều cao giảm dần. Bạn thấp nhất đứng ở đâu?,Không rõ,đầu,cuối,giữa,C,Giảm dần nên bạn thấp nhất đứng cuối.
+Logic Tiểu Học,"Bốn ghế xếp hàng 1, 2, 3, 4. Biết An ngồi ghế 1, Bình ngồi ghế 4 và Lan ngồi ghế 3. Minh ngồi ghế mấy?",4,2,3,1,B,Còn ghế 2 nên Minh ngồi ghế 2.
+Logic Tiểu Học,Năm bạn xếp hàng theo chiều cao tăng dần. Bạn thấp nhất đứng thứ mấy?,1,3,2,5,A,Tăng dần nên bạn thấp nhất đứng thứ nhất.
+Logic Tiểu Học,"Trong hàng 8 bạn, bạn đứng thứ 4 có bao nhiêu bạn đứng phía sau?",3,5,4,6,C,8 - 4 = 4 bạn đứng phía sau.
+Logic Tiểu Học,"Trong hàng 8 bạn, bạn đứng thứ 4 có bao nhiêu bạn đứng phía trước?",5,3,6,4,B,Bạn thứ 4 nên có 3 bạn đứng trước.
+Logic Tiểu Học,Biết Lan đứng sau Hoa nhưng đứng trước Mai. Ai đứng giữa?,Lan,Không rõ,Mai,Hoa,A,"Thứ tự là Hoa, Lan, Mai nên Lan đứng giữa."
+Logic Tiểu Học,Biết A đứng trước B. Ai có thể đứng sau B?,A,bất kỳ ai khác B,chính B,không ai,B,Sau B thì bất kỳ ai khác B đều có thể đứng đó.
+Logic Tiểu Học,"Ba ngăn tủ xếp trên, giữa, dưới. Biết ngăn trên có sách và ngăn giữa có vở. Ngăn dưới có gì?",Không rõ,sách,bút,vở,C,Còn lại bút nên ngăn dưới có bút.
+Logic Tiểu Học,Ba bạn xếp theo thứ tự từ thấp đến cao. Bạn cao nhất đứng ở đâu?,Không rõ,đầu,cuối,giữa,C,Từ thấp đến cao nên bạn cao nhất đứng cuối.
+Logic Tiểu Học,Một hàng có 9 bạn. Bạn đứng giữa hàng là bạn thứ mấy?,4,3,5,6,C,9 = 4 + 1 + 4 nên bạn giữa là thứ 5.
+Logic Tiểu Học,Biết Cường đứng ngay sau An và ngay trước Bình. Bộ ba này đứng thế nào trong hàng?,Không rõ,cách nhau,liên tiếp nhau,đảo ngược,C,"An, Cường, Bình đứng liền nhau."
+Logic Tiểu Học,Biết A đứng bên trái B. Vậy B đứng bên nào của A?,bên trái,dưới,trên,bên phải,D,Nếu A ở bên trái thì B ở bên phải của A.
+Logic Tiểu Học,"Trong hàng 6 bạn, bạn thứ hai và bạn thứ năm cách nhau mấy bạn?",1,3,2,4,C,Giữa bạn thứ hai và thứ năm có bạn thứ ba và thứ tư.
+Logic Tiểu Học,"Có 4 bạn xếp hàng. Nếu đảo ngược thứ tự, bạn đầu tiên trở thành bạn thứ mấy?",thứ ba,thứ tư,thứ hai,thứ nhất,B,Hàng 4 bạn đảo ngược thì người đầu thành người thứ tư.
+Logic Tiểu Học,Biết 1 quả táo cân bằng 2 quả quýt và 1 quả quýt cân bằng 3 quả nho. 1 quả táo cân bằng bao nhiêu quả nho?,5,6,9,3,B,1 táo = 2 quýt = 2 × 3 = 6 nho.
+Logic Tiểu Học,Biết 1 con thỏ cân bằng 2 con chuột và 1 con mèo cân bằng 2 con thỏ. 1 con mèo cân bằng bao nhiêu con chuột?,4,6,2,3,A,1 mèo = 2 thỏ = 2 × 2 = 4 chuột.
+Logic Tiểu Học,Biết bao A nặng bằng 2 bao B và bao B nặng 3 kg. Bao A nặng bao nhiêu ki-lô-gam?,5,9,3,6,D,2 × 3 = 6 kg.
+Logic Tiểu Học,Trên cân thăng bằng: 3 quả cam = 6 quả chanh. Vậy 1 quả cam bằng bao nhiêu quả chanh?,3,1,6,2,D,6 : 3 = 2 quả chanh.
+Logic Tiểu Học,Trên cân thăng bằng: 1 khối lập phương = 4 viên bi. Vậy 2 khối lập phương bằng bao nhiêu viên bi?,10,6,8,4,C,4 × 2 = 8 viên bi.
+Logic Tiểu Học,Biết 1 chiếc bút cân bằng 3 cục tẩy. 3 chiếc bút cân bằng bao nhiêu cục tẩy?,3,6,12,9,D,3 × 3 = 9 cục tẩy.
+Logic Tiểu Học,Trên cân thăng bằng: 4 quả táo = 8 quả cam. Vậy 1 quả táo bằng bao nhiêu quả cam?,4,2,1,3,B,8 : 4 = 2 quả cam.
+Logic Tiểu Học,Một bạn cân nặng 30 kg. Hai bạn như nhau cân nặng bao nhiêu ki-lô-gam?,50,60,30,90,B,30 × 2 = 60 kg.
+Logic Tiểu Học,"Con gà nặng 2 kg, con vịt nặng bằng con gà, con ngỗng nặng gấp ba con gà. Con ngỗng nặng bao nhiêu ki-lô-gam?",2,8,4,6,D,2 × 3 = 6 kg.
+Logic Tiểu Học,Một hộp bánh nặng 1 kg. Năm hộp bánh như vậy nặng bao nhiêu ki-lô-gam?,6,1,4,5,D,1 × 5 = 5 kg.
+Logic Tiểu Học,Trên cân thăng bằng: 4 quả nặng bằng nhau có tổng khối lượng 8 kg. Mỗi quả nặng bao nhiêu ki-lô-gam?,2,3,4,1,A,8 : 4 = 2 kg.
+Logic Tiểu Học,Biết 1 quả dưa hấu nặng bằng 5 quả táo. Vậy 2 quả dưa hấu nặng bằng bao nhiêu quả táo?,15,25,10,5,C,5 × 2 = 10 quả táo.
+Logic Tiểu Học,Trên cân thăng bằng: 1 con thỏ nặng 6 kg bằng 3 củ cà rốt. Mỗi củ cà rốt nặng bao nhiêu ki-lô-gam?,1,2,6,3,B,6 : 3 = 2 kg.
+Logic Tiểu Học,Một túi gạo 10 kg chia đều vào 5 túi nhỏ. Mỗi túi nhỏ nặng bao nhiêu ki-lô-gam?,5,2,3,1,B,10 : 5 = 2 kg.
+Logic Tiểu Học,Biết bạn A nặng hơn bạn B và bạn B nặng hơn bạn C. Ai nặng nhất?,C,B,Không rõ,A,D,A > B > C nên A nặng nhất.
+Logic Tiểu Học,"Ba vật: hòn đá, quả bóng, chiếc lông. Vật nào nhẹ nhất?",Không rõ,quả bóng,chiếc lông,hòn đá,C,Chiếc lông nhẹ nhất trong ba vật.
+Logic Tiểu Học,Biết 1 hộp sữa nặng bằng 3 gói bánh. 2 hộp sữa nặng bằng bao nhiêu gói bánh?,3,9,5,6,D,3 × 2 = 6 gói bánh.
+Logic Tiểu Học,Nếu 1 chai nước nặng 2 kg thì 4 chai nước nặng bao nhiêu ki-lô-gam?,4,2,6,8,D,2 × 4 = 8 kg.
+Logic Tiểu Học,Biết 1 quả bí nặng bằng 2 quả bầu và 1 quả bầu nặng bằng 2 quả cà. 1 quả bí nặng bằng bao nhiêu quả cà?,4,2,3,6,A,2 × 2 = 4 quả cà.
+Logic Tiểu Học,"Bạn Minh nặng 25 kg, bạn Hoa nặng 30 kg. Ai nặng hơn?",Không rõ,Bằng nhau,Hoa,Minh,C,30 > 25 nên Hoa nặng hơn.
+Logic Tiểu Học,Trên cân thăng bằng: 6 viên bi nhỏ = 2 viên bi lớn. Vậy 1 viên bi lớn bằng bao nhiêu viên bi nhỏ?,2,4,3,6,C,6 : 2 = 3 viên bi nhỏ.
+Logic Tiểu Học,Mỗi chiếc cặp sách nặng 2 kg. Ba chiếc cặp sách nặng bao nhiêu ki-lô-gam?,8,2,6,4,C,2 × 3 = 6 kg.
+Logic Tiểu Học,"Trên cân thăng bằng với quả cân 1 kg, mỗi viên bi nặng 100 g. Cần bao nhiêu viên bi?",10,1,100,5,A,"1 kg = 1000 g, mà 1000 : 100 = 10 viên."
+Logic Tiểu Học,Biết 2 quả cam nặng bằng 1 quả bưởi và mỗi quả cam nặng 200 g. Quả bưởi nặng bao nhiêu gam?,400,200,600,100,A,200 × 2 = 400 g.
+Logic Tiểu Học,"Ba bao đường: bao 1 nặng 2 kg, bao 2 nặng bằng bao 1 và bao 3 nặng gấp đôi bao 1. Cả ba bao nặng bao nhiêu ki-lô-gam?",8,10,4,6,A,2 + 2 + 4 = 8 kg.
+Logic Tiểu Học,Có 3 chiếc áo và 2 chiếc quần. Mỗi bộ gồm 1 áo và 1 quần. Có bao nhiêu cách phối?,3,2,5,6,D,3 × 2 = 6 cách.
+Logic Tiểu Học,Có bao nhiêu số có một chữ số?,9,11,10,8,C,Các số từ 0 đến 9 nên có 10 số.
+Logic Tiểu Học,Có bao nhiêu số có hai chữ số?,99,89,100,90,D,Từ 10 đến 99 nên có 90 số.
+Logic Tiểu Học,Từ 1 đến 10 có bao nhiêu số chẵn?,4,10,5,6,C,"2, 4, 6, 8, 10 nên có 5 số."
+Logic Tiểu Học,Từ 1 đến 10 có bao nhiêu số lẻ?,6,5,4,10,B,"1, 3, 5, 7, 9 nên có 5 số."
+Logic Tiểu Học,Từ 1 đến 20 có bao nhiêu số chia hết cho 5?,4,3,5,6,A,"5, 10, 15, 20 nên có 4 số."
+Logic Tiểu Học,Có bao nhiêu số có hai chữ số bé hơn 20?,19,9,11,10,D,Từ 10 đến 19 nên có 10 số.
+Logic Tiểu Học,Một hình vuông có 4 cạnh. Hai hình vuông có bao nhiêu cạnh tất cả?,4,16,6,8,D,4 × 2 = 8 cạnh.
+Logic Tiểu Học,Một chiếc bàn có 4 chân. Năm chiếc bàn có bao nhiêu chân?,25,16,20,9,C,4 × 5 = 20 chân.
+Logic Tiểu Học,Một con gà có 2 chân. Sáu con gà có bao nhiêu chân?,12,8,10,14,A,2 × 6 = 12 chân.
+Logic Tiểu Học,Một con mèo có 4 chân. Ba con mèo có bao nhiêu chân?,12,7,14,10,A,4 × 3 = 12 chân.
+Logic Tiểu Học,Một tuần có 7 ngày. Ba tuần có bao nhiêu ngày?,24,21,14,18,B,7 × 3 = 21 ngày.
+Logic Tiểu Học,Trong hộp có 5 viên bi đỏ và 4 viên bi xanh. Lấy ra 1 viên bất kỳ. Có bao nhiêu khả năng khác nhau?,4,1,5,9,D,5 + 4 = 9 viên nên có 9 khả năng.
+Logic Tiểu Học,Một đồng xu có 2 mặt. Tung một lần có bao nhiêu kết quả?,3,1,4,2,D,Tung một lần được mặt sấp hoặc mặt ngửa.
+Logic Tiểu Học,Có 3 bạn xếp thành một hàng. Có bao nhiêu cách xếp?,6,3,9,12,A,3 × 2 × 1 = 6 cách.
+Logic Tiểu Học,Có 2 bạn xếp thành một hàng. Có bao nhiêu cách xếp?,4,2,1,3,B,Hai cách: AB và BA.
+Logic Tiểu Học,"Từ hai chữ số 1 và 2, lập được bao nhiêu số có hai chữ số khác nhau?",6,4,8,2,D,Đó là 12 và 21.
+Logic Tiểu Học,"Từ ba chữ số 1, 2, 3, lập được bao nhiêu số có hai chữ số khác nhau?",9,3,12,6,D,3 × 2 = 6 số.
+Logic Tiểu Học,Một hình tam giác được chia thành 4 tam giác nhỏ bằng nhau bởi các đường nối trung điểm. Tổng số tam giác là bao nhiêu?,8,3,5,4,C,4 tam giác nhỏ và 1 tam giác lớn.
+Logic Tiểu Học,Một hình vuông lớn chia thành 4 ô vuông nhỏ. Tổng số hình vuông là bao nhiêu?,4,1,5,8,C,4 hình vuông nhỏ và 1 hình vuông lớn.
+Logic Tiểu Học,Có 8 quả bóng chia đều cho 4 bạn. Mỗi bạn được bao nhiêu quả?,4,3,1,2,D,8 : 4 = 2 quả.
+Logic Tiểu Học,Có 10 cái kẹo chia đều cho 5 bạn. Mỗi bạn được bao nhiêu cái?,5,1,2,3,C,10 : 5 = 2 cái.
+Logic Tiểu Học,Một đoạn thẳng được chia thành 3 đoạn nhỏ. Có bao nhiêu đoạn thẳng tất cả?,6,5,3,4,A,3 + 2 + 1 = 6 đoạn.
+Logic Tiểu Học,Trên một đường thẳng có 3 điểm. Có bao nhiêu đoạn thẳng tạo thành từ các điểm đó?,3,4,2,6,A,Ba điểm tạo thành 3 đoạn thẳng.
+Logic Tiểu Học,Trên một đường thẳng có 4 điểm. Có bao nhiêu đoạn thẳng tạo thành từ các điểm đó?,4,8,5,6,D,Bốn điểm tạo thành 6 đoạn thẳng.
+Logic Tiểu Học,Có 2 chiếc mũ và 3 chiếc khăn. Có bao nhiêu cách chọn 1 mũ và 1 khăn?,5,6,9,3,B,2 × 3 = 6 cách.
+Logic Tiểu Học,"Tổng của bốn số chẵn đầu tiên 2, 4, 6, 8 bằng bao nhiêu?",12,24,16,20,D,2 + 4 + 6 + 8 = 20.
+Logic Tiểu Học,"Từ 1 đến 100, có bao nhiêu số có chữ số 9 ở hàng đơn vị?",11,10,19,9,B,"9, 19, 29, ..., 99 nên có 10 số."
+Logic Tiểu Học,Một lớp có 20 học sinh xếp đều thành 4 hàng. Mỗi hàng có bao nhiêu học sinh?,5,10,6,4,A,20 : 4 = 5 học sinh.
+Logic Tiểu Học,Có 6 quả cam xếp đều vào 3 đĩa. Mỗi đĩa có mấy quả?,1,6,3,2,D,6 : 3 = 2 quả.
+Logic Tiểu Học,Hôm nay là thứ ba. Ngày mai là thứ mấy?,thứ tư,thứ ba,thứ hai,thứ năm,A,Sau thứ ba là thứ tư.
+Logic Tiểu Học,Hôm nay là thứ sáu. Hôm qua là thứ mấy?,thứ tư,thứ năm,thứ bảy,thứ sáu,B,Trước thứ sáu là thứ năm.
+Logic Tiểu Học,Một tuần có 7 ngày. Nếu hôm nay là thứ ba thì 7 ngày sau là thứ mấy?,thứ tư,thứ hai,chủ nhật,thứ ba,D,Đúng 7 ngày sau vẫn là thứ ba.
+Logic Tiểu Học,Hôm nay là chủ nhật. Hai ngày nữa là thứ mấy?,thứ hai,chủ nhật,thứ bảy,thứ ba,D,Sau chủ nhật là thứ hai rồi thứ ba.
+Logic Tiểu Học,Một năm có bao nhiêu tháng?,13,11,12,10,C,Một năm có 12 tháng.
+Logic Tiểu Học,Tháng nào có ít ngày nhất?,tháng 6,tháng 1,tháng 2,tháng 4,C,Tháng 2 chỉ có 28 hoặc 29 ngày.
+Logic Tiểu Học,Một ngày có bao nhiêu giờ?,24,30,20,12,A,Một ngày có 24 giờ.
+Logic Tiểu Học,Một giờ có bao nhiêu phút?,45,60,100,30,B,Một giờ có 60 phút.
+Logic Tiểu Học,Một phút có bao nhiêu giây?,100,50,60,30,C,Một phút có 60 giây.
+Logic Tiểu Học,Nếu hôm nay là ngày 1 tháng 3 thì 10 ngày sau là ngày mấy?,10,9,11,12,C,1 + 10 = 11.
+Logic Tiểu Học,Tháng 4 có 30 ngày. Biết ngày 1 tháng 4 là thứ hai. Ngày 29 tháng 4 là thứ mấy?,thứ tư,thứ ba,thứ hai,chủ nhật,C,"29 - 1 = 28 ngày, đúng 4 tuần nên vẫn là thứ hai."
+Logic Tiểu Học,Một tuần bắt đầu từ thứ hai và kết thúc vào chủ nhật. Nếu hôm nay là thứ năm thì còn mấy ngày nữa đến chủ nhật?,4,2,3,1,C,"Từ thứ năm đến chủ nhật còn thứ sáu, thứ bảy và chủ nhật."
+Logic Tiểu Học,Hôm nay là thứ hai. Ba ngày nữa là thứ mấy?,thứ sáu,thứ năm,thứ ba,thứ tư,B,"Sau thứ hai hai ngày là thứ tư, thêm một ngày là thứ năm."
+Logic Tiểu Học,Sinh nhật Lan vào thứ bảy. Trước đó hai ngày là thứ mấy?,thứ sáu,thứ tư,thứ năm,chủ nhật,C,Trước thứ bảy hai ngày là thứ năm.
+Logic Tiểu Học,Một tháng có nhiều nhất bao nhiêu ngày?,30,31,29,28,B,"Các tháng 1, 3, 5, 7, 8, 10, 12 có 31 ngày."
+Logic Tiểu Học,"Bốn mùa trong năm là xuân, hạ, thu và mùa nào nữa?",nắng,đông,mưa,gió,B,"Bốn mùa gồm xuân, hạ, thu, đông."
+Logic Tiểu Học,Tháng 12 thuộc mùa nào ở Việt Nam?,xuân,thu,đông,hạ,C,Tháng 12 là mùa đông.
+Logic Tiểu Học,Nếu hôm nay là chủ nhật thì 7 ngày nữa là thứ mấy?,chủ nhật,thứ bảy,thứ ba,thứ hai,A,Đúng 7 ngày sau vẫn là chủ nhật.
+Logic Tiểu Học,Đồng hồ chỉ 3 giờ đúng. Kim phút chỉ số mấy?,12,6,9,3,A,"Khi đúng giờ, kim phút chỉ số 12."
+Logic Tiểu Học,Đồng hồ chỉ 6 giờ đúng. Kim giờ chỉ số mấy?,6,9,3,12,A,6 giờ đúng thì kim giờ chỉ số 6.
+Logic Tiểu Học,Một ngày có 24 giờ. 12 giờ bằng mấy phần của một ngày?,1/12,1/3,1/4,1/2,D,12 : 24 = 1/2.
+Logic Tiểu Học,Từ 8 giờ đến 10 giờ là bao nhiêu giờ?,2,1,3,4,A,10 - 8 = 2 giờ.
+Logic Tiểu Học,Từ 7 giờ sáng đến 12 giờ trưa là mấy giờ?,3,6,5,4,C,12 - 7 = 5 giờ.
+Logic Tiểu Học,Biết ngày 1 tháng 1 là thứ hai. Ngày 8 tháng 1 là thứ mấy?,thứ ba,thứ hai,chủ nhật,thứ tư,B,"8 - 1 = 7 ngày, đúng 1 tuần nên vẫn là thứ hai."
+Logic Tiểu Học,"Một năm có 365 ngày, một tuần có 7 ngày. Một năm có bao nhiêu tuần (làm tròn)?",51,50,52,53,C,365 : 7 = 52 tuần lẻ 1 ngày.
+Logic Tiểu Học,"Trong một tháng, biết ngày 15 là thứ ba. Ngày 22 là thứ mấy?",thứ tư,thứ ba,chủ nhật,thứ hai,B,22 - 15 = 7 ngày nên vẫn là thứ ba.
+Logic Tiểu Học,"Mùa hè thường nóng, mùa đông thường thế nào?",nóng,ấm,mát,lạnh,D,Mùa đông thường lạnh.
+Logic Tiểu Học,Tháng 6 có 30 ngày. Ngày cuối cùng của tháng 6 là ngày mấy?,31,29,28,30,D,Tháng 6 có 30 ngày nên ngày cuối là ngày 30.
+Logic Tiểu Học,Kim giờ và kim phút trùng nhau vào mấy giờ đúng (một thời điểm)?,6 giờ,12 giờ,3 giờ,1 giờ,B,"Vào 12 giờ đúng, cả hai kim đều chỉ số 12."
+Logic Tiểu Học,"Một tuần bạn học 5 ngày, vậy nghỉ mấy ngày?",2,3,4,1,A,7 - 5 = 2 ngày nghỉ.
+Logic Tiểu Học,Cái gì càng rửa càng bẩn?,khăn mặt,nước,cái gương,bàn tay,A,Rửa càng lâu thì khăn mặt càng bẩn.
+Logic Tiểu Học,Cái gì càng đào càng to?,cái hố,cái ao,ngọn núi,bức tường,A,Đào càng nhiều thì cái hố càng to.
+Logic Tiểu Học,Con gì càng to càng nhỏ?,con mèo,con voi,con kiến,con cua,D,Chữ càng ở đây là càng của con cua.
+Logic Tiểu Học,Cái gì có răng mà không cắn?,cái bàn,cái lược,con chó,quả táo,B,Răng của cái lược dùng để chải tóc.
+Logic Tiểu Học,Cái gì có chân mà không đi?,người,con ngựa,cái bàn,con chó,C,Chân bàn không dùng để đi.
+Logic Tiểu Học,Cái gì có mắt mà không nhìn thấy?,cây kim,người,đôi mắt,con mèo,A,Mắt của cây kim chỉ là lỗ xỏ chỉ.
+Logic Tiểu Học,Cái gì có tai mà không nghe?,con thỏ,em bé,cô giáo,cái ấm,D,Tai của cái ấm chỉ là phần để cầm.
+Logic Tiểu Học,Cái gì có mũi mà không ngửi?,đôi giày,con chó,bác sĩ,em bé,A,Mũi giày không dùng để ngửi.
+Logic Tiểu Học,Cái gì có lưỡi mà không nói?,cái miệng,người,cái kéo,con mèo,C,"Lưỡi kéo dùng để cắt, không để nói."
+Logic Tiểu Học,Cái gì đi khắp thế giới mà vẫn nằm một chỗ?,con cá,chiếc xe,con tem,cái đồng hồ,C,Con tem theo thư đi khắp nơi.
+Logic Tiểu Học,Ba que diêm có thể xếp thành số 4 bằng cách nào?,xếp thành số 4 theo chữ số Ả Rập,xếp thành chữ số La Mã IV,phải cần tới 4 que,không thể xếp được,B,Ba que diêm xếp thành chữ IV.
+Logic Tiểu Học,Một cây cầu cấm xe tải nặng trên 5 tấn. Một xe tải nặng 5 tấn chở thêm 100 kg hàng. Xe có qua cầu được không?,Được vì hàng rất nhẹ,Không rõ,"Không, vì tổng đã nặng hơn 5 tấn","Được, vì vẫn dưới 5 tấn",C,5 tấn cộng 100 kg đã vượt quá 5 tấn.
+Logic Tiểu Học,Hai số có tổng bằng 10 và hiệu bằng 0. Hai số đó là gì?,5 và 5,4 và 6,10 và 0,3 và 7,A,Hiệu bằng 0 nên hai số bằng nhau: 5 và 5.
+Logic Tiểu Học,Hai số có tổng bằng 12 và bằng nhau. Mỗi số là bao nhiêu?,3,12,4,6,D,12 : 2 = 6.
+Logic Tiểu Học,"Bạn có 3 quả táo, được cho thêm 2 quả rồi ăn 1 quả. Còn mấy quả?",4,6,5,3,A,3 + 2 - 1 = 4 quả.
+Logic Tiểu Học,"Có 5 con chim đậu trên cành, bắn rơi 1 con. Hỏi còn mấy con đậu trên cành?",0,4,3,1,A,Tiếng súng làm những con còn lại bay đi hết.
+Logic Tiểu Học,"Một cái ao có bèo, cứ mỗi ngày bèo tăng gấp đôi. Ngày thứ 10 bèo phủ đầy ao. Hỏi ngày nào bèo phủ nửa ao?",ngày thứ 5,ngày thứ 9,ngày thứ 1,ngày thứ 8,B,Vì gấp đôi mỗi ngày nên nửa ao là ngày liền trước đó.
+Logic Tiểu Học,Năm con mèo bắt 5 con chuột trong 5 phút. Một con mèo bắt 1 con chuột trong mấy phút?,10,25,5,1,C,Mỗi con mèo bắt 1 con chuột hết 5 phút.
+Logic Tiểu Học,"Một người có 10 đồng, mua kẹo hết 2 đồng và mua bánh hết 3 đồng. Người đó còn mấy đồng?",6,5,4,7,B,10 - 2 - 3 = 5 đồng.
+Logic Tiểu Học,"Hai người là cha và con, tổng số tuổi là 60, người cha 40 tuổi. Người con bao nhiêu tuổi?",10,30,40,20,D,60 - 40 = 20 tuổi.
+Logic Tiểu Học,"Một gia đình có 4 người con trai, mỗi người con trai đều có một em gái. Gia đình có mấy người con?",8,5,6,4,B,Bốn con trai và một em gái chung nên có 5 người con.
+Logic Tiểu Học,Bố của Hùng có 3 người con trai: Nhất và Nhì. Người con trai thứ ba tên gì?,Ba,Nhì,Hùng,Nhất,C,Người con trai thứ ba là Hùng.
+Logic Tiểu Học,Trên một bàn tay có 5 ngón. Hai bàn tay có mấy ngón?,12,8,10,5,C,5 × 2 = 10 ngón.
+Logic Tiểu Học,Một con vịt có 2 chân. Bốn con vịt có mấy chân?,4,6,8,10,C,2 × 4 = 8 chân.
+Logic Tiểu Học,Số nào lớn hơn 0 mà nhân với chính nó vẫn bằng chính nó?,10,1,2,0,B,1 × 1 = 1.
+Logic Tiểu Học,"Có 9 viên bi, trong đó 1 viên nặng hơn các viên còn lại. Dùng cân đĩa, cần ít nhất mấy lần cân để tìm ra viên nặng?",1,3,2,9,C,"Chia thành 3 nhóm 3 viên, chỉ cần 2 lần cân."
+Logic Tiểu Học,"Một người đang ở tầng 1, đi lên 3 tầng nữa thì ở tầng mấy?",2,5,4,3,C,1 + 3 = 4.
+Logic Tiểu Học,"Một người đang ở tầng 5, đi xuống 2 tầng thì ở tầng mấy?",7,2,3,4,C,5 - 2 = 3.
+Logic Tiểu Học,"Một cầu thang có 10 bậc. Bạn đang ở bậc 3, bước lên 4 bậc nữa thì ở bậc mấy?",6,8,9,7,D,3 + 4 = 7.
+Logic Tiểu Học,Đồng hồ chỉ 2 giờ. Sau 3 giờ nữa là mấy giờ?,3 giờ,5 giờ,4 giờ,6 giờ,B,2 + 3 = 5 giờ.
+Logic Tiểu Học,Một người đi từ nhà lúc 7 giờ và đến nơi lúc 9 giờ. Người đó đi hết mấy giờ?,1,3,4,2,D,9 - 7 = 2 giờ.
+Logic Tiểu Học,Ba người ngồi quanh một cái bàn tròn. Có bao nhiêu cách sắp xếp (coi các cách xoay bàn là như nhau)?,6,2,1,3,B,Với 3 người quanh bàn tròn có 2 cách.
+Logic Tiểu Học,"Trong một bữa tiệc, mỗi người bắt tay với mọi người khác một lần. Bốn người có bao nhiêu cái bắt tay?",6,12,8,4,A,4 × 3 : 2 = 6 cái bắt tay.
+Logic Tiểu Học,"Có 6 người, mỗi người bắt tay với mọi người khác một lần. Tổng số cái bắt tay là bao nhiêu?",15,36,12,30,A,6 × 5 : 2 = 15 cái bắt tay.
+Logic Tiểu Học,Một chiếc thuyền chở được tối đa 100 kg. Một người nặng 70 kg mang theo một kiện hàng 25 kg. Thuyền có chở nổi không?,"Có, nhưng phải bỏ bớt hàng",Không rõ,"Không, vì quá nặng","Có, vì tổng chỉ 95 kg",D,"70 + 25 = 95 kg, nhỏ hơn 100 kg."
+Logic Tiểu Học,Con gì không có chân mà đi được?,con chim,con mèo,con cá,con rắn,D,Rắn bò đi mà không có chân.
+Logic Tiểu Học,Cái gì khi bạn nói tên nó thì nó biến mất?,tiếng vang,ánh sáng,bóng tối,sự im lặng,D,Vừa nói tên thì sự im lặng không còn nữa.
+Logic Tiểu Học,"Một tháng có 4 tuần, mỗi tuần học 5 ngày. Một tháng học bao nhiêu ngày?",15,20,30,25,B,4 × 5 = 20 ngày.
+Logic Tiểu Học,"Có 4 quả cam chia cho 4 người, mỗi người 1 quả nhưng vẫn còn 1 quả trong rổ. Làm thế nào?",Cắt quả cam ra,Đưa cả cái rổ cùng quả cam cho người cuối,Ăn trước 1 quả,Không thể làm được,B,Người cuối nhận cả rổ vẫn còn 1 quả trong đó.
+Logic Tiểu Học,Có 3 bóng đèn trong một phòng kín và 3 công tắc ở phòng khác. Chỉ được vào phòng công tắc một lần. Làm sao biết công tắc nào ứng với bóng đèn nào?,Đoán bừa,Bật một công tắc lâu cho bóng nóng rồi sờ bóng đèn,Bật tất cả công tắc,Không thể biết được,B,Bóng đèn nóng sẽ tương ứng với công tắc đã bật.
+Logic Tiểu Học,Số nguyên tố chẵn duy nhất là số nào?,3,4,2,1,C,2 là số nguyên tố chẵn duy nhất.
+Logic Tiểu Học,"Một số có hai chữ số, chữ số hàng chục gấp đôi chữ số hàng đơn vị và tổng hai chữ số bằng 6. Số đó là số nào?",42,36,24,63,A,4 + 2 = 6 và 4 gấp đôi 2 nên số đó là 42.
+Logic Tiểu Học,"Một số có hai chữ số, chữ số hàng chục là 3 và số đó chia hết cho 5. Số đó là số nào?",35,25,30,40,A,Số có hàng chục là 3 và tận cùng là 5 nên là 35.
+Logic Tiểu Học,"Số nào lớn hơn 10, bé hơn 20 và chia hết cho 3?",19,12,14,16,B,12 chia hết cho 3 và nằm giữa 10 và 20.
+Logic Tiểu Học,"Số nào chia hết cho cả 2 và 3, lớn hơn 0 và bé hơn 10?",8,6,3,9,B,6 chia hết cho cả 2 và 3.
+Logic Tiểu Học,Hai số lẻ liên tiếp có tổng bằng 12. Hai số đó là gì?,4 và 8,3 và 9,1 và 11,5 và 7,D,"5 và 7 đều lẻ, liên tiếp và có tổng bằng 12."
+Logic Tiểu Học,Ba số lẻ liên tiếp có tổng bằng 9. Số nhỏ nhất là số nào?,2,5,1,3,C,1 + 3 + 5 = 9 nên số nhỏ nhất là 1.
+Logic Tiểu Học,Một số nhân với 3 rồi trừ 3 được 9. Số đó là số nào?,3,5,2,4,D,4 × 3 - 3 = 9.
+Logic Tiểu Học,Một số cộng với 5 được 12. Số đó là số nào?,5,7,6,8,B,12 - 5 = 7.
+Logic Tiểu Học,Một số nhân đôi rồi cộng 4 được 12. Số đó là số nào?,4,6,5,3,A,4 × 2 + 4 = 12.
+Logic Tiểu Học,Nếu trời mưa thì đường ướt. Trời đang mưa. Vậy đường thế nào?,Không rõ,đẹp,ướt,khô,C,Mưa thì đường ướt.
+Logic Tiểu Học,Nếu trời mưa thì đường ướt. Đường đang ướt. Có kết luận chắc chắn trời mưa không?,"Có, chắc chắn trời mưa",Không rõ,"Có, nếu trời có mây","Không, vì đường có thể ướt do nguyên nhân khác",D,Đường ướt còn có thể do nhiều nguyên nhân khác.
+Logic Tiểu Học,Nếu học chăm thì đạt điểm cao. An không đạt điểm cao. Suy ra điều gì?,Không kết luận được,An không học chăm,An học chăm,An đạt điểm cao,B,Không đạt điểm cao thì An không học chăm.
+Logic Tiểu Học,Nếu là chim thì có lông. Đại bàng có lông. Suy ra đại bàng là chim?,Chắc chắn là chim,Không chắc chắn,Không rõ,Chắc chắn không phải chim,B,Có lông chưa đủ để khẳng định chắc chắn là chim.
+Logic Tiểu Học,Tất cả mèo đều thích cá. Mun là mèo. Suy ra điều gì?,Mun thích cá,Mun không thích cá,Không kết luận được,Mun là cá,A,Mèo thì thích cá nên Mun thích cá.
+Logic Tiểu Học,Mọi số chia hết cho 4 đều chia hết cho 2. Số 8 chia hết cho 4. Suy ra điều gì?,Không kết luận được,8 không chia hết cho 2,8 chia hết cho 3,8 chia hết cho 2,D,8 chia hết cho 4 nên cũng chia hết cho 2.
+Logic Tiểu Học,Nếu một số chia hết cho 2 thì số đó là số chẵn. Số 7 là số lẻ. Suy ra điều gì?,Không kết luận được,7 là số chẵn,7 chia hết cho 2,7 không chia hết cho 2,D,Số lẻ thì không chia hết cho 2.
+Logic Tiểu Học,Nếu Nam đến muộn thì Nam bị phạt. Nam không bị phạt. Suy ra điều gì?,Nam không đến muộn,Không kết luận được,Nam đến muộn,Nam bị phạt,A,Không bị phạt thì Nam không đến muộn.
+Logic Tiểu Học,Mọi học sinh lớp 3 đều biết đọc. Lan không biết đọc. Suy ra Lan có phải học sinh lớp 3 không?,Không rõ,Phải,Không phải,Có thể là,C,Không biết đọc thì không thể là học sinh lớp 3.
+Logic Tiểu Học,Nếu hôm nay là thứ ba thì ngày mai là thứ tư. Hôm nay là thứ ba. Suy ra điều gì?,Không kết luận được,Ngày mai là thứ ba,Ngày mai là thứ năm,Ngày mai là thứ tư,D,Thứ ba thì ngày mai là thứ tư.
+Logic Tiểu Học,Nếu một hình là hình vuông thì nó có 4 cạnh bằng nhau. Hình này có 4 cạnh bằng nhau. Suy ra hình này là hình vuông?,Không rõ,Chắc chắn là hình vuông,"Chưa chắc, cũng có thể là hình thoi",Chắc chắn không phải hình vuông,C,Hình thoi cũng có 4 cạnh bằng nhau.
+Logic Tiểu Học,Nếu một người tập thể dục thì khỏe mạnh. Bình khỏe mạnh. Suy ra Bình có tập thể dục không?,Chắc chắn có,Không chắc chắn,Không rõ,Chắc chắn không,B,Khỏe mạnh còn do nhiều nguyên nhân khác.
+Logic Tiểu Học,Tất cả hoa hồng đều có gai. Bông hoa này không có gai. Suy ra bông hoa này có phải hoa hồng không?,Không phải,Không rõ,Có thể là,Phải,A,Không có gai thì không phải hoa hồng.
+Logic Tiểu Học,Nếu a = b và b = c thì a = c. Biết a = 5 và b = 5. Suy ra điều gì?,Không kết luận được,a lớn hơn b,a bằng b,a khác b,C,a và b đều bằng 5 nên a bằng b.
+Logic Tiểu Học,Mọi con cá đều sống dưới nước. Cá voi sống dưới nước. Suy ra cá voi là cá?,Không rõ,Không chắc chắn,Chắc chắn là cá,Chắc chắn không phải cá,B,Cá voi là thú sống dưới nước nên không chắc chắn là cá.
+Logic Tiểu Học,Nếu trời nắng thì Nam đi bơi. Hôm nay Nam không đi bơi. Suy ra điều gì?,Nam bị ốm,Trời nắng,Không kết luận được,Trời không nắng,D,Không đi bơi thì trời không nắng.
+Logic Tiểu Học,Nếu một số chia hết cho 9 thì số đó chia hết cho 3. Số 27 chia hết cho 9. Suy ra điều gì?,27 chia hết cho 6,27 không chia hết cho 3,27 chia hết cho 3,Không kết luận được,C,27 chia hết cho 9 nên cũng chia hết cho 3.
+Logic Tiểu Học,Nếu học giỏi thì được thưởng. Hoa được thưởng. Suy ra Hoa có học giỏi không?,Không rõ,Chắc chắn không học giỏi,Chắc chắn học giỏi,Không chắc chắn,D,Được thưởng còn có thể do nhiều lý do khác.
+Logic Tiểu Học,Mọi trái cam đều có múi. Vật này không có múi. Suy ra vật này có phải trái cam không?,Có thể là trái cam,Không rõ,Không phải trái cam,Là trái cam,C,Không có múi thì không phải trái cam.
+Logic Tiểu Học,Nếu một số tận cùng bằng 0 thì số đó chia hết cho 10. Số 40 tận cùng bằng 0. Suy ra điều gì?,40 không chia hết cho 10,Không kết luận được,40 chia hết cho 10,40 chia hết cho 3,C,40 tận cùng bằng 0 nên chia hết cho 10.
+Logic Tiểu Học,Nếu là bạn thân thì hay chơi cùng nhau. Nam và Bắc hay chơi cùng nhau. Suy ra họ có phải bạn thân không?,Chắc chắn không phải bạn thân,Không rõ,Không chắc chắn,Chắc chắn là bạn thân,C,Hay chơi cùng nhau chưa chắc đã là bạn thân.
+Logic Tiểu Học,Nếu một vật là kim loại thì vật đó dẫn điện. Vật này dẫn điện. Suy ra vật này có phải kim loại không?,"Không chắc chắn, vì nước cũng dẫn điện",Chắc chắn là kim loại,Không rõ,Chắc chắn không phải kim loại,A,Nhiều vật không phải kim loại vẫn dẫn điện.
+Logic Tiểu Học,Tất cả các số nguyên tố lớn hơn 2 đều là số lẻ. Số 15 là số lẻ. Suy ra 15 có phải số nguyên tố không?,Không,Có,Không rõ,Có thể,A,15 = 3 × 5 nên không phải số nguyên tố.
+Logic Tiểu Học,Nếu làm bài đúng hết thì được điểm tối đa. Lan được điểm tối đa. Suy ra Lan có làm đúng hết không?,Chắc chắn không làm đúng hết,Không rõ,Không chắc chắn,Chắc chắn làm đúng hết,C,Điểm tối đa chưa chắc đã là do làm đúng hết.
+Logic Tiểu Học,Nếu hôm nay là chủ nhật thì ngày mai là thứ hai. Hôm nay là chủ nhật. Suy ra điều gì?,Không kết luận được,Ngày mai là thứ bảy,Ngày mai là thứ ba,Ngày mai là thứ hai,D,Chủ nhật thì ngày mai là thứ hai.
+Logic Tiểu Học,Mọi hình tròn đều không có góc. Hình này có góc. Suy ra hình này có phải hình tròn không?,Là hình tròn,Có thể là hình tròn,Không rõ,Không phải hình tròn,D,Có góc thì không phải hình tròn.
+Logic Tiểu Học,Nếu một người là bác sĩ thì người đó học y. Anh ấy học y. Suy ra anh ấy có phải bác sĩ không?,Không rõ,Không chắc chắn,Chắc chắn là bác sĩ,Chắc chắn không phải bác sĩ,B,Học y chưa chắc đã hành nghề bác sĩ.
+Logic Tiểu Học,Nếu một số lớn hơn 100 thì số đó có ít nhất ba chữ số. Số 250 lớn hơn 100. Suy ra điều gì?,250 nhỏ hơn 100,250 có hai chữ số,Không kết luận được,250 có ít nhất ba chữ số,D,250 lớn hơn 100 nên có ba chữ số.
+Logic Tiểu Học,Nếu bạn khát thì bạn uống nước. Bạn không uống nước. Suy ra điều gì?,Bạn không khát,Bạn đã no,Bạn đang khát,Không kết luận được,A,Không uống nước thì bạn không khát.
+Logic Tiểu Học,Mọi số chẵn đều chia hết cho 2. Số x không chia hết cho 2. Suy ra điều gì?,Không kết luận được,x bằng 0,x là số chẵn,x là số lẻ,D,Không chia hết cho 2 thì x là số lẻ.
+Logic Tiểu Học,"Hình tam giác có 3 cạnh, hình vuông có 4 cạnh, hình ngũ giác có mấy cạnh?",4,7,5,6,C,Ngũ giác có 5 cạnh.
+Logic Tiểu Học,Hình lục giác có bao nhiêu cạnh?,8,5,6,7,C,Lục giác có 6 cạnh.
+Logic Tiểu Học,Hình bát giác có bao nhiêu cạnh?,6,8,9,7,B,Bát giác có 8 cạnh.
+Logic Tiểu Học,Hình vuông có mấy góc vuông?,2,3,4,1,C,Hình vuông có 4 góc vuông.
+Logic Tiểu Học,Hình chữ nhật có mấy cạnh?,5,6,3,4,D,Hình chữ nhật có 4 cạnh.
+Logic Tiểu Học,Hình tròn có bao nhiêu cạnh thẳng?,vô số,0,2,1,B,Hình tròn không có cạnh thẳng.
+Logic Tiểu Học,Một hình tam giác đều có mấy trục đối xứng?,3,6,2,1,A,Tam giác đều có 3 trục đối xứng.
+Logic Tiểu Học,Hình vuông có mấy trục đối xứng?,6,2,4,3,C,Hình vuông có 4 trục đối xứng.
+Logic Tiểu Học,"Ba hình tam giác rời nhau, mỗi hình cần 3 que tính. Cần bao nhiêu que tính tất cả?",6,9,12,3,B,3 × 3 = 9 que tính.
+Logic Tiểu Học,Một hình lập phương có bao nhiêu đỉnh?,8,4,12,6,A,Hình lập phương có 8 đỉnh.
+Logic Tiểu Học,Một hình lập phương có bao nhiêu cạnh?,8,6,4,12,D,Hình lập phương có 12 cạnh.
+Logic Tiểu Học,Một hình hộp chữ nhật có bao nhiêu mặt?,12,4,8,6,D,Hình hộp chữ nhật có 6 mặt.
+Logic Tiểu Học,Một hình tam giác được chia bởi một đường từ đỉnh xuống đáy thành 2 tam giác nhỏ. Tổng số tam giác là bao nhiêu?,3,1,4,2,A,2 tam giác nhỏ và 1 tam giác lớn.
+Logic Tiểu Học,"Bốn điểm là bốn đỉnh của một hình vuông. Nối tất cả các cặp điểm, có bao nhiêu đoạn thẳng?",6,5,4,8,A,4 điểm tạo thành 6 đoạn thẳng.
+Logic Tiểu Học,"Một hình chữ nhật dài 4 cm, rộng 2 cm. Chu vi là bao nhiêu xăng-ti-mét?",12,10,8,6,A,Chu vi = (4 + 2) × 2 = 12 cm.
+Logic Tiểu Học,Một hình vuông cạnh 3 cm có chu vi là bao nhiêu xăng-ti-mét?,15,12,6,9,B,3 × 4 = 12 cm.
+Logic Tiểu Học,"Một hình tam giác có ba cạnh 3 cm, 4 cm, 5 cm. Chu vi là bao nhiêu xăng-ti-mét?",13,11,12,10,C,3 + 4 + 5 = 12 cm.
+Logic Tiểu Học,Một hình vuông được chia thành 4 hình vuông nhỏ bằng nhau. Cạnh hình vuông lớn gấp mấy lần cạnh hình vuông nhỏ?,3,2,4,8,B,Chia đôi mỗi cạnh nên cạnh lớn gấp đôi cạnh nhỏ.
+Logic Tiểu Học,"Ghép hai hình tam giác đều bằng nhau theo một cạnh, ta được hình gì?",hình ngũ giác,hình tròn,hình thoi,hình lục giác,C,Hai tam giác đều ghép lại thành hình thoi.
+Logic Tiểu Học,"Ghép sáu hình tam giác đều bằng nhau quanh một điểm, ta được hình gì?",hình lục giác,hình vuông,hình tròn,hình bát giác,A,Sáu tam giác đều xếp quanh một điểm tạo thành hình lục giác.
+Logic Tiểu Học,Một hình có 5 cạnh và 5 góc gọi là hình gì?,hình tứ giác,hình tam giác,hình ngũ giác,hình lục giác,C,"5 cạnh, 5 góc là hình ngũ giác."
+Logic Tiểu Học,Một hình có tất cả các cạnh bằng nhau và 4 góc vuông là hình gì?,hình vuông,hình bình hành,hình chữ nhật,hình thoi,A,Đó là hình vuông.
+Logic Tiểu Học,Một hình có 4 cạnh bằng nhau nhưng không có góc vuông là hình gì?,hình thoi,hình chữ nhật,hình vuông,hình thang,A,Đó là hình thoi.
+Logic Tiểu Học,Hình bình hành có mấy cặp cạnh song song?,0,1,2,3,C,Hình bình hành có 2 cặp cạnh đối song song.
+Logic Tiểu Học,Nếu một hình có 4 góc vuông thì hình đó có bao nhiêu góc tất cả?,3,4,5,6,B,Bốn góc vuông nghĩa là có 4 góc.
+Logic Tiểu Học,Một hàng có 5 hình tam giác xen kẽ 4 hình tròn. Có bao nhiêu hình tất cả?,9,11,10,8,A,5 + 4 = 9 hình.
+Logic Tiểu Học,Một hình tam giác nhỏ cần 3 que tính. Xếp 2 hình tam giác rời nhau cần mấy que tính?,4,6,5,3,B,3 × 2 = 6 que tính.
+Logic Tiểu Học,Một hình vuông cần 4 que tính bằng nhau. Xếp 3 hình vuông rời nhau cần mấy que tính?,16,8,12,10,C,4 × 3 = 12 que tính.
+Logic Tiểu Học,Muốn làm một khối lập phương cần bao nhiêu hình vuông để làm đủ 6 mặt?,4,6,8,5,B,Khối lập phương có 6 mặt.
+Logic Tiểu Học,Một hình chữ nhật được chia bởi một đường dọc và một đường ngang thành 4 ô. Tổng số hình chữ nhật là bao nhiêu?,9,5,4,6,A,"4 ô nhỏ, 2 hình ghép theo hàng, 2 hình ghép theo cột và 1 hình lớn."
+Logic Tiểu Học,Số nào chia hết cho 3?,14,16,17,15,D,15 có tổng chữ số là 6 nên chia hết cho 3.
+Logic Tiểu Học,Số nào chia hết cho 9?,18,20,28,24,A,18 có tổng chữ số là 9 nên chia hết cho 9.
+Logic Tiểu Học,Số nào chia hết cho 6?,18,15,27,21,A,18 chia hết cho cả 2 và 3 nên chia hết cho 6.
+Logic Tiểu Học,Số nào chia hết cho cả 2 và 5?,12,15,20,25,C,20 tận cùng là 0 nên chia hết cho cả 2 và 5.
+Logic Tiểu Học,Số nào chia hết cho cả 3 và 4?,12,18,15,8,A,12 chia hết cho cả 3 và 4.
+Logic Tiểu Học,"Trong các số 54, 60, 72, 84, số nào chia hết cho 5?",60,72,54,84,A,60 tận cùng là 0 nên chia hết cho 5.
+Logic Tiểu Học,Số lẻ nhỏ nhất có hai chữ số là số nào?,11,21,10,13,A,Số lẻ nhỏ nhất có hai chữ số là 11.
+Logic Tiểu Học,Số chẵn lớn nhất có một chữ số là số nào?,7,8,9,10,B,8 là số chẵn lớn nhất có một chữ số.
+Logic Tiểu Học,Tổng của số lớn nhất có một chữ số và số bé nhất có hai chữ số bằng bao nhiêu?,9,109,10,19,D,9 + 10 = 19.
+Logic Tiểu Học,Hiệu của số bé nhất có ba chữ số và số lớn nhất có hai chữ số bằng bao nhiêu?,2,10,1,11,C,100 - 99 = 1.
+Logic Tiểu Học,Tích của số lớn nhất có một chữ số với 2 bằng bao nhiêu?,9,20,18,10,C,9 × 2 = 18.
+Logic Tiểu Học,"Số nào là số nguyên tố trong các số 21, 23, 25, 27?",21,25,27,23,D,23 chỉ chia hết cho 1 và chính nó.
+Logic Tiểu Học,Có bao nhiêu số nguyên tố bé hơn 10?,3,6,5,4,D,"2, 3, 5, 7 nên có 4 số."
+Logic Tiểu Học,Số 1 có phải là số nguyên tố không?,Không xác định,Tùy trường hợp,Không,Có,C,"Số nguyên tố phải có đúng hai ước, số 1 chỉ có một ước."
+Logic Tiểu Học,Số nguyên tố nhỏ nhất là số nào?,3,1,2,0,C,2 là số nguyên tố nhỏ nhất.
+Logic Tiểu Học,Số 2 là số chẵn hay số lẻ?,Số lẻ,Cả hai,Số chẵn,Không xác định,C,2 chia hết cho 2 nên là số chẵn.
+Logic Tiểu Học,Một số vừa chia hết cho 2 vừa chia hết cho 5 thì tận cùng bằng chữ số nào?,5,2,0,1,C,Số chia hết cho cả 2 và 5 thì tận cùng là 0.
+Logic Tiểu Học,Một số tận cùng bằng 5 thì luôn chia hết cho số nào?,10,2,3,5,D,Tận cùng là 5 thì chia hết cho 5.
+Logic Tiểu Học,Trung bình cộng của 2 và 4 bằng bao nhiêu?,4,6,2,3,D,(2 + 4) : 2 = 3.
+Logic Tiểu Học,"Trung bình cộng của 3, 5, 7 bằng bao nhiêu?",7,6,4,5,D,(3 + 5 + 7) : 3 = 5.
+Logic Tiểu Học,Tổng các số từ 1 đến 10 bằng bao nhiêu?,50,100,55,45,C,(1 + 10) × 10 : 2 = 55.
+Logic Tiểu Học,Một số nhân với 0 luôn bằng bao nhiêu?,chính nó,0,1,không xác định,B,Nhân với 0 luôn bằng 0.
+Logic Tiểu Học,Không thể chia một số cho số nào?,chính nó,mọi số,0,1,C,Không có phép chia cho 0.
+Logic Tiểu Học,Tổng của hai số đối nhau luôn bằng bao nhiêu?,0,-1,không xác định,1,A,Ví dụ 3 + (-3) = 0.
+Logic Tiểu Học,Giá trị tuyệt đối của một số luôn là số như thế nào?,luôn dương,dương hoặc bằng 0,luôn âm,âm,B,Giá trị tuyệt đối không âm.
+Logic Tiểu Học,Số 0 là số chẵn hay số lẻ?,Số lẻ,Không xác định,Cả hai,Số chẵn,D,0 chia hết cho 2 nên là số chẵn.
+Logic Tiểu Học,Tích của hai số lẻ là số gì?,Số lẻ,0,Số chẵn,Cả hai,A,Ví dụ 3 × 5 = 15 là số lẻ.
+Logic Tiểu Học,Hiệu của hai số chẵn là số gì?,Số lẻ,Luôn bằng 0,Cả hai,Số chẵn,D,Ví dụ 8 - 2 = 6 là số chẵn.
+Logic Tiểu Học,Tổng của một số chẵn và một số lẻ là số gì?,Số chẵn,Số lẻ,0,Cả hai,B,Ví dụ 2 + 3 = 5 là số lẻ.
+Logic Tiểu Học,Nếu một số chia hết cho 10 thì số đó tận cùng bằng mấy?,10,1,5,0,D,Số chia hết cho 10 thì tận cùng là 0.
+Logic Tiểu Học,"Số nào vừa chia hết cho 2 vừa chia hết cho 3 trong các số 6, 9, 15, 21?",9,21,15,6,D,6 chia hết cho cả 2 và 3.
+Logic Tiểu Học,Hai số tự nhiên liên tiếp hơn kém nhau mấy đơn vị?,10,1,0,2,B,Hai số liên tiếp hơn kém nhau 1 đơn vị.
+Logic Tiểu Học,Số liền sau của số lớn nhất có hai chữ số là số nào?,99,98,101,100,D,99 + 1 = 100.
+Logic Tiểu Học,Có bao nhiêu số có một chữ số chia hết cho 3?,2,4,5,3,D,"3, 6, 9 nên có 3 số."
+Logic Tiểu Học,"Trong dãy 1, 2, 3, ..., 20 có bao nhiêu số chia hết cho 3?",7,6,5,8,B,"3, 6, 9, 12, 15, 18 nên có 6 số."
+Logic Tiểu Học,Số bé nhất có hai chữ số chia hết cho 5 là số nào?,15,10,5,20,B,10 là số bé nhất có hai chữ số chia hết cho 5.
+Logic Tiểu Học,Số lớn nhất có hai chữ số chia hết cho 9 là số nào?,95,90,98,99,D,99 có tổng chữ số là 18 nên chia hết cho 9.
+Logic Tiểu Học,Tổng các chữ số của 123 bằng bao nhiêu?,7,8,6,5,C,1 + 2 + 3 = 6.
+Logic Tiểu Học,Số 2024 có mấy chữ số?,3,5,4,2,C,Số 2024 có 4 chữ số.
+Logic Tiểu Học,Chữ số hàng trăm của số 3570 là chữ số nào?,7,0,3,5,C,Số 3570 có chữ số hàng trăm là 3.
+Logic Tiểu Học,Ba số bằng nhau có tổng bằng 12. Mỗi số là bao nhiêu?,6,3,4,5,C,12 : 3 = 4.
+Logic Tiểu Học,Hai số có tổng bằng 15 và hiệu bằng 5. Hai số đó là gì?,9 và 6,10 và 5,12 và 3,8 và 7,B,10 + 5 = 15 và 10 - 5 = 5.
+Logic Tiểu Học,Tìm x biết x + 7 = 15.,6,9,8,7,C,x = 15 - 7 = 8.
+Logic Tiểu Học,Tìm x biết 3 × x = 18.,8,6,7,5,B,x = 18 : 3 = 6.
+Logic Tiểu Học,Tìm x biết x - 4 = 10.,6,10,14,5,C,x = 10 + 4 = 14.
+Logic Tiểu Học,Tìm x biết x : 5 = 4.,20,9,16,25,A,x = 4 × 5 = 20.
+Logic Tiểu Học,Tìm x biết 2x = 10.,5,4,3,6,A,x = 10 : 2 = 5.
+Logic Tiểu Học,Một nửa của 1/2 bằng bao nhiêu?,1/2,1/4,1,1/8,B,1/2 : 2 = 1/4.
+Logic Tiểu Học,Ba số tự nhiên liên tiếp có tổng bằng 12. Số ở giữa là số nào?,5,6,4,3,C,3 + 4 + 5 = 12 nên số ở giữa là 4.
+Logic Tiểu Học,Số gấp đôi của 15 là số nào?,30,35,25,20,A,15 × 2 = 30.
+Logic Tiểu Học,Phân số nào bé hơn 1/2?,2/3,1/3,4/5,3/4,B,1/3 nhỏ hơn 1/2.
+Logic Tiểu Học,Phân số nào lớn hơn 1/2?,1/4,1/5,1/3,2/3,D,2/3 lớn hơn 1/2.
+Logic Tiểu Học,So sánh 1/4 và 1/3. Phân số nào lớn hơn?,1/3,Bằng nhau,1/4,Không so sánh được,A,Mẫu số nhỏ hơn thì phân số lớn hơn nên 1/3 > 1/4.
+Logic Tiểu Học,1/2 + 1/2 bằng bao nhiêu?,1,2,1/4,1/2,A,1/2 + 1/2 = 1.
+Logic Tiểu Học,Trong một chỉnh thể (bằng 1) có bao nhiêu phần tư?,5,3,2,4,D,1 = 4/4 nên có 4 phần tư.
+Logic Tiểu Học,"Một chiếc bánh chia thành 8 phần bằng nhau, ăn hết 2 phần thì còn mấy phần?",2,8,6,4,C,8 - 2 = 6 phần.
+Logic Tiểu Học,"Nếu hôm nay là thứ tư, sau 10 ngày nữa là thứ mấy?",thứ tư,thứ sáu,chủ nhật,thứ bảy,D,10 = 7 + 3 nên cộng thêm 3 ngày vào thứ tư.
+Logic Tiểu Học,"Một người mua 3 quyển vở, mỗi quyển 5000 đồng. Tổng số tiền là bao nhiêu?",15000 đồng,5000 đồng,20000 đồng,10000 đồng,A,3 × 5000 = 15000 đồng.
+Logic Tiểu Học,Một người có 20 viên kẹo chia đều cho 4 bạn. Mỗi bạn được mấy viên?,5,10,6,4,A,20 : 4 = 5 viên.
+Logic Tiểu Học,Mỗi bạn có 3 viên kẹo và có 6 bạn. Tổng số kẹo là bao nhiêu?,24,9,12,18,D,3 × 6 = 18 viên.
+Logic Tiểu Học,"Có 3 hàng, mỗi hàng 4 bạn. Có tất cả bao nhiêu bạn?",16,12,9,7,B,3 × 4 = 12 bạn.
+Logic Tiểu Học,Một số chia cho 3 được 4. Số đó là số nào?,7,9,15,12,D,4 × 3 = 12.
+Logic Tiểu Học,Một số gấp 3 lần rồi cộng 3 được 15. Số đó là số nào?,3,6,4,5,C,4 × 3 + 3 = 15.
+Logic Tiểu Học,"Cho dãy 3, 6, 9, ... Số hạng thứ 5 của dãy là số nào?",12,21,18,15,D,"3, 6, 9, 12, 15 nên số hạng thứ 5 là 15."
+Logic Tiểu Học,"Cho dãy 2, 4, 6, 8, ... Số hạng thứ 6 của dãy là số nào?",16,14,12,10,C,2 × 6 = 12.
+Logic Tiểu Học,"Cho dãy 1, 2, 3, 4, ... Số hạng thứ 10 của dãy là số nào?",12,9,10,11,C,Số hạng thứ 10 chính là 10.
+Logic Tiểu Học,Một hình vuông cạnh 2 cm có diện tích bao nhiêu xăng-ti-mét vuông?,4,2,6,8,A,2 × 2 = 4 cm².
+Logic Tiểu Học,"Một hình chữ nhật dài 5 cm, rộng 3 cm có diện tích bao nhiêu xăng-ti-mét vuông?",30,8,15,16,C,5 × 3 = 15 cm².
+Logic Tiểu Học,Một hình vuông cạnh 4 cm có diện tích bao nhiêu xăng-ti-mét vuông?,8,12,20,16,D,4 × 4 = 16 cm².
+Logic Tiểu Học,Nếu gấp đôi cạnh một hình vuông thì diện tích tăng lên mấy lần?,4,8,2,3,A,Diện tích tỉ lệ với bình phương cạnh nên tăng 4 lần.
+Logic Tiểu Học,"Có 10 học sinh, mỗi bạn bắt tay với mọi bạn khác một lần. Tổng số cái bắt tay là bao nhiêu?",45,50,100,90,A,10 × 9 : 2 = 45 cái bắt tay.
+Logic Tiểu Học,"Một đồng hồ điểm 6 tiếng chuông, mỗi tiếng kéo dài 5 giây. Tổng thời gian là bao nhiêu giây?",25,30,24,36,B,6 × 5 = 30 giây.
+Logic Tiểu Học,"Có 4 viên bi, trong đó 1 viên nhẹ hơn các viên còn lại. Dùng cân đĩa, cần ít nhất mấy lần cân để tìm ra viên nhẹ?",1,2,4,3,B,Cân 2 viên với 2 viên rồi cân tiếp nhóm nhẹ.
+Logic Tiểu Học,Một chiếc xe đi 60 km trong 1 giờ. Trong 2 giờ xe đi được bao nhiêu ki-lô-mét?,60,120,180,90,B,60 × 2 = 120 km.
+Logic Tiểu Học,Nếu 5 người làm xong một công việc trong 10 ngày thì 10 người (cùng năng suất) làm xong trong mấy ngày?,20,2,5,10,C,Gấp đôi người thì thời gian giảm một nửa.
+Logic Tiểu Học,Một sợi dây dài 12 m được cắt thành các đoạn 3 m. Được mấy đoạn?,5,4,6,3,B,12 : 3 = 4 đoạn.
+Logic Tiểu Học,Muốn có 5 đoạn dây thì cần cắt mấy lần?,3,5,4,6,C,Số lần cắt ít hơn số đoạn 1 đơn vị.
+Logic Tiểu Học,"Một chiếc chuông reo mỗi 15 phút. Từ 8 giờ đến 9 giờ, không tính lúc 8 giờ, chuông reo mấy lần?",5,3,4,6,C,"8 giờ 15, 8 giờ 30, 8 giờ 45 và 9 giờ."
+Logic Tiểu Học,"Một bể nước đầy trong 6 giờ, mỗi giờ chảy vào 10 lít. Bể chứa được bao nhiêu lít?",50,100,30,60,D,6 × 10 = 60 lít.
+Logic Tiểu Học,Nếu mỗi ngày bạn tiết kiệm 5000 đồng thì sau 4 ngày bạn có bao nhiêu tiền?,10000 đồng,20000 đồng,15000 đồng,25000 đồng,B,4 × 5000 = 20000 đồng.
