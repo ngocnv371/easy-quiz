@@ -64,8 +64,9 @@ npm run dev
 
 - **8 topics** — Toán học, Lịch sử, Khoa học, …
 - **A demo admin** — `admin@easyquiz.local` / `easyquiz123` (role: admin)
-- **3 published quizzes** with 5 fully written questions each
-- **10 past attempts**, so the leaderboards are not empty on first run
+
+Quizzes are not seeded. Sign in as the admin and use **Nhập câu hỏi** (the CSV bulk import) to load
+them, or invoke the `import-questions` edge function directly.
 
 Studio is at <http://127.0.0.1:54423> if you want to poke at the data directly.
 
@@ -95,7 +96,7 @@ supabase/
   migrations/           schema → RLS → views + RPCs
   functions/ai-quiz/    AI Assist edge function
   functions/import-questions/  admin CSV bulk import
-  seed.sql              demo content
+  seed.sql              reference data (topics, demo admin)
 ```
 
 ---
@@ -138,7 +139,7 @@ profile, so a guest's score can appear on the leaderboard straight away.
 "Lưu kết quả của bạn" then converts that account **in place** — `updateUser({ email, password })`
 keeps the same user id, so the profile and every attempt already recorded survive. Calling
 `signUp()` instead would silently start the player from zero, which is the wrong answer for a
-button whose whole promise is saving results. The remaining details (display name and school)
+button whose whole promise is saving results. The remaining details (display name and organization)
 travel through `upgrade_guest_profile()`, the only path allowed to clear `is_guest` for a
 player. It deliberately leaves `role` alone, so a guest can never promote itself to admin.
 
@@ -367,8 +368,9 @@ npm run e2e              # headless, Edge
 npm run e2e:open         # interactive, Edge
 ```
 
-The specs expect the seed data. `baseUrl` lives in `cypress.config.ts`; failure screenshots land
-in `cypress/screenshots/`, which is git-ignored.
+The specs need published quizzes to play, and the seed no longer ships any — import a CSV first (see
+Demo data), or point the app at a project that already has questions. `baseUrl` lives in
+`cypress.config.ts`; failure screenshots land in `cypress/screenshots/`, which is git-ignored.
 
 ---
 

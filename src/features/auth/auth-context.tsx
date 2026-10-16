@@ -21,7 +21,7 @@ export interface SignUpInput {
   email: string
   password: string
   displayName: string
-  school?: string
+  organization?: string
 }
 
 /** The same details, but applied to the anonymous session already in hand. */
@@ -203,7 +203,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         options: {
           data: {
             display_name: input.displayName.trim(),
-            school: input.school?.trim() || null,
+            organization: input.organization?.trim() || null,
           },
         },
       })
@@ -300,7 +300,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password: input.password,
         data: {
           display_name: input.displayName.trim(),
-          school: input.school?.trim() || null,
+          organization: input.organization?.trim() || null,
         },
       })
 
@@ -316,7 +316,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         p_display_name: input.displayName.trim(),
         // `undefined` rather than `null`: the argument is optional, and the SQL
         // default is already null.
-        p_school: input.school?.trim() || undefined,
+        p_school: input.organization?.trim() || undefined,
       })
 
       if (profileError) throw new Error(errorMessage(profileError))

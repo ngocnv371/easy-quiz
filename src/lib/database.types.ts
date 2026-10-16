@@ -193,13 +193,13 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "ai_credits": number,"avatar_emoji": string,"bio": string | null,"created_at": string,"display_name": string,"id": string,"is_guest": boolean,"role": string,"school": string | null,"updated_at": string,"username": string
+                    "ai_credits": number,"avatar_emoji": string,"bio": string | null,"created_at": string,"display_name": string,"id": string,"is_guest": boolean,"role": string,"organization": string | null,"updated_at": string,"username": string
                   }
                   Insert: {
-                    "ai_credits"?: number,"avatar_emoji"?: string,"bio"?: string | null,"created_at"?: string,"display_name": string,"id": string,"is_guest"?: boolean,"role"?: string,"school"?: string | null,"updated_at"?: string,"username": string
+                    "ai_credits"?: number,"avatar_emoji"?: string,"bio"?: string | null,"created_at"?: string,"display_name": string,"id": string,"is_guest"?: boolean,"role"?: string,"organization"?: string | null,"updated_at"?: string,"username": string
                   }
                   Update: {
-                    "ai_credits"?: number,"avatar_emoji"?: string,"bio"?: string | null,"created_at"?: string,"display_name"?: string,"id"?: string,"is_guest"?: boolean,"role"?: string,"school"?: string | null,"updated_at"?: string,"username"?: string
+                    "ai_credits"?: number,"avatar_emoji"?: string,"bio"?: string | null,"created_at"?: string,"display_name"?: string,"id"?: string,"is_guest"?: boolean,"role"?: string,"organization"?: string | null,"updated_at"?: string,"username"?: string
                   }
                   Relationships: [
                     

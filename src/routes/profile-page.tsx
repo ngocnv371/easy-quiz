@@ -126,8 +126,8 @@ export function ProfilePage() {
 
                 <p className="text-ink-400 mt-1 text-sm">@{person.username}</p>
 
-                {person.school ? (
-                  <p className="text-ink-300 mt-2 text-sm">{person.school}</p>
+                {person.organization ? (
+                  <p className="text-ink-300 mt-2 text-sm">{person.organization}</p>
                 ) : null}
 
                 {person.bio ? (

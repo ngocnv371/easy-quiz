@@ -205,7 +205,7 @@ grant insert, update, delete on public.quizzes, public.questions, public.options
 
 -- Column-level instead of table-level UPDATE for the two sensitive tables.
 revoke update on public.profiles from anon, authenticated;
-grant update (username, display_name, avatar_emoji, school, bio)
+grant update (username, display_name, avatar_emoji, organization, bio)
   on public.profiles to authenticated;
 
 revoke update on public.quizzes from anon, authenticated;

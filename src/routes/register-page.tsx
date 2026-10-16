@@ -25,7 +25,7 @@ export function RegisterPage() {
   const [nameTouched, setNameTouched] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [school] = useState('')
+  const [organization] = useState('')
 
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -67,7 +67,7 @@ export function RegisterPage() {
         email,
         password,
         displayName,
-        school,
+        organization,
       })
 
       if (needsEmailConfirmation) {

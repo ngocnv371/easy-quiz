@@ -602,7 +602,7 @@ begin
 
   update public.profiles p
   set display_name = left(coalesce(nullif(btrim(p_display_name), ''), p.display_name), 60),
-      school = nullif(btrim(coalesce(p_school, '')), ''),
+      organization = nullif(btrim(coalesce(p_school, '')), ''),
       is_guest = false
   where p.id = v_uid;
 end;

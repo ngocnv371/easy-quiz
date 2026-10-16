@@ -39,7 +39,7 @@ export function AccountPage() {
 
   const [name, setName] = useState(displayName)
   const [avatar, setAvatar] = useState(profile?.avatar_emoji ?? '🎓')
-  const [school, setSchool] = useState(profile?.school ?? '')
+  const [organization, setSchool] = useState(profile?.organization ?? '')
   const [bio, setBio] = useState(profile?.bio ?? '')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -49,7 +49,7 @@ export function AccountPage() {
     if (!profile) return
     setName(profile.display_name)
     setAvatar(profile.avatar_emoji)
-    setSchool(profile.school ?? '')
+    setSchool(profile.organization ?? '')
     setBio(profile.bio ?? '')
   }, [profile])
 
@@ -86,7 +86,7 @@ export function AccountPage() {
       await updateProfile({
         display_name: name.trim().slice(0, 60),
         avatar_emoji: avatar,
-        school: school.trim() === '' ? null : school.trim(),
+        organization: organization.trim() === '' ? null : organization.trim(),
         bio: bio.trim() === '' ? null : bio.trim().slice(0, 280),
       })
 
@@ -174,10 +174,10 @@ export function AccountPage() {
                 options={AVATAR_EMOJIS}
               />
 
-              <Field label="Trường / tổ chức" htmlFor="profile-school" hint="Không bắt buộc">
+              <Field label="Trường / tổ chức" htmlFor="profile-organization" hint="Không bắt buộc">
                 <Input
-                  id="profile-school"
-                  value={school}
+                  id="profile-organization"
+                  value={organization}
                   onChange={(event) => setSchool(event.target.value)}
                   placeholder="THCS Nguyễn Du"
                 />

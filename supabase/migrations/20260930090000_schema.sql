@@ -99,7 +99,7 @@ create table public.profiles (
   role         text not null default 'user'
                check (role in ('user', 'admin')),
   is_guest     boolean not null default false,
-  school       text,
+  organization       text,
   bio          text check (bio is null or char_length(bio) <= 280),
   created_at   timestamptz not null default now(),
   updated_at   timestamptz not null default now()
@@ -164,14 +164,14 @@ begin
   -- Every account starts as an ordinary user. `role` is deliberately *not*
   -- read from client metadata, so a crafted sign-up cannot promote itself to
   -- admin; that is a separate, privileged database step.
-  insert into public.profiles (id, username, display_name, role, is_guest, school)
+  insert into public.profiles (id, username, display_name, role, is_guest, organization)
   values (
     new.id,
     v_username,
     left(v_display, 60),
     'user',
     v_guest,
-    nullif(btrim(coalesce(new.raw_user_meta_data ->> 'school', '')), '')
+    nullif(btrim(coalesce(new.raw_user_meta_data ->> 'organization', '')), '')
   )
   on conflict (id) do nothing;
 
