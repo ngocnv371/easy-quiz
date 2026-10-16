@@ -3,6 +3,8 @@ import {
   ArrowRight,
   BrainCircuit,
   Compass,
+  FileUp,
+  Flame,
   Infinity as InfinityIcon,
   Rocket,
   Sparkles,
@@ -27,6 +29,7 @@ import { usePageMeta } from '@/lib/seo'
 import { APP_DESCRIPTION, TAGLINE } from '@/lib/site'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import { useAsyncData } from '@/lib/use-async-data'
+import { cn } from '@/lib/utils'
 
 const PILLARS = [
   {
@@ -47,7 +50,7 @@ const PILLARS = [
     icon: Wand2,
     title: 'Quản trị viên soạn đề nhanh gấp mười',
     description:
-      'AI Assist nhận một câu mô tả chủ đề và trả về 10 câu hỏi kèm đáp án, giải thích. Bạn chỉ cần đọc lại và bấm xuất bản.',
+      'AI Assist nhận một câu mô tả chủ đề và trả về 10 câu hỏi kèm đáp án, giải thích. Hoặc nhập cả ngân hàng câu hỏi từ CSV trong một lần tải.',
     tone: 'violet' as const,
   },
 ]
@@ -68,6 +71,33 @@ const STEPS = [
     title: 'Xem và leo hạng',
     description: 'Nhận điểm, xem lại từng câu, rồi so mình với người khác.',
   },
+]
+
+/** What Endless mode actually does — mirrors `src/routes/endless-page.tsx`. */
+const ENDLESS_POINTS = [
+  'Vào thẳng câu hỏi đầu tiên — không màn hình chờ, không bấm bắt đầu.',
+  'Câu hỏi chọn theo thế mạnh của bạn, vẫn phủ đều những chủ đề còn yếu.',
+  'Bạn quyết định điểm dừng; chuỗi câu đúng được xếp hạng riêng.',
+]
+
+const ENDLESS_TOPICS = [
+  { emoji: '🔢', label: 'Toán học', percent: 92, strength: 'strong' as const },
+  { emoji: '🏛️', label: 'Lịch sử', percent: 74, strength: 'steady' as const },
+  { emoji: '🔬', label: 'Khoa học', percent: 41, strength: 'new' as const },
+]
+
+const STRENGTH_BAR: Record<'strong' | 'steady' | 'new', string> = {
+  strong: 'bg-correct-400',
+  steady: 'bg-spark-400',
+  new: 'bg-ink-500',
+}
+
+/** The two ways an admin can fill the catalogue. */
+const ADMIN_POINTS = [
+  'AI Assist biến một câu mô tả thành 10 câu hỏi, đủ đáp án và lời giải',
+  'Nhập hàng trăm câu từ CSV, tự tách theo từng chủ đề',
+  'Sửa từng câu trong trình soạn thảo, xuất bản hoặc chia sẻ bằng liên kết',
+  'Theo dõi lượt chơi và điểm yếu của người chơi qua báo cáo',
 ]
 
 export function LandingPage() {
@@ -121,7 +151,7 @@ export function LandingPage() {
                     Chế độ vô tận
                   </ButtonLink>
                   <ButtonLink to="/manage" variant="secondary" size="lg">
-                    Tôi là quản trị viên
+                    Dành cho quản trị viên
                   </ButtonLink>
                 </div>
               </Reveal>
@@ -198,7 +228,7 @@ export function LandingPage() {
         <div className="container-page">
           <SectionHeading
             eyebrow="Vì sao là Easy Quiz"
-            title="Một chỗ cho cả người học và người dạy"
+            title="Một chỗ cho người chơi và quản trị viên"
             description="Người chơi cần thứ gì đó thú vị để quay lại mỗi ngày. Quản trị viên cần thứ gì đó nhanh hơn việc gõ tay từng câu hỏi. Easy Quiz làm cả hai."
           />
 
@@ -237,6 +267,94 @@ export function LandingPage() {
               </Reveal>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ══ Endless mode ═══════════════════════════════════════════════ */}
+      <section className="py-16">
+        <div className="container-page">
+          <Reveal>
+            <div className="glass-panel hairline-gradient shadow-panel relative overflow-hidden rounded-3xl p-8 sm:p-12">
+              <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-center">
+                <div>
+                  <Badge tone="neon" icon={InfinityIcon}>
+                    Chế độ vô tận
+                  </Badge>
+
+                  <h2 className="font-display mt-5 text-3xl font-semibold tracking-tight sm:text-4xl">
+                    Luyện không giới hạn, dừng lúc nào cũng được
+                  </h2>
+
+                  <p className="text-ink-300 mt-4 text-base leading-relaxed">
+                    Không màn hình chờ, không vạch đích. Câu hỏi chảy liên tục từ mọi đề công
+                    khai và được chọn theo thế mạnh của bạn, để mỗi câu đúng nối dài chuỗi của
+                    bạn.
+                  </p>
+
+                  <ul className="mt-6 space-y-3">
+                    {ENDLESS_POINTS.map((item) => (
+                      <li key={item} className="text-ink-200 flex items-start gap-3 text-sm">
+                        <span className="bg-neon-400/15 text-neon-300 mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-[0.65rem]">
+                          ✓
+                        </span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="mt-8 flex flex-wrap gap-3">
+                    <ButtonLink to="/endless" size="lg">
+                      Chơi chế độ vô tận
+                      <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+                    </ButtonLink>
+                    <ButtonLink to="/leaderboard" variant="outline" size="lg">
+                      Bảng xếp hạng vô tận
+                    </ButtonLink>
+                  </div>
+                </div>
+
+                {/* A stylised session — streak plus per-topic mastery. */}
+                <div className="border-ink-600/70 bg-ink-950/70 rounded-2xl border p-5">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-ink-400 font-mono text-xs">LUYỆN KHÔNG GIỚI HẠN</span>
+                    <span className="border-spark-400/40 bg-spark-400/10 text-spark-300 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[0.7rem] font-medium">
+                      <Flame className="size-3.5" aria-hidden />
+                      Chuỗi 7 câu
+                    </span>
+                  </div>
+
+                  <div className="border-ink-600/70 bg-ink-900/70 mt-4 rounded-xl border p-3">
+                    <p className="text-ink-200 text-sm">
+                      Hành tinh nào gần Mặt Trời nhất?
+                    </p>
+                  </div>
+
+                  <ul className="mt-4 space-y-3">
+                    {ENDLESS_TOPICS.map((item) => (
+                      <li key={item.label}>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-ink-200">
+                            <span aria-hidden>{item.emoji}</span> {item.label}
+                          </span>
+                          <span className="text-ink-400 tabular-nums">{item.percent}%</span>
+                        </div>
+                        <div className="bg-ink-800 mt-1.5 h-1.5 overflow-hidden rounded-full">
+                          <div
+                            className={cn('h-full rounded-full', STRENGTH_BAR[item.strength])}
+                            style={{ width: `${item.percent}%` }}
+                          />
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <p className="text-ink-500 mt-4 text-xs">
+                    Chủ đề yếu vẫn luôn có mặt — chỉ là chưa chiếm phần lớn.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Reveal>
         </div>
       </section>
 
@@ -326,17 +444,13 @@ export function LandingPage() {
                   </h2>
 
                   <p className="text-ink-300 mt-4 text-base leading-relaxed">
-                    Gõ một câu như <em>“Ôn tập lịch sử Việt Nam lớp 9, mức trung bình”</em>. AI
-                    Assist trả về 10 câu hỏi, 4 lựa chọn mỗi câu, đáp án đúng và lời giải. Bạn
-                    sửa lại theo ý mình, hoặc xuất bản luôn.
+                    Gõ một câu như <em>“Ôn tập lịch sử Việt Nam lớp 9, mức trung bình”</em> để AI
+                    Assist trả về 10 câu hỏi kèm lời giải — hoặc nhập cả ngân hàng câu hỏi từ CSV.
+                    Bạn sửa lại theo ý mình, rồi xuất bản hoặc chia sẻ bằng liên kết.
                   </p>
 
                   <ul className="mt-6 space-y-3">
-                    {[
-                      'Chọn số câu, độ khó và chủ đề',
-                      'Sửa từng câu ngay trong trình soạn thảo',
-                      'Xuất bản công khai hoặc chia sẻ bằng liên kết',
-                    ].map((item) => (
+                    {ADMIN_POINTS.map((item) => (
                       <li key={item} className="text-ink-200 flex items-start gap-3 text-sm">
                         <span className="bg-spark-400/15 text-spark-300 mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-[0.65rem]">
                           ✓
@@ -358,40 +472,55 @@ export function LandingPage() {
                 </div>
 
                 {/* A stylised mini editor to sell the flow. */}
-                <div className="border-ink-600/70 bg-ink-950/70 rounded-2xl border p-5">
-                  <p className="text-ink-400 font-mono text-xs">AI ASSIST</p>
+                <div className="flex flex-col gap-3">
+                  <div className="border-ink-600/70 bg-ink-950/70 rounded-2xl border p-5">
+                    <p className="text-ink-400 font-mono text-xs">AI ASSIST</p>
 
-                  <div className="border-ink-600/70 bg-ink-900/70 mt-3 rounded-xl border p-3">
-                    <p className="text-ink-200 text-sm">
-                      “Ôn tập lịch sử Việt Nam lớp 9, mức trung bình”
-                    </p>
+                    <div className="border-ink-600/70 bg-ink-900/70 mt-3 rounded-xl border p-3">
+                      <p className="text-ink-200 text-sm">
+                        “Ôn tập lịch sử Việt Nam lớp 9, mức trung bình”
+                      </p>
+                    </div>
+
+                    <div className="text-ink-400 my-4 flex items-center gap-3 text-xs">
+                      <span className="from-neon-400 to-violet-glow-500 h-px flex-1 bg-gradient-to-r" />
+                      <Sparkles className="text-spark-400 size-3.5" aria-hidden />
+                      đang soạn 10 câu…
+                      <span className="from-violet-glow-500 to-magenta-400 h-px flex-1 bg-gradient-to-r" />
+                    </div>
+
+                    <ul className="space-y-2">
+                      {[
+                        'Cách mạng tháng Tám thành công năm nào?',
+                        'Chiến dịch Điện Biên Phủ kết thúc ngày nào?',
+                        'Đại hội VI (1986) đề ra đường lối gì?',
+                      ].map((question, index) => (
+                        <li
+                          key={question}
+                          className="border-ink-600/70 bg-ink-800/60 animate-rise flex items-start gap-2.5 rounded-lg border p-2.5"
+                          style={{ animationDelay: `${index * 120}ms` }}
+                        >
+                          <span className="bg-correct-400/15 text-correct-300 mt-0.5 flex size-4.5 shrink-0 items-center justify-center rounded text-[0.6rem]">
+                            ✓
+                          </span>
+                          <span className="text-ink-200 text-xs leading-relaxed">{question}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
 
-                  <div className="text-ink-400 my-4 flex items-center gap-3 text-xs">
-                    <span className="from-neon-400 to-violet-glow-500 h-px flex-1 bg-gradient-to-r" />
-                    <Sparkles className="text-spark-400 size-3.5" aria-hidden />
-                    đang soạn 10 câu…
-                    <span className="from-violet-glow-500 to-magenta-400 h-px flex-1 bg-gradient-to-r" />
+                  {/* The second authoring path, side by side with AI Assist. */}
+                  <div className="border-ink-600/70 bg-ink-900/60 flex items-center gap-3 rounded-2xl border p-4">
+                    <span className="border-neon-400/40 bg-neon-400/10 text-neon-300 flex size-9 shrink-0 items-center justify-center rounded-xl border">
+                      <FileUp className="size-4" aria-hidden />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-ink-100 text-sm font-medium">Nhập câu hỏi từ CSV</p>
+                      <p className="text-ink-400 text-xs">
+                        Cả ngân hàng câu hỏi vào đúng chủ đề trong một lần tải.
+                      </p>
+                    </div>
                   </div>
-
-                  <ul className="space-y-2">
-                    {[
-                      'Cách mạng tháng Tám thành công năm nào?',
-                      'Chiến dịch Điện Biên Phủ kết thúc ngày nào?',
-                      'Đại hội VI (1986) đề ra đường lối gì?',
-                    ].map((question, index) => (
-                      <li
-                        key={question}
-                        className="border-ink-600/70 bg-ink-800/60 animate-rise flex items-start gap-2.5 rounded-lg border p-2.5"
-                        style={{ animationDelay: `${index * 120}ms` }}
-                      >
-                        <span className="bg-correct-400/15 text-correct-300 mt-0.5 flex size-4.5 shrink-0 items-center justify-center rounded text-[0.6rem]">
-                          ✓
-                        </span>
-                        <span className="text-ink-200 text-xs leading-relaxed">{question}</span>
-                      </li>
-                    ))}
-                  </ul>
                 </div>
               </div>
             </div>

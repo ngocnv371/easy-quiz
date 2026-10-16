@@ -174,12 +174,12 @@ export function AccountPage() {
                 options={AVATAR_EMOJIS}
               />
 
-              <Field label="Trường / tổ chức" htmlFor="profile-organization" hint="Không bắt buộc">
+              <Field label="Tổ chức" htmlFor="profile-organization" hint="Không bắt buộc">
                 <Input
                   id="profile-organization"
                   value={organization}
                   onChange={(event) => setSchool(event.target.value)}
-                  placeholder="THCS Nguyễn Du"
+                  placeholder="Bad Mafia Boys"
                 />
               </Field>
 
