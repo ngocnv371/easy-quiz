@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { LayoutDashboard, Menu, Trophy, X } from 'lucide-react'
+import { Infinity as InfinityIcon, LayoutDashboard, Menu, Trophy, X } from 'lucide-react'
 
 import { EasyQuizLogo } from '@/components/brand/logo'
 import { Button, ButtonLink } from '@/components/ui/button'
@@ -11,6 +11,7 @@ import { UserMenu } from './user-menu'
 
 const NAV_ITEMS = [
   { to: '/explore', label: 'Khám phá', icon: null },
+  { to: '/endless', label: 'Chế độ vô tận', icon: InfinityIcon },
   { to: '/leaderboard', label: 'Bảng xếp hạng', icon: Trophy },
 ] as const
 
@@ -100,6 +101,13 @@ export function SiteHeader() {
               onClick={() => setMobileOpen(false)}
             >
               Khám phá
+            </NavLink>
+            <NavLink
+              to="/endless"
+              className={linkClasses}
+              onClick={() => setMobileOpen(false)}
+            >
+              Chế độ vô tận
             </NavLink>
             <NavLink
               to="/leaderboard"
