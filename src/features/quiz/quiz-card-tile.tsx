@@ -79,7 +79,7 @@ export function QuizCardTile({
           {quiz.ai_generated ? (
             <span
               className="text-spark-300 bg-spark-400/10 border-spark-400/30 flex size-7 shrink-0 items-center justify-center rounded-lg border"
-              title="Được soạn bằng AI Assist"
+              title="Được tạo bằng AI"
             >
               <Sparkles className="size-3.5" aria-hidden />
             </span>

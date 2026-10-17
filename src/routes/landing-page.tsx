@@ -1,16 +1,13 @@
 import { Link } from 'react-router-dom'
 import {
   ArrowRight,
-  BrainCircuit,
   Compass,
-  FileUp,
   Flame,
   Infinity as InfinityIcon,
-  Rocket,
+  LineChart,
   Sparkles,
   Trophy,
   Users,
-  Wand2,
 } from 'lucide-react'
 
 import { AuroraBackground } from '@/components/brand/aurora-background'
@@ -47,10 +44,10 @@ const PILLARS = [
     tone: 'spark' as const,
   },
   {
-    icon: Wand2,
-    title: 'Quản trị viên soạn đề nhanh gấp mười',
+    icon: LineChart,
+    title: 'Biết mình mạnh yếu ở đâu',
     description:
-      'AI Assist nhận một câu mô tả chủ đề và trả về 10 câu hỏi kèm đáp án, giải thích. Hoặc nhập cả ngân hàng câu hỏi từ CSV trong một lần tải.',
+      'Tiến độ được ghi lại theo từng chủ đề, để bạn thấy mình đang tiến bộ ra sao và nên luyện thêm phần nào tiếp theo.',
     tone: 'violet' as const,
   },
 ]
@@ -91,14 +88,6 @@ const STRENGTH_BAR: Record<'strong' | 'steady' | 'new', string> = {
   steady: 'bg-spark-400',
   new: 'bg-ink-500',
 }
-
-/** The two ways an admin can fill the catalogue. */
-const ADMIN_POINTS = [
-  'AI Assist biến một câu mô tả thành 10 câu hỏi, đủ đáp án và lời giải',
-  'Nhập hàng trăm câu từ CSV, tự tách theo từng chủ đề',
-  'Sửa từng câu trong trình soạn thảo, xuất bản hoặc chia sẻ bằng liên kết',
-  'Theo dõi lượt chơi và điểm yếu của người chơi qua báo cáo',
-]
 
 export function LandingPage() {
   // The home page relies on the site-wide title and description.
@@ -150,8 +139,8 @@ export function LandingPage() {
                     <InfinityIcon className="size-4" aria-hidden />
                     Chế độ vô tận
                   </ButtonLink>
-                  <ButtonLink to="/manage" variant="secondary" size="lg">
-                    Dành cho quản trị viên
+                  <ButtonLink to="/register" variant="secondary" size="lg">
+                    Tạo tài khoản
                   </ButtonLink>
                 </div>
               </Reveal>
@@ -171,10 +160,8 @@ export function LandingPage() {
                     <dt className="text-ink-400 mt-1 text-xs">Chủ đề</dt>
                   </div>
                   <div>
-                    <dd className="font-display text-spark-300 text-2xl font-semibold">
-                      <Counter value={10} suffix="s" />
-                    </dd>
-                    <dt className="text-ink-400 mt-1 text-xs">AI soạn 10 câu</dt>
+                    <dd className="font-display text-spark-300 text-2xl font-semibold">∞</dd>
+                    <dt className="text-ink-400 mt-1 text-xs">Luyện không giới hạn</dt>
                   </div>
                 </dl>
               </Reveal>
@@ -228,8 +215,8 @@ export function LandingPage() {
         <div className="container-page">
           <SectionHeading
             eyebrow="Vì sao là Easy Quiz"
-            title="Một chỗ cho người chơi và quản trị viên"
-            description="Người chơi cần thứ gì đó thú vị để quay lại mỗi ngày. Quản trị viên cần thứ gì đó nhanh hơn việc gõ tay từng câu hỏi. Easy Quiz làm cả hai."
+            title="Học mà chơi, chơi mà tiến bộ"
+            description="Chơi ngay không cần đăng ký, leo bảng xếp hạng mỗi ngày, và luôn biết mình cần luyện thêm chủ đề nào."
           />
 
           <div className="mt-12 grid gap-5 md:grid-cols-3">
@@ -324,9 +311,7 @@ export function LandingPage() {
                   </div>
 
                   <div className="border-ink-600/70 bg-ink-900/70 mt-4 rounded-xl border p-3">
-                    <p className="text-ink-200 text-sm">
-                      Hành tinh nào gần Mặt Trời nhất?
-                    </p>
+                    <p className="text-ink-200 text-sm">Hành tinh nào gần Mặt Trời nhất?</p>
                   </div>
 
                   <ul className="mt-4 space-y-3">
@@ -403,10 +388,7 @@ export function LandingPage() {
       {/* ══ How it works ═══════════════════════════════════════════════ */}
       <section className="py-20">
         <div className="container-page">
-          <SectionHeading
-            eyebrow="Ba bước"
-            title="Từ ý thích đến bảng xếp hạng"
-          />
+          <SectionHeading eyebrow="Ba bước" title="Từ ý thích đến bảng xếp hạng" />
 
           <ol className="mt-12 grid gap-5 md:grid-cols-3">
             {STEPS.map((step, index) => (
@@ -425,106 +407,6 @@ export function LandingPage() {
               </Reveal>
             ))}
           </ol>
-        </div>
-      </section>
-
-      {/* ══ Admin CTA ══════════════════════════════════════════════════ */}
-      <section className="py-16">
-        <div className="container-page">
-          <Reveal>
-            <div className="glass-panel hairline-gradient shadow-panel relative overflow-hidden rounded-3xl p-8 sm:p-12">
-              <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-center">
-                <div>
-                  <Badge tone="violet" icon={BrainCircuit}>
-                    Dành cho quản trị viên
-                  </Badge>
-
-                  <h2 className="font-display mt-5 text-3xl font-semibold tracking-tight sm:text-4xl">
-                    Soạn đề trong lúc bạn uống hết tách cà phê
-                  </h2>
-
-                  <p className="text-ink-300 mt-4 text-base leading-relaxed">
-                    Gõ một câu như <em>“Ôn tập lịch sử Việt Nam lớp 9, mức trung bình”</em> để AI
-                    Assist trả về 10 câu hỏi kèm lời giải — hoặc nhập cả ngân hàng câu hỏi từ CSV.
-                    Bạn sửa lại theo ý mình, rồi xuất bản hoặc chia sẻ bằng liên kết.
-                  </p>
-
-                  <ul className="mt-6 space-y-3">
-                    {ADMIN_POINTS.map((item) => (
-                      <li key={item} className="text-ink-200 flex items-start gap-3 text-sm">
-                        <span className="bg-spark-400/15 text-spark-300 mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-[0.65rem]">
-                          ✓
-                        </span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="mt-8 flex flex-wrap gap-3">
-                    <ButtonLink to="/manage" variant="spark" size="lg">
-                      Vào trang quản lý
-                      <Rocket className="size-4" aria-hidden />
-                    </ButtonLink>
-                    <ButtonLink to="/explore" variant="outline" size="lg">
-                      Khám phá đề thi
-                    </ButtonLink>
-                  </div>
-                </div>
-
-                {/* A stylised mini editor to sell the flow. */}
-                <div className="flex flex-col gap-3">
-                  <div className="border-ink-600/70 bg-ink-950/70 rounded-2xl border p-5">
-                    <p className="text-ink-400 font-mono text-xs">AI ASSIST</p>
-
-                    <div className="border-ink-600/70 bg-ink-900/70 mt-3 rounded-xl border p-3">
-                      <p className="text-ink-200 text-sm">
-                        “Ôn tập lịch sử Việt Nam lớp 9, mức trung bình”
-                      </p>
-                    </div>
-
-                    <div className="text-ink-400 my-4 flex items-center gap-3 text-xs">
-                      <span className="from-neon-400 to-violet-glow-500 h-px flex-1 bg-gradient-to-r" />
-                      <Sparkles className="text-spark-400 size-3.5" aria-hidden />
-                      đang soạn 10 câu…
-                      <span className="from-violet-glow-500 to-magenta-400 h-px flex-1 bg-gradient-to-r" />
-                    </div>
-
-                    <ul className="space-y-2">
-                      {[
-                        'Cách mạng tháng Tám thành công năm nào?',
-                        'Chiến dịch Điện Biên Phủ kết thúc ngày nào?',
-                        'Đại hội VI (1986) đề ra đường lối gì?',
-                      ].map((question, index) => (
-                        <li
-                          key={question}
-                          className="border-ink-600/70 bg-ink-800/60 animate-rise flex items-start gap-2.5 rounded-lg border p-2.5"
-                          style={{ animationDelay: `${index * 120}ms` }}
-                        >
-                          <span className="bg-correct-400/15 text-correct-300 mt-0.5 flex size-4.5 shrink-0 items-center justify-center rounded text-[0.6rem]">
-                            ✓
-                          </span>
-                          <span className="text-ink-200 text-xs leading-relaxed">{question}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* The second authoring path, side by side with AI Assist. */}
-                  <div className="border-ink-600/70 bg-ink-900/60 flex items-center gap-3 rounded-2xl border p-4">
-                    <span className="border-neon-400/40 bg-neon-400/10 text-neon-300 flex size-9 shrink-0 items-center justify-center rounded-xl border">
-                      <FileUp className="size-4" aria-hidden />
-                    </span>
-                    <div className="min-w-0">
-                      <p className="text-ink-100 text-sm font-medium">Nhập câu hỏi từ CSV</p>
-                      <p className="text-ink-400 text-xs">
-                        Cả ngân hàng câu hỏi vào đúng chủ đề trong một lần tải.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Reveal>
         </div>
       </section>
 

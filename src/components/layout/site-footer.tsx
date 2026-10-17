@@ -8,6 +8,7 @@ const LINK_GROUPS = [
     title: 'Học tập',
     links: [
       { to: '/explore', label: 'Khám phá đề thi' },
+      { to: '/endless', label: 'Chế độ vô tận' },
       { to: '/leaderboard', label: 'Bảng xếp hạng' },
       { to: '/register', label: 'Tạo tài khoản' },
     ],
@@ -34,7 +35,7 @@ export function SiteFooter() {
           </p>
           <p className="text-ink-300 mt-3 max-w-sm text-sm leading-relaxed">
             {TAGLINE} — nền tảng trắc nghiệm của AiTechX. Chơi ngay không cần tài khoản, leo bảng
-            xếp hạng mỗi ngày, và để AI Assist lo phần tạo đề.
+            xếp hạng mỗi ngày, và luyện không giới hạn ở chế độ vô tận.
           </p>
           <div className="mt-5">
             <BrandCredit />

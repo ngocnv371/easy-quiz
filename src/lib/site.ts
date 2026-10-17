@@ -19,7 +19,7 @@ export const SITE_URL = (
 export const TAGLINE = 'Học vui, nhớ lâu'
 
 export const APP_DESCRIPTION =
-  'Khám phá đề trắc nghiệm theo chủ đề, chơi ngay không cần tài khoản, và leo bảng xếp hạng sau mỗi lượt. Quản trị viên tạo đề nhanh gấp mười lần với AI Assist.'
+  'Khám phá đề trắc nghiệm theo chủ đề, chơi ngay không cần tài khoản, và leo bảng xếp hạng sau mỗi lượt. Chế độ vô tận giúp bạn luyện không giới hạn, còn tiến độ cho bạn thấy mình mạnh yếu ở đâu.'
 
 /** The title a page gets when it does not set one of its own. */
 export const HOME_TITLE = `${APP_NAME} — ${TAGLINE} | ${BRAND_NAME}`
