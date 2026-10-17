@@ -1,10 +1,12 @@
 # Easy Quiz
 
-> Học vui, nhớ lâu.
+> Mở lên là hỏi, dừng tùy thích.
 
-A quiz platform from **AiTechX**: users explore quizzes by topic, play immediately
-(with or without an account) and land on a leaderboard; admins author quizzes — optionally
-with AI Assist, which turns a one-line brief into a ready-to-edit question set.
+An instant-play quiz platform from **AiTechX**: open it and the first question is already on
+screen — no waiting screen, no account required — and you stop whenever you like. Answers are
+graded instantly, the next question leans on your strongest topics, and a running streak keeps
+the leaderboard meaningful; admins author quizzes — optionally with AI Assist, which turns a
+one-line brief into a ready-to-edit question set.
 
 The landing page and the quiz player are animated with [Remotion](https://remotion.dev),
 rendered live in the browser via `@remotion/player`.

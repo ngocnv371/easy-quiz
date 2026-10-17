@@ -34,8 +34,8 @@ export function SiteFooter() {
             Easy<span className="text-gradient-spark"> Quiz</span>
           </p>
           <p className="text-ink-300 mt-3 max-w-sm text-sm leading-relaxed">
-            {TAGLINE} — nền tảng trắc nghiệm của AiTechX. Chơi ngay không cần tài khoản, leo bảng
-            xếp hạng mỗi ngày, và luyện không giới hạn ở chế độ vô tận.
+            {TAGLINE} — nền tảng trắc nghiệm của AiTechX. Mở lên là có câu hỏi ngay, chấm điểm
+            liền tay, không cần tài khoản, và dừng lúc nào cũng được.
           </p>
           <div className="mt-5">
             <BrandCredit />

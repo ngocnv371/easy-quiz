@@ -54,6 +54,11 @@ export function SiteHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
+          <ButtonLink to="/endless" size="sm" className="hidden sm:inline-flex">
+            <InfinityIcon className="size-4" aria-hidden />
+            Chơi ngay
+          </ButtonLink>
+
           {isGuest ? (
             <Link
               to="/register"
@@ -95,6 +100,16 @@ export function SiteHeader() {
       {mobileOpen ? (
         <div className="border-ink-600/60 bg-ink-950/95 border-t backdrop-blur-xl md:hidden">
           <nav className="container-page flex flex-col gap-1 py-3" aria-label="Điều hướng di động">
+            <ButtonLink
+              to="/endless"
+              size="sm"
+              className="mb-2 justify-center"
+              onClick={() => setMobileOpen(false)}
+            >
+              <InfinityIcon className="size-4" aria-hidden />
+              Chơi ngay
+            </ButtonLink>
+
             <NavLink
               to="/explore"
               className={linkClasses}

@@ -1,13 +1,12 @@
 import { Link } from 'react-router-dom'
 import {
   ArrowRight,
-  Compass,
   Flame,
   Infinity as InfinityIcon,
   LineChart,
   Sparkles,
   Trophy,
-  Users,
+  Zap,
 } from 'lucide-react'
 
 import { AuroraBackground } from '@/components/brand/aurora-background'
@@ -30,10 +29,10 @@ import { cn } from '@/lib/utils'
 
 const PILLARS = [
   {
-    icon: Compass,
-    title: 'Chơi ngay, không rào cản',
+    icon: Zap,
+    title: 'Mở lên là hỏi ngay',
     description:
-      'Không cần đăng ký vẫn vào được. Chọn chủ đề bạn thích, bấm bắt đầu và làm bài — tài khoản chỉ cần khi bạn muốn giữ lại thành tích.',
+      'Không màn hình chờ, không nút bắt đầu. Câu hỏi đầu tiên có mặt ngay khi trang mở, và bạn dừng lúc nào cũng được.',
     tone: 'neon' as const,
   },
   {
@@ -55,18 +54,18 @@ const PILLARS = [
 const STEPS = [
   {
     number: '01',
-    title: 'Chọn chủ đề',
-    description: 'Toán, Lịch sử, Khoa học… hoặc để ô tìm kiếm dẫn đường.',
+    title: 'Mở lên',
+    description: 'Câu hỏi đầu tiên đã ở đó. Không đăng ký, không màn hình chờ, không nút bắt đầu.',
   },
   {
     number: '02',
-    title: 'Làm bài',
-    description: 'Đồng hồ chạy, câu hỏi rõ ràng, không bị phân tâm bởi quảng cáo.',
+    title: 'Trả lời',
+    description: 'Mỗi câu được chấm ngay, kèm đáp án và lời giải. Đúng thì nối chuỗi, sai thì hiểu liền.',
   },
   {
     number: '03',
-    title: 'Xem và leo hạng',
-    description: 'Nhận điểm, xem lại từng câu, rồi so mình với người khác.',
+    title: 'Dừng khi bạn muốn',
+    description: 'Bấm Dừng bất cứ lúc nào để xem tổng kết, rồi quay lại khi bạn rảnh.',
   },
 ]
 
@@ -117,9 +116,9 @@ export function LandingPage() {
 
               <Reveal delay={0.06}>
                 <h1 className="font-display mt-5 text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl lg:leading-[1.05]">
-                  Học vui,
+                  Mở lên là hỏi,
                   <br />
-                  <span className="text-gradient-spark">nhớ lâu.</span>
+                  <span className="text-gradient-spark">dừng tùy thích.</span>
                 </h1>
               </Reveal>
 
@@ -131,18 +130,21 @@ export function LandingPage() {
 
               <Reveal delay={0.18}>
                 <div className="mt-8 flex flex-wrap items-center gap-3">
-                  <ButtonLink to="/explore" size="lg">
-                    Khám phá đề thi
+                  <ButtonLink to="/endless" size="lg">
+                    <InfinityIcon className="size-4" aria-hidden />
+                    Làm câu hỏi đầu tiên
                     <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
                   </ButtonLink>
-                  <ButtonLink to="/endless" variant="spark" size="lg">
-                    <InfinityIcon className="size-4" aria-hidden />
-                    Chế độ vô tận
+                  <ButtonLink to="/explore" variant="spark" size="lg">
+                    Khám phá đề thi
                   </ButtonLink>
                   <ButtonLink to="/register" variant="secondary" size="lg">
                     Tạo tài khoản
                   </ButtonLink>
                 </div>
+                <p className="text-ink-400 mt-4 text-sm">
+                  Không màn hình chờ · Không bắt buộc tài khoản · Dừng lúc nào cũng được
+                </p>
               </Reveal>
 
               <Reveal delay={0.24}>
@@ -216,7 +218,7 @@ export function LandingPage() {
           <SectionHeading
             eyebrow="Vì sao là Easy Quiz"
             title="Học mà chơi, chơi mà tiến bộ"
-            description="Chơi ngay không cần đăng ký, leo bảng xếp hạng mỗi ngày, và luôn biết mình cần luyện thêm chủ đề nào."
+            description="Mở lên là có câu hỏi ngay, chấm điểm liền tay, và bạn làm chủ thời gian của mình — học cho hiểu, chơi cho vui."
           />
 
           <div className="mt-12 grid gap-5 md:grid-cols-3">
@@ -388,7 +390,7 @@ export function LandingPage() {
       {/* ══ How it works ═══════════════════════════════════════════════ */}
       <section className="py-20">
         <div className="container-page">
-          <SectionHeading eyebrow="Ba bước" title="Từ ý thích đến bảng xếp hạng" />
+          <SectionHeading eyebrow="Ba bước" title="Từ mở app đến câu trả lời đầu tiên" />
 
           <ol className="mt-12 grid gap-5 md:grid-cols-3">
             {STEPS.map((step, index) => (
@@ -417,21 +419,20 @@ export function LandingPage() {
         <div className="container-page relative text-center">
           <Reveal>
             <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-              Sẵn sàng cho lượt chơi đầu tiên?
+              Sẵn sàng cho câu hỏi đầu tiên?
             </h2>
             <p className="text-ink-300 mx-auto mt-4 max-w-xl text-base leading-relaxed">
-              {TAGLINE}. Không cần thẻ tín dụng, không cần email — chỉ cần chọn một chủ đề bạn
-              thấy hứng thú.
+              {TAGLINE}. Không cần thẻ tín dụng, không cần email — mở lên là có câu hỏi ngay,
+              và dừng lúc nào cũng được.
             </p>
 
             <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <ButtonLink to="/explore" size="lg">
-                Bắt đầu học
+              <ButtonLink to="/endless" size="lg">
+                Làm câu hỏi đầu tiên
                 <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
               </ButtonLink>
-              <ButtonLink to="/leaderboard" variant="secondary" size="lg">
-                Xem bảng xếp hạng
-                <Users className="size-4" aria-hidden />
+              <ButtonLink to="/explore" variant="secondary" size="lg">
+                Khám phá đề thi
               </ButtonLink>
             </div>
 

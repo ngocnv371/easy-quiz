@@ -16,10 +16,10 @@ export const SITE_URL = (
   rawSiteUrl && rawSiteUrl !== '' ? rawSiteUrl : 'https://easyquiz.aitechx.vn'
 ).replace(/\/+$/, '')
 
-export const TAGLINE = 'Học vui, nhớ lâu'
+export const TAGLINE = 'Mở lên là hỏi, dừng tùy thích'
 
 export const APP_DESCRIPTION =
-  'Khám phá đề trắc nghiệm theo chủ đề, chơi ngay không cần tài khoản, và leo bảng xếp hạng sau mỗi lượt. Chế độ vô tận giúp bạn luyện không giới hạn, còn tiến độ cho bạn thấy mình mạnh yếu ở đâu.'
+  'Mở lên là có câu hỏi ngay — không màn hình chờ, không bắt buộc tài khoản, và dừng lúc nào cũng được. Mỗi câu được chấm tức thì và chọn theo trình độ của bạn, để việc luyện tập vừa nhanh vừa vui.'
 
 /** The title a page gets when it does not set one of its own. */
 export const HOME_TITLE = `${APP_NAME} — ${TAGLINE} | ${BRAND_NAME}`

@@ -33,8 +33,8 @@ export type LandingHeroProps = {
 }
 
 export const landingHeroDefaults: LandingHeroProps = {
-  headline: 'Học vui, nhớ lâu',
-  subhead: 'Trắc nghiệm theo chủ đề · Chơi ngay, không cần tài khoản',
+  headline: 'Mở lên là hỏi ngay',
+  subhead: 'Trắc nghiệm tức thì · Chấm liền tay, dừng tùy thích',
   question: 'Thủ đô của Việt Nam là thành phố nào?',
   options: ['Hà Nội', 'Huế', 'Đà Nẵng', 'TP. Hồ Chí Minh'],
   correctIndex: 0,
