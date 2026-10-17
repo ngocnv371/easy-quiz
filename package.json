@@ -23,6 +23,7 @@
     "types:gen": "node scripts/generate-types.mjs",
     "sitemap:gen": "node scripts/generate-sitemap.mjs",
     "og:image": "node scripts/generate-og-image.mjs",
+    "promo:graphics": "node scripts/generate-promo-graphics.mjs",
     "emails:gen": "node scripts/generate-emails.mjs",
     "import:samples": "node scripts/import-samples.mjs"
   },

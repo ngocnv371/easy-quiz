@@ -1,0 +1,1322 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <title>Easy Quiz — promo graphics</title>
+    <!--
+      Source for the bilingual Facebook launch series (1080×1080 each).
+
+      Preview one card in the browser:
+        ?card=1-vi   Vietnamese, card 1
+        ?card=1-en   English, card 1
+
+      Render the full set with:
+        npm run promo:graphics
+
+      Output: promo/vi/easy-quiz-promo-01.png … -10.png
+              promo/en/easy-quiz-promo-01.png … -10.png
+
+      Edit copy in the `CARDS` object below and re-run. The images are not part
+      of the app build; they are marketing assets.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 1080px;
+        height: 1080px;
+        overflow: hidden;
+        background: #04060f;
+      }
+
+      body {
+        font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+        color: #eef1f8;
+      }
+
+      .stage {
+        position: relative;
+        width: 1080px;
+        height: 1080px;
+        overflow: hidden;
+        background: #04060f;
+        isolation: isolate;
+      }
+
+      /* ── Backdrop ─────────────────────────────────────────────────── */
+      .backdrop {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+      }
+
+      .aurora {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(120px);
+        opacity: 0.5;
+      }
+
+      .aurora-a {
+        top: -380px;
+        left: -260px;
+        width: 900px;
+        height: 900px;
+        background: radial-gradient(circle, #22d3ee, transparent 66%);
+      }
+
+      .aurora-b {
+        right: -340px;
+        bottom: -440px;
+        width: 960px;
+        height: 960px;
+        background: radial-gradient(circle, #8b5cf6, transparent 66%);
+      }
+
+      .aurora-c {
+        top: 46%;
+        left: 56%;
+        width: 560px;
+        height: 560px;
+        opacity: 0.22;
+        background: radial-gradient(circle, #f472b6, transparent 68%);
+      }
+
+      .grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgb(255 255 255 / 0.045) 1px, transparent 1px),
+          linear-gradient(90deg, rgb(255 255 255 / 0.045) 1px, transparent 1px);
+        background-size: 72px 72px;
+        -webkit-mask-image: radial-gradient(circle at 40% 42%, #000 18%, transparent 76%);
+        mask-image: radial-gradient(circle at 40% 42%, #000 18%, transparent 76%);
+      }
+
+      .rule {
+        position: absolute;
+        inset: 30px;
+        border: 1px solid rgb(103 232 249 / 0.16);
+        border-radius: 8px;
+        pointer-events: none;
+      }
+
+      /* ── Frame ────────────────────────────────────────────────────── */
+      .content {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        padding: 72px 80px 56px;
+      }
+
+      .topbar {
+        display: flex;
+        flex: none;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .mark {
+        display: block;
+        width: 54px;
+        height: 54px;
+      }
+
+      .wordmark {
+        font-family: "Space Grotesk", Inter, sans-serif;
+        font-size: 34px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      }
+
+      .tag-pill {
+        padding: 9px 18px;
+        border: 1px solid rgb(251 191 36 / 0.4);
+        border-radius: 999px;
+        background: rgb(251 191 36 / 0.12);
+        color: #fcd34d;
+        font-family: "Space Grotesk", Inter, sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+      }
+
+      .hero {
+        display: flex;
+        flex: 1;
+        align-items: center;
+        min-height: 0;
+      }
+
+      .hero.split {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+        gap: 44px;
+        align-items: center;
+      }
+
+      .hero.center {
+        flex-direction: column;
+        justify-content: center;
+        gap: 46px;
+        text-align: center;
+      }
+
+      .copy {
+        min-width: 0;
+      }
+
+      .kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 11px;
+        color: #67e8f9;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 16px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      .kicker::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #67e8f9;
+        box-shadow: 0 0 16px #22d3ee;
+      }
+
+      .hero.center .kicker {
+        justify-content: center;
+      }
+
+      .headline {
+        margin-top: 22px;
+        font-family: "Space Grotesk", Inter, sans-serif;
+        font-size: 54px;
+        font-weight: 700;
+        line-height: 1.06;
+        letter-spacing: -0.035em;
+      }
+
+      .hero.center .headline {
+        font-size: 86px;
+      }
+
+      .lede {
+        max-width: 540px;
+        margin-top: 22px;
+        color: #a9b2cc;
+        font-size: 23px;
+        line-height: 1.5;
+      }
+
+      .hero.center .lede {
+        max-width: 760px;
+        margin-right: auto;
+        margin-left: auto;
+        font-size: 26px;
+      }
+
+      .gradient {
+        background: linear-gradient(100deg, #67e8f9 0%, #a78bfa 55%, #f472b6 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .spark {
+        background: linear-gradient(100deg, #fcd34d 0%, #fbbf24 55%, #f59e0b 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .footer {
+        display: flex;
+        flex: none;
+        align-items: center;
+        justify-content: space-between;
+        color: #5a658a;
+        font-size: 16px;
+      }
+
+      .footer .url {
+        color: #7d88a8;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        letter-spacing: 0.01em;
+      }
+
+      .visual {
+        display: flex;
+        justify-content: center;
+        min-width: 0;
+      }
+
+      /* ── Question card ───────────────────────────────────────────── */
+      .qcard {
+        width: 100%;
+        max-width: 430px;
+        padding: 26px;
+        border: 1px solid rgb(38 46 73 / 0.95);
+        border-radius: 26px;
+        background: rgb(13 18 36 / 0.9);
+        box-shadow: 0 30px 70px -30px rgb(0 0 0 / 0.9);
+      }
+
+      .qcard-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: #5a658a;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 13px;
+      }
+
+      .pill {
+        padding: 6px 12px;
+        border: 1px solid rgb(251 191 36 / 0.4);
+        border-radius: 999px;
+        background: rgb(251 191 36 / 0.12);
+        color: #fcd34d;
+        font-family: Inter, sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .question {
+        margin-top: 18px;
+        font-family: "Space Grotesk", Inter, sans-serif;
+        font-size: 22px;
+        font-weight: 600;
+        line-height: 1.35;
+      }
+
+      .options {
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+        margin-top: 18px;
+      }
+
+      .opt {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        border: 1px solid rgb(38 46 73 / 0.9);
+        border-radius: 13px;
+        background: rgb(23 29 50 / 0.6);
+        color: #a9b2cc;
+        font-size: 16px;
+      }
+
+      .opt .letter {
+        display: flex;
+        flex: none;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        border-radius: 8px;
+        background: rgb(60 70 101 / 0.5);
+        color: #7d88a8;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .opt.correct {
+        border-color: rgb(52 211 153 / 0.55);
+        background: rgb(16 185 129 / 0.14);
+        color: #eef1f8;
+        font-weight: 600;
+      }
+
+      .opt.correct .letter {
+        background: rgb(52 211 153 / 0.9);
+        color: #04060f;
+      }
+
+      .tick {
+        flex: none;
+        width: 18px;
+        height: 18px;
+        margin-left: auto;
+        color: #34d399;
+      }
+
+      .qscore {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 18px;
+        padding-top: 16px;
+        border-top: 1px solid rgb(38 46 73 / 0.9);
+      }
+
+      .qscore b {
+        color: #fcd34d;
+        font-family: "Space Grotesk", Inter, sans-serif;
+        font-size: 26px;
+        font-weight: 700;
+      }
+
+      .qscore span {
+        color: #5a658a;
+        font-size: 13px;
+      }
+
+      /* ── Reveal banner (card 5) ──────────────────────────────────── */
+      .visual-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        width: 100%;
+        max-width: 430px;
+      }
+
+      .reveal {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        border: 1px solid rgb(52 211 153 / 0.4);
+        border-radius: 14px;
+        background: rgb(16 185 129 / 0.12);
+      }
+
+      .reveal-check {
+        display: flex;
+        flex: none;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: #34d399;
+        color: #04060f;
+        font-weight: 700;
+      }
+
+      .reveal-text b {
+        display: block;
+        font-size: 15px;
+        color: #eef1f8;
+      }
+
+      .reveal-text span {
+        display: block;
+        margin-top: 2px;
+        color: #a9b2cc;
+        font-size: 13px;
+      }
+
+      /* ── Stop summary (card 3) ───────────────────────────────────── */
+      .summary {
+        width: 100%;
+        max-width: 430px;
+        padding: 26px;
+        border: 1px solid rgb(38 46 73 / 0.95);
+        border-radius: 26px;
+        background: rgb(13 18 36 / 0.9);
+        box-shadow: 0 30px 70px -30px rgb(0 0 0 / 0.9);
+      }
+
+      .summary-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: #5a658a;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 13px;
+      }
+
+      .summary h3 {
+        margin-top: 16px;
+        font-family: "Space Grotesk", Inter, sans-serif;
+        font-size: 25px;
+        font-weight: 600;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .stat {
+        padding: 14px 16px;
+        border: 1px solid rgb(38 46 73 / 0.9);
+        border-radius: 14px;
+        background: rgb(23 29 50 / 0.55);
+      }
+
+      .stat b {
+        display: block;
+        font-family: "Space Grotesk", Inter, sans-serif;
+        font-size: 30px;
+        font-weight: 700;
+      }
+
+      .stat span {
+        display: block;
+        margin-top: 2px;
+        color: #7d88a8;
+        font-size: 12px;
+      }
+
+      .summary-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .btn-primary {
+        flex: 1;
+        padding: 12px 16px;
+        border-radius: 12px;
+        background: linear-gradient(100deg, #67e8f9, #a78bfa);
+        color: #04060f;
+        font-size: 15px;
+        font-weight: 700;
+        text-align: center;
+      }
+
+      .btn-ghost {
+        padding: 12px 16px;
+        border: 1px solid rgb(38 46 73 / 0.9);
+        border-radius: 12px;
+        color: #a9b2cc;
+        font-size: 15px;
+      }
+
+      /* ── Learn / play modes (card 4) ─────────────────────────────── */
+      .modes {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+        width: 100%;
+        max-width: 720px;
+      }
+
+      .mode {
+        padding: 26px;
+        border: 1px solid rgb(38 46 73 / 0.95);
+        border-radius: 22px;
+        background: rgb(13 18 36 / 0.85);
+        text-align: left;
+      }
+
+      .mode-learn {
+        border-color: rgb(103 232 249 / 0.35);
+      }
+
+      .mode-play {
+        border-color: rgb(251 191 36 / 0.35);
+      }
+
+      .mode-emoji {
+        font-size: 36px;
+      }
+
+      .mode b {
+        display: block;
+        margin-top: 10px;
+        font-family: "Space Grotesk", Inter, sans-serif;
+        font-size: 32px;
+        letter-spacing: 0.02em;
+      }
+
+      .mode .mode-text {
+        display: block;
+        margin-top: 6px;
+        color: #a9b2cc;
+        font-size: 16px;
+        line-height: 1.45;
+      }
+
+      /* ── Streak panel (card 6) ───────────────────────────────────── */
+      .streak-panel {
+        width: 100%;
+        max-width: 410px;
+        padding: 30px;
+        border: 1px solid rgb(251 191 36 / 0.28);
+        border-radius: 28px;
+        background: radial-gradient(circle at 50% 0%, rgb(251 191 36 / 0.14), rgb(13 18 36 / 0.9) 62%);
+        box-shadow: 0 30px 70px -30px rgb(0 0 0 / 0.9);
+        text-align: center;
+      }
+
+      .streak-flame {
+        font-size: 56px;
+        line-height: 1;
+      }
+
+      .streak-num {
+        background: linear-gradient(100deg, #fcd34d, #fbbf24 55%, #f59e0b);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        font-family: "Space Grotesk", Inter, sans-serif;
+        font-size: 118px;
+        font-weight: 700;
+        line-height: 0.95;
+      }
+
+      .streak-label {
+        margin-top: 4px;
+        color: #a9b2cc;
+        font-size: 17px;
+      }
+
+      .streak-board {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px solid rgb(38 46 73 / 0.9);
+      }
+
+      .board-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 10px 14px;
+        border: 1px solid rgb(38 46 73 / 0.8);
+        border-radius: 12px;
+        background: rgb(23 29 50 / 0.55);
+        color: #a9b2cc;
+        font-size: 15px;
+      }
+
+      .board-row.you {
+        border-color: rgb(251 191 36 / 0.45);
+        background: rgb(251 191 36 / 0.1);
+        color: #eef1f8;
+      }
+
+      .board-row b {
+        color: #fcd34d;
+        font-family: "Space Grotesk", Inter, sans-serif;
+        font-size: 17px;
+      }
+
+      /* ── Guest card (card 7) ─────────────────────────────────────── */
+      .guest-card {
+        width: 100%;
+        max-width: 420px;
+        padding: 26px;
+        border: 1px solid rgb(38 46 73 / 0.95);
+        border-radius: 26px;
+        background: rgb(13 18 36 / 0.9);
+        box-shadow: 0 30px 70px -30px rgb(0 0 0 / 0.9);
+      }
+
+      .guest-head {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .avatar {
+        display: flex;
+        flex: none;
+        align-items: center;
+        justify-content: center;
+        width: 54px;
+        height: 54px;
+        border-radius: 16px;
+        background: rgb(60 70 101 / 0.35);
+        font-size: 28px;
+      }
+
+      .guest-head b {
+        display: block;
+        font-family: "Space Grotesk", Inter, sans-serif;
+        font-size: 21px;
+      }
+
+      .guest-head span {
+        display: block;
+        margin-top: 2px;
+        color: #7d88a8;
+        font-size: 13px;
+      }
+
+      .guest-rows {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 18px;
+      }
+
+      .guest-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 11px 14px;
+        border: 1px solid rgb(38 46 73 / 0.8);
+        border-radius: 12px;
+        background: rgb(23 29 50 / 0.55);
+        color: #a9b2cc;
+        font-size: 15px;
+      }
+
+      .guest-row b {
+        color: #eef1f8;
+      }
+
+      .guest-cta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 18px;
+        padding: 13px 16px;
+        border: 1px solid rgb(251 191 36 / 0.4);
+        border-radius: 13px;
+        background: linear-gradient(100deg, rgb(251 191 36 / 0.18), rgb(244 114 182 / 0.16));
+        color: #fcd34d;
+        font-size: 15px;
+        font-weight: 700;
+      }
+
+      /* ── Topic chips (card 8) ────────────────────────────────────── */
+      .topics {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+        max-width: 430px;
+      }
+
+      .topic {
+        padding: 12px 18px;
+        border: 1px solid rgb(38 46 73 / 0.95);
+        border-radius: 999px;
+        background: rgb(13 18 36 / 0.8);
+        color: #c7cee0;
+        font-size: 17px;
+        white-space: nowrap;
+      }
+
+      .topic:nth-child(3n + 1) {
+        border-color: rgb(103 232 249 / 0.35);
+      }
+
+      .topic:nth-child(3n + 2) {
+        border-color: rgb(167 139 250 / 0.35);
+      }
+
+      .topic:nth-child(3n) {
+        border-color: rgb(251 191 36 / 0.3);
+      }
+
+      /* ── Phone (card 9) ──────────────────────────────────────────── */
+      .phone {
+        width: 300px;
+        padding: 12px;
+        border: 1px solid rgb(38 46 73 / 0.95);
+        border-radius: 40px;
+        background: rgb(13 18 36 / 0.92);
+        box-shadow: 0 30px 70px -30px rgb(0 0 0 / 0.95);
+      }
+
+      .phone-screen {
+        padding: 22px 18px 26px;
+        border-radius: 30px;
+        background: #080b16;
+      }
+
+      .phone-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: #5a658a;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 11px;
+      }
+
+      .phone-q {
+        margin-top: 18px;
+        font-family: "Space Grotesk", Inter, sans-serif;
+        font-size: 19px;
+        font-weight: 600;
+        line-height: 1.35;
+      }
+
+      .phone-opt {
+        margin-top: 9px;
+        padding: 11px 13px;
+        border: 1px solid rgb(38 46 73 / 0.9);
+        border-radius: 11px;
+        background: rgb(23 29 50 / 0.6);
+        color: #a9b2cc;
+        font-size: 14px;
+      }
+
+      .phone-opt.correct {
+        border-color: rgb(52 211 153 / 0.55);
+        background: rgb(16 185 129 / 0.14);
+        color: #eef1f8;
+        font-weight: 600;
+      }
+
+      /* ── CTA (card 10) ───────────────────────────────────────────── */
+      .cta-block {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .cta-url {
+        padding: 22px 40px;
+        border-radius: 999px;
+        background: linear-gradient(100deg, #67e8f9, #a78bfa 55%, #f472b6);
+        box-shadow: 0 24px 60px -18px rgb(139 92 246 / 0.7);
+        color: #04060f;
+        font-family: "Space Grotesk", Inter, sans-serif;
+        font-size: 42px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      .cta-sub {
+        color: #7d88a8;
+        font-size: 19px;
+      }
+    </style>
+  </head>
+  <body>
+    <main id="stage" class="stage"></main>
+
+    <script>
+      /* ── Localised interface labels ───────────────────────────────── */
+      const UI = {
+        vi: {
+          tag: 'RA MẮT',
+          footer: 'Một sản phẩm của AiTechX',
+          summary: 'TỔNG KẾT',
+          stopped: 'Đã dừng',
+          session: 'Phiên luyện của bạn',
+          statQuestions: 'câu đã làm',
+          statAccuracy: 'chính xác',
+          statStreak: 'chuỗi dài nhất',
+          statTime: 'thời gian',
+          keepGoing: 'Tiếp tục',
+          home: 'Về nhà',
+          scoreNote: 'điểm · chuỗi 7',
+          you: 'Bạn',
+          streakLabel: 'câu đúng liên tiếp',
+          guestName: 'Khách 7240',
+          guestSub: 'Chơi không cần tài khoản',
+          guestDone: 'Đã làm',
+          guestAccuracy: 'Chính xác',
+          save: 'Lưu kết quả của bạn',
+          endless: '∞ VÔ TẬN',
+          ctaSub: 'Chơi ngay trên trình duyệt · Miễn phí',
+          questions: (n) => `${n} câu`,
+        },
+        en: {
+          tag: 'NOW LIVE',
+          footer: 'An AiTechX product',
+          summary: 'SUMMARY',
+          stopped: 'Stopped',
+          session: 'Your session',
+          statQuestions: 'questions done',
+          statAccuracy: 'accuracy',
+          statStreak: 'longest streak',
+          statTime: 'time',
+          keepGoing: 'Keep going',
+          home: 'Home',
+          scoreNote: 'points · streak 7',
+          you: 'You',
+          streakLabel: 'correct in a row',
+          guestName: 'Guest 7240',
+          guestSub: 'Playing without an account',
+          guestDone: 'Done',
+          guestAccuracy: 'Accuracy',
+          save: 'Save your results',
+          endless: '∞ ENDLESS',
+          ctaSub: 'Play in your browser · Free',
+          questions: (n) => `${n} questions`,
+        },
+      }
+
+      /* ── Shared marks ─────────────────────────────────────────────── */
+      const markSvg = `
+        <svg class="mark" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="eq" x1="0" y1="4" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#67e8f9" />
+              <stop offset="55%" stop-color="#a78bfa" />
+              <stop offset="100%" stop-color="#f472b6" />
+            </linearGradient>
+          </defs>
+          <g stroke="url(#eq)" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3.6" y="4.2" width="16.8" height="16.4" rx="5.2" />
+            <path d="M9.55 10.4a2.6 2.6 0 0 1 5.06.83c0 1.75-2.45 2.1-2.45 3.72" />
+          </g>
+          <circle cx="12.16" cy="17.4" r="1.12" fill="#fbbf24" />
+          <path
+            d="M19.1 1.5l.62 1.53 1.53.62-1.53.62-.62 1.53-.62-1.53-1.53-.62 1.53-.62z"
+            fill="#fbbf24"
+          />
+        </svg>`
+
+      const tickSvg = `
+        <svg class="tick" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <path
+            d="M20 6 9 17l-5-5"
+            stroke="currentColor"
+            stroke-width="2.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>`
+
+      const LETTERS = ['A', 'B', 'C', 'D', 'E']
+
+      /* ── Visual builders ──────────────────────────────────────────── */
+      function questionCard(lang, { tag, step, question, options, correct, score, scoreNote }) {
+        const ui = UI[lang]
+        const rows = options
+          .map(
+            (option, index) => `
+              <div class="opt${index === correct ? ' correct' : ''}">
+                <span class="letter">${LETTERS[index]}</span>
+                <span>${option}</span>
+                ${index === correct ? tickSvg : ''}
+              </div>`,
+          )
+          .join('')
+
+        return `
+          <div class="qcard">
+            <div class="qcard-top">
+              <span>${step}</span>
+              <span class="pill">${tag}</span>
+            </div>
+            <p class="question">${question}</p>
+            <div class="options">${rows}</div>
+            ${
+              score
+                ? `<div class="qscore"><b>${score}</b><span>${scoreNote ?? ui.scoreNote}</span></div>`
+                : ''
+            }
+          </div>`
+      }
+
+      function summaryCard(lang) {
+        const ui = UI[lang]
+        return `
+          <div class="summary">
+            <div class="summary-top"><span>${ui.summary}</span><span class="pill">${ui.stopped}</span></div>
+            <h3>${ui.session}</h3>
+            <div class="stats">
+              <div class="stat"><b>18</b><span>${ui.statQuestions}</span></div>
+              <div class="stat"><b>83%</b><span>${ui.statAccuracy}</span></div>
+              <div class="stat"><b>7</b><span>${ui.statStreak}</span></div>
+              <div class="stat"><b>02:41</b><span>${ui.statTime}</span></div>
+            </div>
+            <div class="summary-actions">
+              <span class="btn-primary">${ui.keepGoing}</span>
+              <span class="btn-ghost">${ui.home}</span>
+            </div>
+          </div>`
+      }
+
+      function modesCard(lang) {
+        const vi = lang === 'vi'
+        return `
+          <div class="modes">
+            <div class="mode mode-learn">
+              <span class="mode-emoji">📚</span>
+              <b>${vi ? 'HỌC' : 'LEARN'}</b>
+              <span class="mode-text">${
+                vi ? 'Hiểu sâu từng câu, có lời giải ngay.' : 'Understand every answer, with instant explanations.'
+              }</span>
+            </div>
+            <div class="mode mode-play">
+              <span class="mode-emoji">🔥</span>
+              <b>${vi ? 'CHƠI' : 'PLAY'}</b>
+              <span class="mode-text">${
+                vi ? 'Nối chuỗi, phá kỷ lục, leo hạng.' : 'Build streaks, beat records, climb the board.'
+              }</span>
+            </div>
+          </div>`
+      }
+
+      function streakCard(lang) {
+        const ui = UI[lang]
+        const names =
+          lang === 'vi'
+            ? ['🥇 Ngọc Anh', `🥈 ${ui.you}`, '🥉 Minh Quân']
+            : ['🥇 Ngoc Anh', `🥈 ${ui.you}`, '🥉 Minh Quan']
+
+        return `
+          <div class="streak-panel">
+            <div class="streak-flame">🔥</div>
+            <div class="streak-num">7</div>
+            <div class="streak-label">${ui.streakLabel}</div>
+            <div class="streak-board">
+              <div class="board-row"><span>${names[0]}</span><b>12</b></div>
+              <div class="board-row you"><span>${names[1]}</span><b>7</b></div>
+              <div class="board-row"><span>${names[2]}</span><b>6</b></div>
+            </div>
+          </div>`
+      }
+
+      function guestCard(lang) {
+        const ui = UI[lang]
+        return `
+          <div class="guest-card">
+            <div class="guest-head">
+              <span class="avatar">🦊</span>
+              <div>
+                <b>${ui.guestName}</b>
+                <span>${ui.guestSub}</span>
+              </div>
+            </div>
+            <div class="guest-rows">
+              <div class="guest-row"><span>${ui.guestDone}</span><b>${ui.questions(24)}</b></div>
+              <div class="guest-row"><span>${ui.guestAccuracy}</span><b>79%</b></div>
+            </div>
+            <div class="guest-cta"><span>${ui.save}</span><span>→</span></div>
+          </div>`
+      }
+
+      function topicsCard(lang) {
+        const topics =
+          lang === 'vi'
+            ? ['🔢 Toán học', '🏛️ Lịch sử', '🔬 Khoa học', '📖 Ngữ văn', '🌏 Địa lý', '💻 Tin học', '🎨 Nghệ thuật', '⚽ Thể thao']
+            : ['🔢 Math', '🏛️ History', '🔬 Science', '📖 Literature', '🌏 Geography', '💻 Computing', '🎨 Art', '⚽ Sport']
+
+        return `<div class="topics">${topics
+          .map((topic) => `<span class="topic">${topic}</span>`)
+          .join('')}</div>`
+      }
+
+      function phoneCard(lang) {
+        const ui = UI[lang]
+        const copy =
+          lang === 'vi'
+            ? {
+                question: 'Hành tinh nào gần Mặt Trời nhất?',
+                options: ['Sao Kim', 'Sao Thuỷ', 'Trái Đất', 'Sao Hoả'],
+              }
+            : {
+                question: 'Which planet is closest to the Sun?',
+                options: ['Venus', 'Mercury', 'Earth', 'Mars'],
+              }
+        const correct = 1
+
+        return `
+          <div class="phone">
+            <div class="phone-screen">
+              <div class="phone-top"><span>${ui.endless}</span><span>00:12</span></div>
+              <p class="phone-q">${copy.question}</p>
+              ${copy.options
+                .map(
+                  (option, index) =>
+                    `<div class="phone-opt${index === correct ? ' correct' : ''}">${LETTERS[index]} · ${option}</div>`,
+                )
+                .join('')}
+            </div>
+          </div>`
+      }
+
+      function ctaCard(lang) {
+        return `
+          <div class="cta-block">
+            <div class="cta-url">easyquiz.aitechx.vn</div>
+            <div class="cta-sub">${UI[lang].ctaSub}</div>
+          </div>`
+      }
+
+      /* ── The ten cards, per language ──────────────────────────────── */
+      const CARDS = {
+        vi: [
+          {
+            layout: 'split',
+            kicker: 'Ra mắt',
+            headline: 'Mở lên là hỏi,<br><span class="gradient">dừng tùy thích.</span>',
+            lede: 'Trắc nghiệm tức thì — không màn hình chờ, không cần tài khoản.',
+            visual: questionCard('vi', {
+              tag: 'Địa lý',
+              step: 'Câu 4 / 10',
+              question: 'Thủ đô của Việt Nam là thành phố nào?',
+              options: ['Hà Nội', 'Huế', 'Đà Nẵng', 'TP. Hồ Chí Minh'],
+              correct: 0,
+              score: '+120',
+            }),
+          },
+          {
+            layout: 'split',
+            kicker: 'Không nút bắt đầu',
+            headline: 'Câu hỏi đầu tiên<br><span class="gradient">đã ở đó.</span>',
+            lede: 'Mở Easy Quiz là vào ngay câu 1. Không đăng ký, không màn hình chờ, không thao tác thừa.',
+            visual: questionCard('vi', {
+              tag: 'Đang chạy',
+              step: 'Câu 01',
+              question: 'Hành tinh nào gần Mặt Trời nhất?',
+              options: ['Sao Kim', 'Sao Thuỷ', 'Trái Đất', 'Sao Hoả'],
+              correct: 1,
+              score: '00:12',
+              scoreNote: 'đồng hồ đang chạy',
+            }),
+          },
+          {
+            layout: 'split',
+            kicker: 'Dừng lúc nào cũng được',
+            headline: 'Rảnh 2 phút?<br><span class="gradient">Làm 2 câu.</span>',
+            lede: 'Bấm Dừng bất cứ lúc nào để xem tổng kết — số câu, độ chính xác và chuỗi dài nhất.',
+            visual: summaryCard('vi'),
+          },
+          {
+            layout: 'center',
+            kicker: 'Học hay chơi, đều được',
+            headline: 'Học cho hiểu.<br><span class="spark">Chơi cho vui.</span>',
+            lede: 'Cùng một chỗ: luyện kiến thức khi cần, đấu chuỗi khi muốn thư giãn.',
+            visual: modesCard('vi'),
+          },
+          {
+            layout: 'split',
+            kicker: 'Chấm liền tay',
+            headline: 'Trả lời xong<br><span class="gradient">là biết ngay.</span>',
+            lede: 'Đáp án đúng và lời giải hiện tức thì. Không phải chờ nộp cả bài.',
+            visual: `
+              <div class="visual-stack">
+                ${questionCard('vi', {
+                  tag: 'Khoa học',
+                  step: 'Câu 03',
+                  question: 'Hành tinh nào gần Mặt Trời nhất?',
+                  options: ['Sao Kim', 'Sao Thuỷ', 'Trái Đất', 'Sao Hoả'],
+                  correct: 1,
+                })}
+                <div class="reveal">
+                  <span class="reveal-check">✓</span>
+                  <div class="reveal-text">
+                    <b>Chính xác!</b>
+                    <span>Sao Thuỷ là hành tinh gần Mặt Trời nhất.</span>
+                  </div>
+                </div>
+              </div>`,
+          },
+          {
+            layout: 'split',
+            kicker: 'Chuỗi câu đúng',
+            headline: 'Chuỗi của bạn<br><span class="spark">dài bao nhiêu?</span>',
+            lede: 'Mỗi câu đúng nối dài chuỗi. Phá kỷ lục của chính mình, rồi leo bảng xếp hạng.',
+            visual: streakCard('vi'),
+          },
+          {
+            layout: 'split',
+            kicker: 'Không cần tài khoản',
+            headline: 'Vào là chơi.<br><span class="gradient">Lưu sau cũng được.</span>',
+            lede: 'Không email, không mật khẩu. Kết quả vẫn được giữ khi bạn muốn tạo tài khoản.',
+            visual: guestCard('vi'),
+          },
+          {
+            layout: 'split',
+            kicker: 'Mọi chủ đề',
+            headline: 'Toán, Lịch sử,<br><span class="gradient">Khoa học…</span>',
+            lede: 'Chọn môn bạn thích, hoặc để Easy Quiz chọn theo thế mạnh của bạn.',
+            visual: topicsCard('vi'),
+          },
+          {
+            layout: 'split',
+            kicker: '5 phút là đủ',
+            headline: 'Giờ nghỉ trưa<br><span class="spark">cũng có ích.</span>',
+            lede: 'Tranh thủ vài câu trên xe buýt, giữa giờ làm, hay trước khi ngủ.',
+            visual: phoneCard('vi'),
+          },
+          {
+            layout: 'center',
+            kicker: 'Sẵn sàng chưa?',
+            headline: 'Câu hỏi đầu tiên<br><span class="gradient">đang chờ bạn.</span>',
+            lede: 'Không cần cài đặt, không cần tài khoản. Mở lên là hỏi ngay.',
+            visual: ctaCard('vi'),
+          },
+        ],
+
+        en: [
+          {
+            layout: 'split',
+            kicker: 'Now live',
+            headline: 'Open. Answer.<br><span class="gradient">Stop anytime.</span>',
+            lede: 'Instant quizzes — no waiting screen, no account needed.',
+            visual: questionCard('en', {
+              tag: 'Geography',
+              step: 'Question 4 / 10',
+              question: 'What is the capital of Vietnam?',
+              options: ['Hanoi', 'Hue', 'Da Nang', 'Ho Chi Minh City'],
+              correct: 0,
+              score: '+120',
+            }),
+          },
+          {
+            layout: 'split',
+            kicker: 'No start button',
+            headline: 'The first question<br><span class="gradient">is already there.</span>',
+            lede: 'Opening Easy Quiz drops you straight into question 1. No sign-up, no waiting screen, no extra taps.',
+            visual: questionCard('en', {
+              tag: 'Live',
+              step: 'Question 01',
+              question: 'Which planet is closest to the Sun?',
+              options: ['Venus', 'Mercury', 'Earth', 'Mars'],
+              correct: 1,
+              score: '00:12',
+              scoreNote: 'timer running',
+            }),
+          },
+          {
+            layout: 'split',
+            kicker: 'Stop whenever you like',
+            headline: 'Got 2 minutes?<br><span class="gradient">Answer 2 questions.</span>',
+            lede: 'Tap Stop at any point for a summary — questions done, accuracy, and your longest streak.',
+            visual: summaryCard('en'),
+          },
+          {
+            layout: 'center',
+            kicker: 'Learn or play, your call',
+            headline: 'Learn for depth.<br><span class="spark">Play for fun.</span>',
+            lede: 'One place for both: practise when you need to, chase streaks when you want to unwind.',
+            visual: modesCard('en'),
+          },
+          {
+            layout: 'split',
+            kicker: 'Graded instantly',
+            headline: 'Answer it,<br><span class="gradient">know it right away.</span>',
+            lede: 'The correct answer and explanation appear immediately — no waiting until the end.',
+            visual: `
+              <div class="visual-stack">
+                ${questionCard('en', {
+                  tag: 'Science',
+                  step: 'Question 03',
+                  question: 'Which planet is closest to the Sun?',
+                  options: ['Venus', 'Mercury', 'Earth', 'Mars'],
+                  correct: 1,
+                })}
+                <div class="reveal">
+                  <span class="reveal-check">✓</span>
+                  <div class="reveal-text">
+                    <b>Correct!</b>
+                    <span>Mercury is the closest planet to the Sun.</span>
+                  </div>
+                </div>
+              </div>`,
+          },
+          {
+            layout: 'split',
+            kicker: 'Answer streaks',
+            headline: 'How long is<br><span class="spark">your streak?</span>',
+            lede: 'Every correct answer extends it. Beat your own record, then climb the leaderboard.',
+            visual: streakCard('en'),
+          },
+          {
+            layout: 'split',
+            kicker: 'No account needed',
+            headline: 'Jump in and play.<br><span class="gradient">Save it later.</span>',
+            lede: 'No email, no password. Your results stay with you when you are ready to create an account.',
+            visual: guestCard('en'),
+          },
+          {
+            layout: 'split',
+            kicker: 'Every subject',
+            headline: 'Math, history,<br><span class="gradient">science…</span>',
+            lede: 'Pick the subjects you love, or let Easy Quiz choose based on your strengths.',
+            visual: topicsCard('en'),
+          },
+          {
+            layout: 'split',
+            kicker: '5 minutes is enough',
+            headline: 'Lunch break?<br><span class="spark">Still counts.</span>',
+            lede: 'Squeeze in a few questions on the bus, between meetings, or before bed.',
+            visual: phoneCard('en'),
+          },
+          {
+            layout: 'center',
+            kicker: 'Ready?',
+            headline: 'Your first question<br><span class="gradient">is waiting.</span>',
+            lede: 'No install, no account. Open it and answer.',
+            visual: ctaCard('en'),
+          },
+        ],
+      }
+
+      /* ── Resolve `?card=3-en` (or `?card=3&lang=en`) ───────────────── */
+      const params = new URLSearchParams(location.search)
+      const raw = params.get('card') ?? '1'
+      const [rawIndex, rawLang] = raw.includes('-') ? raw.split('-') : [raw, params.get('lang') ?? 'vi']
+      const lang = rawLang === 'en' ? 'en' : 'vi'
+      const requested = Number(rawIndex)
+      const index = Math.min(Math.max(Number.isFinite(requested) ? requested : 1, 1), 10)
+      const card = CARDS[lang][index - 1]
+      const ui = UI[lang]
+
+      document.documentElement.lang = lang
+      document.title = `Easy Quiz promo ${String(index).padStart(2, '0')} — ${lang.toUpperCase()}`
+
+      document.getElementById('stage').innerHTML = `
+        <div class="backdrop">
+          <div class="aurora aurora-a"></div>
+          <div class="aurora aurora-b"></div>
+          <div class="aurora aurora-c"></div>
+          <div class="grid"></div>
+          <div class="rule"></div>
+        </div>
+
+        <div class="content">
+          <header class="topbar">
+            <div class="brand">
+              ${markSvg}
+              <span class="wordmark">Easy<span class="spark"> Quiz</span></span>
+            </div>
+            <span class="tag-pill">${ui.tag}</span>
+          </header>
+
+          <main class="hero ${card.layout}">
+            <div class="copy">
+              <div class="kicker">${card.kicker}</div>
+              <h1 class="headline">${card.headline}</h1>
+              <p class="lede">${card.lede}</p>
+            </div>
+            <div class="visual">${card.visual}</div>
+          </main>
+
+          <footer class="footer">
+            <span>${ui.footer}</span>
+            <span class="url">easyquiz.aitechx.vn</span>
+          </footer>
+        </div>`
+    </script>
+  </body>
+</html>
