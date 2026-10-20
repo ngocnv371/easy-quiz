@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   AlertTriangle,
@@ -11,6 +11,7 @@ import {
   Timer,
   UserRound,
   X,
+  Zap,
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -24,7 +25,10 @@ import { Alert, EmptyState, Skeleton } from '@/components/ui/feedback'
 import { Field, Input } from '@/components/ui/field'
 import { ProgressBar } from '@/components/ui/metrics'
 import { AnswerTile, optionLetter } from '@/features/quiz/answer-tile'
-import { fetchPlayPayload, submitAttempt } from '@/features/quiz/api'
+import { fetchPlayPayload, startQuizAttempt, submitAttempt } from '@/features/quiz/api'
+import { isOutOfEnergy } from '@/features/energy/api'
+import { useEnergy } from '@/features/energy/energy-context'
+import { OutOfEnergyDialog } from '@/features/energy/out-of-energy-dialog'
 import { stashResult } from '@/features/quiz/result-store'
 import { COUNTDOWN_MS, usePlaySession } from '@/features/quiz/use-play-session'
 import { useAuth } from '@/features/auth/auth-context'
@@ -37,6 +41,9 @@ export function QuizPlayPage() {
   const { slug = '' } = useParams()
   const navigate = useNavigate()
   const { user, status, isConfigured, signInAsGuest, displayName } = useAuth()
+  const { energy, update: updateEnergy, showOutOfEnergy } = useEnergy()
+  /** The paid start this run will be submitted against. */
+  const ticketRef = useRef<string | null>(null)
 
   const query = useAsyncData(
     `play:${slug}`,
@@ -88,6 +95,7 @@ export function QuizPlayPage() {
         answers: session.buildSubmission(),
         durationSeconds: session.elapsedSeconds,
         guestName: displayName,
+        ticketId: ticketRef.current,
       })
 
       stashResult(result)
@@ -156,6 +164,7 @@ export function QuizPlayPage() {
   }, [phase])
 
   const handleStart = async () => {
+    if (!payload) return
     setNameError(null)
 
     // A guest needs an identity before the server will accept a submission.
@@ -174,6 +183,20 @@ export function QuizPlayPage() {
         setPreparing(false)
         return
       }
+    }
+
+    // Pay for the run before the first question is shown. Running out here
+    // costs nothing: the player stays on the start screen with the dialog.
+    setPreparing(true)
+    try {
+      const ticket = await startQuizAttempt(payload.quiz.slug)
+      ticketRef.current = ticket.ticket_id
+      updateEnergy(ticket.energy)
+    } catch (error) {
+      if (isOutOfEnergy(error)) showOutOfEnergy(error.energy)
+      else toast.error(errorMessage(error))
+      return
+    } finally {
       setPreparing(false)
     }
 
@@ -308,6 +331,17 @@ export function QuizPlayPage() {
                 <CheckCircle2 className="text-correct-400 mt-0.5 size-4 shrink-0" aria-hidden />
                 Sau khi nộp, bạn xem lại từng câu kèm lời giải.
               </li>
+              <li className="flex gap-2.5" data-cy="quiz-energy-cost">
+                <Zap className="text-spark-300 mt-0.5 size-4 shrink-0" aria-hidden />
+                <span>
+                  {energy?.unlimited
+                    ? 'Bạn đang dùng Easy Quiz Plus — làm bài không tốn năng lượng.'
+                    : `Đề này dùng ${payload.questions.length} năng lượng (1 mỗi câu), trừ khi bắt đầu.`}
+                  {energy && !energy.unlimited ? (
+                    <span className="text-ink-400"> Bạn đang có {energy.total}.</span>
+                  ) : null}
+                </span>
+              </li>
             </ul>
 
             {!user ? (
@@ -369,6 +403,7 @@ export function QuizPlayPage() {
             </div>
           </Card>
         </div>
+        <OutOfEnergyDialog />
       </PlayShell>
     )
   }

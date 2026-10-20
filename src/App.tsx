@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 
 import { AppToaster } from '@/components/ui/toaster'
 import { AuthProvider, useAuth } from '@/features/auth/auth-context'
+import { EnergyProvider } from '@/features/energy/energy-context'
 
 import { router } from './router'
 
@@ -29,9 +30,11 @@ function SessionNoticeWatcher() {
 export function App() {
   return (
     <AuthProvider>
-      <RouterProvider router={router} />
-      <SessionNoticeWatcher />
-      <AppToaster />
+      <EnergyProvider>
+        <RouterProvider router={router} />
+        <SessionNoticeWatcher />
+        <AppToaster />
+      </EnergyProvider>
     </AuthProvider>
   )
 }

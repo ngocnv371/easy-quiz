@@ -1,3 +1,4 @@
+import { toEnergyError, type EnergyState } from '@/features/energy/api'
 import { requireSupabase } from '@/lib/supabase'
 import { errorMessage } from '@/lib/utils'
 import {
@@ -109,11 +110,35 @@ export async function fetchPlayPayload(slug: string): Promise<PlayPayload | null
   return data as unknown as PlayPayload
 }
 
+export interface QuizTicket {
+  ticket_id: string
+  /** Energy charged for this start — one per question. */
+  cost: number
+  energy: EnergyState
+}
+
+/**
+ * Pays for a run up front and returns the ticket `submitAttempt()` redeems.
+ * Throws `OutOfEnergyError` when the quiz costs more than the player has.
+ */
+export async function startQuizAttempt(slug: string): Promise<QuizTicket> {
+  const supabase = requireSupabase()
+
+  const { data, error } = await supabase.rpc('start_quiz_attempt', { p_slug: slug })
+
+  if (error) throw toEnergyError(error)
+  if (!data) throw new Error('Không nhận được phản hồi từ máy chủ.')
+
+  return data as unknown as QuizTicket
+}
+
 export interface SubmitAttemptInput {
   slug: string
   answers: AnswerSubmission[]
   durationSeconds: number
   guestName?: string | null
+  /** From `startQuizAttempt()`. The server refuses a submit without one. */
+  ticketId: string | null
 }
 
 export async function submitAttempt({
@@ -121,6 +146,7 @@ export async function submitAttempt({
   answers,
   durationSeconds,
   guestName,
+  ticketId,
 }: SubmitAttemptInput): Promise<SubmitResult> {
   const supabase = requireSupabase()
 
@@ -138,6 +164,7 @@ export async function submitAttempt({
     p_duration_seconds: Math.round(durationSeconds),
     // Optional in the function signature; `undefined` lets the SQL default apply.
     p_guest_name: guestName ?? undefined,
+    p_ticket_id: ticketId ?? undefined,
   })
 
   if (error) throw new Error(errorMessage(error))

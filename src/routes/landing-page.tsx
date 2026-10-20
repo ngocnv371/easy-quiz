@@ -162,8 +162,8 @@ export function LandingPage() {
                     <dt className="text-ink-400 mt-1 text-xs">Chủ đề</dt>
                   </div>
                   <div>
-                    <dd className="font-display text-spark-300 text-2xl font-semibold">∞</dd>
-                    <dt className="text-ink-400 mt-1 text-xs">Luyện không giới hạn</dt>
+                    <dd className="font-display text-spark-300 text-2xl font-semibold">60</dd>
+                    <dt className="text-ink-400 mt-1 text-xs">Câu miễn phí mỗi ngày</dt>
                   </div>
                 </dl>
               </Reveal>
@@ -271,7 +271,7 @@ export function LandingPage() {
                   </Badge>
 
                   <h2 className="font-display mt-5 text-3xl font-semibold tracking-tight sm:text-4xl">
-                    Luyện không giới hạn, dừng lúc nào cũng được
+                    Luyện liên tục, dừng lúc nào cũng được
                   </h2>
 
                   <p className="text-ink-300 mt-4 text-base leading-relaxed">
@@ -305,7 +305,7 @@ export function LandingPage() {
                 {/* A stylised session — streak plus per-topic mastery. */}
                 <div className="border-ink-600/70 bg-ink-950/70 rounded-2xl border p-5">
                   <div className="flex items-center justify-between gap-3">
-                    <span className="text-ink-400 font-mono text-xs">LUYỆN KHÔNG GIỚI HẠN</span>
+                    <span className="text-ink-400 font-mono text-xs">LUYỆN LIÊN TỤC</span>
                     <span className="border-spark-400/40 bg-spark-400/10 text-spark-300 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[0.7rem] font-medium">
                       <Flame className="size-3.5" aria-hidden />
                       Chuỗi 7 câu

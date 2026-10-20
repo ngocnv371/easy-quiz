@@ -42,6 +42,8 @@ import {
 import { fetchTopics } from '@/features/quiz/api'
 import { useEndlessSession } from '@/features/quiz/use-endless-session'
 import { useAuth } from '@/features/auth/auth-context'
+import { EnergyMeter } from '@/features/energy/energy-meter'
+import { OutOfEnergyDialog } from '@/features/energy/out-of-energy-dialog'
 import { formatClock, formatPercent } from '@/lib/format'
 import { usePageMeta } from '@/lib/seo'
 import { useAsyncData } from '@/lib/use-async-data'
@@ -87,7 +89,7 @@ export function EndlessPage() {
   usePageMeta({
     title: 'Chế độ vô tận',
     description:
-      'Luyện trắc nghiệm không giới hạn: bắt đầu ngay, dừng lúc nào cũng được, và mỗi câu được chọn theo thế mạnh của bạn.',
+      'Luyện trắc nghiệm liên tục: bắt đầu ngay, dừng lúc nào cũng được, và mỗi câu được chọn theo thế mạnh của bạn.',
     path: '/endless',
     noIndex: true,
   })
@@ -355,6 +357,8 @@ function EndlessPlayer({
             </Badge>
 
             <div className="ml-auto flex items-center gap-1.5">
+              <EnergyMeter dataCy="endless-energy" />
+
               <Button
                 variant="outline"
                 size="sm"
@@ -591,6 +595,8 @@ function EndlessPlayer({
           </Card>
         </div>
       ) : null}
+
+      <OutOfEnergyDialog />
 
       {/* ── Subject scope ────────────────────────────────────────────── */}
       <Modal

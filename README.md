@@ -293,6 +293,46 @@ database default.
 The dialog has a **Tải tệp mẫu** button that writes the same template shown in
 `src/features/manage/import-questions.ts`.
 
+### Energy and Plus
+
+Practice is metered: **every answered question costs one energy.** It is all enforced in the
+database (`20261020090000_energy_membership.sql`); the client only displays the balance.
+
+- **Free daily allowance:** 30 for guests, 60 for accounts. It refills at midnight Vietnam time
+  (`energy_today()`), does not carry over, and is spent before purchased energy. A guest who signs
+  up gets the difference straight away. Tune both numbers in `energy_daily_allowance()`.
+- **Purchased energy** never expires. **Plus** (`energy_wallets.plus_until`) makes everything
+  free while it lasts; admins are never charged either.
+- **Where it is charged:**
+  - **Endless** charges inside `grade_endless_answer()`, after the question is known to be
+    gradable and in the same transaction, so a failed grade costs nothing.
+  - **A normal quiz** is graded in one batch, so `start_quiz_attempt()` charges its question count
+    up front. It returns a one-time ticket that `submit_attempt()` now requires.
+- **Out of energy:** a refused charge raises SQLSTATE `EQ001`, with the balance in the error
+  `details`. The client turns that into `OutOfEnergyError` and opens the refill dialog instead of
+  an error screen.
+- **Writes:** balances live in `energy_wallets`, not on the publicly readable `profiles`. They
+  move only through definer functions, and `energy_ledger` records every spend, purchase and
+  grant. Top up an account by hand with `grant_energy(user_id, amount)`.
+
+**Payments (PayOS).** The catalogue is the `store_products` table: two energy packs and Plus.
+
+- **`payments` edge function:**
+  - `checkout` creates a `payment_orders` row, snapshotting the price, plus a PayOS link. Guests
+    are refused, so a purchase always lands on a durable account.
+  - `sync` is the return page's check with PayOS.
+- **`payos-webhook`** is PayOS's callback. It verifies the HMAC signature over `data` with
+  `PAYOS_CHECKSUM_KEY`, and has no JWT.
+- **Fulfilment:** both paths end in `fulfill_payment_order()`. It is service-role only,
+  idempotent, and rejects underpayment.
+
+Secrets go in `supabase/functions/.env`; see `supabase/.env.example`. Set `PAYOS_MOCK=true` to
+click through the whole flow locally without PayOS keys: every order is treated as paid on
+return. Mock mode is ignored unless the function runs against a local stack.
+
+In the PayOS dashboard, set the webhook URL to
+`https://<project-ref>.supabase.co/functions/v1/payos-webhook`.
+
 ### Remotion
 
 Four compositions in `src/remotion/`, each played in-page through `@remotion/player`:
@@ -415,6 +455,8 @@ serves these three files as-is rather than rewriting them too.
    npx supabase secrets set --env-file supabase/functions/.env
    npx supabase functions deploy ai-quiz
    npx supabase functions deploy import-questions
+   npx supabase functions deploy payments
+   npx supabase functions deploy payos-webhook --no-verify-jwt
    ```
 
    Then enable **anonymous sign-ins** under Authentication → Providers.
@@ -449,6 +491,9 @@ Called out honestly rather than hidden:
 - **Sign-up creates an ordinary user.** Admin is not self-serve; promote an account with
   `supabase/snippets/promote-admin.sql`. Put the console behind real approval before opening it
   up publicly.
+- **Guests can reset their free energy** by clearing site data, since each new anonymous session
+  is a fresh wallet. Accounts get double the allowance to make signing up the better deal;
+  turning on captcha for anonymous sign-ins would close the gap.
 - **`submit_attempt()` has no rate limit.** A determined player could flood the leaderboard.
 - **No image upload.** `questions.image_url` exists and renders, but nothing writes to it yet.
 - **The result review lives in `sessionStorage`.** Opening a result link in a fresh tab shows the

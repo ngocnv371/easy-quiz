@@ -172,6 +172,44 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"energy_ledger": {
+                  Row: {
+                    "balance_after": number,"bucket": string,"created_at": string,"delta": number,"id": string,"reason": string,"ref": string | null,"user_id": string
+                  }
+                  Insert: {
+                    "balance_after": number,"bucket": string,"created_at"?: string,"delta": number,"id"?: string,"reason": string,"ref"?: string | null,"user_id": string
+                  }
+                  Update: {
+                    "balance_after"?: number,"bucket"?: string,"created_at"?: string,"delta"?: number,"id"?: string,"reason"?: string,"ref"?: string | null,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "energy_ledger_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"energy_wallets": {
+                  Row: {
+                    "free_allowance": number,"free_balance": number,"free_date": string | null,"paid_balance": number,"plus_until": string | null,"updated_at": string,"user_id": string,"energy_state": Json | null
+                  }
+                  Insert: {
+                    "free_allowance"?: number,"free_balance"?: number,"free_date"?: string | null,"paid_balance"?: number,"plus_until"?: string | null,"updated_at"?: string,"user_id": string
+                  }
+                  Update: {
+                    "free_allowance"?: number,"free_balance"?: number,"free_date"?: string | null,"paid_balance"?: number,"plus_until"?: string | null,"updated_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "energy_wallets_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: true
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"options": {
                   Row: {
                     "id": string,"is_correct": boolean,"label": string,"position": number,"question_id": string
@@ -191,15 +229,40 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"profiles": {
+                },"payment_orders": {
                   Row: {
-                    "ai_credits": number,"avatar_emoji": string,"bio": string | null,"created_at": string,"display_name": string,"id": string,"is_guest": boolean,"role": string,"organization": string | null,"updated_at": string,"username": string
+                    "amount_vnd": number,"checkout_url": string | null,"created_at": string,"energy": number,"id": string,"order_code": number,"paid_at": string | null,"payment_link_id": string | null,"plus_days": number,"product_id": string,"provider": string,"provider_payload": Json | null,"status": string,"updated_at": string,"user_id": string | null
                   }
                   Insert: {
-                    "ai_credits"?: number,"avatar_emoji"?: string,"bio"?: string | null,"created_at"?: string,"display_name": string,"id": string,"is_guest"?: boolean,"role"?: string,"organization"?: string | null,"updated_at"?: string,"username": string
+                    "amount_vnd": number,"checkout_url"?: string | null,"created_at"?: string,"energy"?: number,"id"?: string,"order_code"?: number,"paid_at"?: string | null,"payment_link_id"?: string | null,"plus_days"?: number,"product_id": string,"provider"?: string,"provider_payload"?: Json | null,"status"?: string,"updated_at"?: string,"user_id"?: string | null
                   }
                   Update: {
-                    "ai_credits"?: number,"avatar_emoji"?: string,"bio"?: string | null,"created_at"?: string,"display_name"?: string,"id"?: string,"is_guest"?: boolean,"role"?: string,"organization"?: string | null,"updated_at"?: string,"username"?: string
+                    "amount_vnd"?: number,"checkout_url"?: string | null,"created_at"?: string,"energy"?: number,"id"?: string,"order_code"?: number,"paid_at"?: string | null,"payment_link_id"?: string | null,"plus_days"?: number,"product_id"?: string,"provider"?: string,"provider_payload"?: Json | null,"status"?: string,"updated_at"?: string,"user_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "payment_orders_product_id_fkey"
+      columns: ["product_id"]
+isOneToOne: false
+      referencedRelation: "store_products"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payment_orders_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"profiles": {
+                  Row: {
+                    "ai_credits": number,"avatar_emoji": string,"bio": string | null,"created_at": string,"display_name": string,"id": string,"is_guest": boolean,"organization": string | null,"role": string,"updated_at": string,"username": string
+                  }
+                  Insert: {
+                    "ai_credits"?: number,"avatar_emoji"?: string,"bio"?: string | null,"created_at"?: string,"display_name": string,"id": string,"is_guest"?: boolean,"organization"?: string | null,"role"?: string,"updated_at"?: string,"username": string
+                  }
+                  Update: {
+                    "ai_credits"?: number,"avatar_emoji"?: string,"bio"?: string | null,"created_at"?: string,"display_name"?: string,"id"?: string,"is_guest"?: boolean,"organization"?: string | null,"role"?: string,"updated_at"?: string,"username"?: string
                   }
                   Relationships: [
                     
@@ -229,6 +292,37 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"quiz_play_tickets": {
+                  Row: {
+                    "cost": number,"created_at": string,"id": string,"quiz_id": string,"used_at": string | null,"user_id": string
+                  }
+                  Insert: {
+                    "cost": number,"created_at"?: string,"id"?: string,"quiz_id": string,"used_at"?: string | null,"user_id": string
+                  }
+                  Update: {
+                    "cost"?: number,"created_at"?: string,"id"?: string,"quiz_id"?: string,"used_at"?: string | null,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "quiz_play_tickets_quiz_id_fkey"
+      columns: ["quiz_id"]
+isOneToOne: false
+      referencedRelation: "quiz_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "quiz_play_tickets_quiz_id_fkey"
+      columns: ["quiz_id"]
+isOneToOne: false
+      referencedRelation: "quizzes"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "quiz_play_tickets_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"quizzes": {
                   Row: {
                     "ai_generated": boolean,"cover_emoji": string,"created_at": string,"description": string | null,"difficulty": string,"id": string,"imported_at": string | null,"owner_id": string,"play_count": number,"published_at": string | null,"shuffle_options": boolean,"shuffle_questions": boolean,"slug": string,"status": string,"time_limit_seconds": number,"title": string,"topic_id": string | null,"updated_at": string,"visibility": string
@@ -253,6 +347,19 @@ isOneToOne: false
       referencedRelation: "topics"
       referencedColumns: ["id"]
     }
+                  ]
+                },"store_products": {
+                  Row: {
+                    "active": boolean,"created_at": string,"description": string | null,"energy": number,"id": string,"kind": string,"name": string,"plus_days": number,"price_vnd": number,"sort": number
+                  }
+                  Insert: {
+                    "active"?: boolean,"created_at"?: string,"description"?: string | null,"energy"?: number,"id": string,"kind": string,"name": string,"plus_days"?: number,"price_vnd": number,"sort"?: number
+                  }
+                  Update: {
+                    "active"?: boolean,"created_at"?: string,"description"?: string | null,"energy"?: number,"id"?: string,"kind"?: string,"name"?: string,"plus_days"?: number,"price_vnd"?: number,"sort"?: number
+                  }
+                  Relationships: [
+                    
                   ]
                 },"topics": {
                   Row: {
@@ -348,6 +455,34 @@ isOneToOne: false
 "endless_progress_rows":
 { Args: { "p_uid": string }; Returns: Json
                            },
+"energy_daily_allowance":
+{ Args: { "p_is_guest": boolean }; Returns: number
+                           },
+"energy_lock_wallet":
+{ Args: { "p_user_id": string }; Returns: {
+              "free_allowance": number,
+"free_balance": number,
+"free_date": string | null,
+"paid_balance": number,
+"plus_until": string | null,
+"updated_at": string,
+"user_id": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "energy_wallets"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"energy_state":
+{ Args: { "p_wallet": Database["public"]['Tables']["energy_wallets"]['Row'] }; Returns: Json
+                           },
+"energy_today":
+{ Args: Record<PropertyKey, never>; Returns: string
+                           },
+"fulfill_payment_order":
+{ Args: { "p_amount_paid": number,"p_order_code": number,"p_payload"?: Json }; Returns: Json
+                           },
 "get_endless_batch":
 { Args: { "p_exclude"?: (string)[],"p_limit"?: number,"p_topic_id"?: string }; Returns: Json
                            },
@@ -355,6 +490,9 @@ isOneToOne: false
 { Args: { "p_limit"?: number }; Returns: {
               "avatar_emoji": string,"best_correct": number,"best_streak": number,"display_name": string,"is_guest": boolean,"last_played_at": string,"session_count": number,"user_id": string,"username": string
             }[]
+                           },
+"get_my_energy":
+{ Args: Record<PropertyKey, never>; Returns: Json
                            },
 "get_quiz_for_play":
 { Args: { "p_slug": string }; Returns: Json
@@ -365,11 +503,17 @@ isOneToOne: false
 "grant_ai_credits":
 { Args: { "p_amount": number,"p_reason"?: string,"p_user_id": string }; Returns: number
                            },
+"grant_energy":
+{ Args: { "p_amount": number,"p_reason"?: string,"p_user_id": string }; Returns: Json
+                           },
 "import_question_bank":
 { Args: { "p_payload": Json }; Returns: Json
                            },
 "is_admin":
 { Args: { "p_uid"?: string }; Returns: boolean
+                           },
+"next_payment_order_code":
+{ Args: Record<PropertyKey, never>; Returns: number
                            },
 "owns_question":
 { Args: { "p_question_id": string }; Returns: boolean
@@ -388,11 +532,17 @@ isOneToOne: false
 "slugify":
 { Args: { "p_input": string }; Returns: string
                            },
+"spend_energy":
+{ Args: { "p_amount": number,"p_reason": string,"p_ref"?: string,"p_user_id": string }; Returns: Json
+                           },
 "start_endless_session":
 { Args: { "p_topic_id"?: string }; Returns: string
                            },
+"start_quiz_attempt":
+{ Args: { "p_slug": string }; Returns: Json
+                           },
 "submit_attempt":
-{ Args: { "p_answers": Json,"p_duration_seconds"?: number,"p_guest_name"?: string,"p_slug": string }; Returns: Json
+{ Args: { "p_answers": Json,"p_duration_seconds"?: number,"p_guest_name"?: string,"p_slug": string,"p_ticket_id"?: string }; Returns: Json
                            },
 "upgrade_guest_profile":
 { Args: { "p_display_name": string,"p_school"?: string }; Returns: undefined

@@ -324,6 +324,21 @@ export interface EndlessBatch {
   progress: EndlessTopicProgress[]
 }
 
+/** A player's energy, as every energy-aware RPC reports it. */
+export interface EnergyState {
+  /** Free energy left today. Resets at midnight Vietnam time. */
+  free: number
+  /** Purchased energy. Never expires. */
+  paid: number
+  total: number
+  daily_allowance: number
+  /** ISO instant of the next free refill. */
+  resets_at: string
+  plus_until: string | null
+  /** True while Plus is active: nothing is charged. */
+  unlimited: boolean
+}
+
 export interface EndlessGrade {
   question_id: string
   option_id: string | null
@@ -333,6 +348,8 @@ export interface EndlessGrade {
   topic: EndlessTopic | null
   /** Updated progress for this question's topic, or null when it has none. */
   progress: EndlessTopicProgress | null
+  /** The balance after this answer's charge. */
+  energy?: EnergyState | null
 }
 
 // One row of the separate Endless leaderboard, ranked by best session streak.

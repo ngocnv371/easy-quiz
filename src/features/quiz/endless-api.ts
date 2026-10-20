@@ -1,3 +1,4 @@
+import { toEnergyError } from '@/features/energy/api'
 import { requireSupabase } from '@/lib/supabase'
 import { errorMessage } from '@/lib/utils'
 import {
@@ -69,7 +70,9 @@ export async function gradeEndlessAnswer(
     p_session_id: sessionId ?? undefined,
   })
 
-  if (error) throw new Error(errorMessage(error))
+  // Out of energy surfaces as `OutOfEnergyError`, so the player can refill
+  // instead of hitting the generic error screen.
+  if (error) throw toEnergyError(error)
   if (!data) throw new Error('Không nhận được kết quả từ máy chủ.')
 
   return data as unknown as EndlessGrade

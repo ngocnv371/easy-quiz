@@ -5,6 +5,7 @@ import { Infinity as InfinityIcon, LayoutDashboard, Menu, Trophy, X } from 'luci
 import { EasyQuizLogo } from '@/components/brand/logo'
 import { Button, ButtonLink } from '@/components/ui/button'
 import { useAuth } from '@/features/auth/auth-context'
+import { EnergyMeter } from '@/features/energy/energy-meter'
 import { cn } from '@/lib/utils'
 
 import { UserMenu } from './user-menu'
@@ -67,6 +68,8 @@ export function SiteHeader() {
               Lưu kết quả của bạn
             </Link>
           ) : null}
+
+          {user ? <EnergyMeter /> : null}
 
           {status === 'loading' ? (
             <div className="bg-ink-800 h-9 w-24 animate-pulse rounded-full" aria-hidden />
