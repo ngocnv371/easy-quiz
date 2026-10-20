@@ -23,16 +23,17 @@ function mulberry32(seed) {
   }
 }
 
-/** RFC-4180 line parser: quoted fields, escaped quotes, commas inside quotes. */
-function parseLine(line) {
-  const out = []
+/** RFC-4180 parser: quoted fields, escaped quotes, commas and newlines inside quotes. */
+function parseCsv(text) {
+  const rows = []
+  let row = []
   let cur = ''
   let inQuotes = false
-  for (let i = 0; i < line.length; i += 1) {
-    const c = line[i]
+  for (let i = 0; i < text.length; i += 1) {
+    const c = text[i]
     if (inQuotes) {
       if (c === '"') {
-        if (line[i + 1] === '"') {
+        if (text[i + 1] === '"') {
           cur += '"'
           i += 1
         } else {
@@ -44,18 +45,27 @@ function parseLine(line) {
     } else if (c === '"') {
       inQuotes = true
     } else if (c === ',') {
-      out.push(cur)
+      row.push(cur)
+      cur = ''
+    } else if (c === '\n' || c === '\r') {
+      if (c === '\r' && text[i + 1] === '\n') i += 1
+      row.push(cur)
+      rows.push(row)
+      row = []
       cur = ''
     } else {
       cur += c
     }
   }
-  out.push(cur)
-  return out
+  if (cur || row.length) {
+    row.push(cur)
+    rows.push(row)
+  }
+  return rows
 }
 
 function quote(field) {
-  return /[",\n]/.test(field) ? `"${field.replace(/"/g, '""')}"` : field
+  return /[",\r\n]/.test(field) ? `"${field.replace(/"/g, '""')}"` : field
 }
 
 const [out, ...inputs] = process.argv.slice(2)
@@ -69,13 +79,12 @@ const lines = []
 
 for (const input of inputs) {
   const text = fs.readFileSync(input, 'utf8')
-  for (const line of text.split(/\r?\n/)) {
-    if (!line.trim()) continue
-    if (/^subject,/i.test(line)) continue
+  for (const fields of parseCsv(text)) {
+    if (fields.length === 1 && !fields[0].trim()) continue
+    if (/^subject$/i.test(fields[0])) continue
 
-    const fields = parseLine(line)
     if (fields.length < 8) {
-      console.error(`skipping malformed row in ${input}: ${line}`)
+      console.error(`skipping malformed row in ${input}: ${fields.join(',')}`)
       continue
     }
 
