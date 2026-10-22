@@ -135,10 +135,10 @@ export function LandingPage() {
                     Làm câu hỏi đầu tiên
                     <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
                   </ButtonLink>
-                  <ButtonLink to="/explore" variant="spark" size="lg">
+                  <ButtonLink to="/explore" variant="secondary" size="lg">
                     Khám phá đề thi
                   </ButtonLink>
-                  <ButtonLink to="/register" variant="secondary" size="lg">
+                  <ButtonLink to="/register" variant="ghost" size="lg">
                     Tạo tài khoản
                   </ButtonLink>
                 </div>

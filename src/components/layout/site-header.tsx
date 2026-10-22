@@ -23,7 +23,7 @@ export function SiteHeader() {
 
   const linkClasses = ({ isActive }: { isActive: boolean }) =>
     cn(
-      'rounded-full px-3.5 py-2 text-sm font-medium transition-colors duration-200',
+      'rounded-full px-3.5 py-2 text-sm font-medium whitespace-nowrap transition-colors duration-200',
       isActive ? 'text-ink-50 bg-ink-800/80' : 'text-ink-300 hover:text-ink-50 hover:bg-ink-800/60',
     )
 
@@ -34,7 +34,7 @@ export function SiteHeader() {
           <EasyQuizLogo compact />
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Điều hướng chính">
+        <nav className="hidden items-center gap-1 lg:flex" aria-label="Điều hướng chính">
           {NAV_ITEMS.map((item) => (
             <NavLink key={item.to} to={item.to} className={linkClasses}>
               <span className="inline-flex items-center gap-1.5">
@@ -54,8 +54,8 @@ export function SiteHeader() {
           ) : null}
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
-          <ButtonLink to="/endless" size="sm" className="hidden sm:inline-flex">
+        <div className="ml-auto flex min-w-0 items-center gap-2">
+          <ButtonLink to="/endless" size="sm" className="hidden whitespace-nowrap sm:inline-flex">
             <InfinityIcon className="size-4" aria-hidden />
             Chơi ngay
           </ButtonLink>
@@ -63,7 +63,7 @@ export function SiteHeader() {
           {isGuest ? (
             <Link
               to="/register"
-              className="border-spark-400/40 bg-spark-400/10 text-spark-300 hover:border-spark-400/70 hidden rounded-full border px-3 py-1.5 text-xs font-medium transition-colors sm:inline-flex"
+              className="border-spark-400/40 bg-spark-400/10 text-spark-300 hover:border-spark-400/70 hidden rounded-full border px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors xl:inline-flex"
             >
               Lưu kết quả của bạn
             </Link>
@@ -74,7 +74,7 @@ export function SiteHeader() {
           {status === 'loading' ? (
             <div className="bg-ink-800 h-9 w-24 animate-pulse rounded-full" aria-hidden />
           ) : user ? (
-            <UserMenu />
+            <UserMenu guestJoin />
           ) : (
             <div className="hidden items-center gap-2 sm:flex">
               <ButtonLink to="/login" variant="ghost" size="sm">
@@ -89,7 +89,7 @@ export function SiteHeader() {
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden"
+            className="lg:hidden"
             onClick={() => setMobileOpen((open) => !open)}
             aria-expanded={mobileOpen}
             aria-label={mobileOpen ? 'Đóng menu' : 'Mở menu'}
@@ -101,12 +101,12 @@ export function SiteHeader() {
 
       {/* ── Mobile panel ─────────────────────────────────────────────── */}
       {mobileOpen ? (
-        <div className="border-ink-600/60 bg-ink-950/95 border-t backdrop-blur-xl md:hidden">
+        <div className="border-ink-600/60 bg-ink-950/95 border-t backdrop-blur-xl lg:hidden">
           <nav className="container-page flex flex-col gap-1 py-3" aria-label="Điều hướng di động">
             <ButtonLink
               to="/endless"
               size="sm"
-              className="mb-2 justify-center"
+              className="mb-2 justify-center sm:hidden"
               onClick={() => setMobileOpen(false)}
             >
               <InfinityIcon className="size-4" aria-hidden />
