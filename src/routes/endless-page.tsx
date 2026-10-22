@@ -3,7 +3,6 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { motion, useReducedMotion } from 'motion/react'
 import {
   ArrowRight,
-  Check,
   CheckCircle2,
   Flame,
   Home,
@@ -40,6 +39,7 @@ import {
   type AreaStrength,
 } from '@/features/quiz/endless-progress'
 import { fetchTopics } from '@/features/quiz/api'
+import { TopicScopePicker } from '@/features/quiz/topic-scope-picker'
 import { useEndlessSession } from '@/features/quiz/use-endless-session'
 import { useAuth } from '@/features/auth/auth-context'
 import { EnergyMeter } from '@/features/energy/energy-meter'
@@ -605,33 +605,16 @@ function EndlessPlayer({
         icon={Layers}
         tone="violet"
         title="Chọn môn học"
-        description="Giới hạn câu hỏi vô tận trong một môn, hoặc trộn tất cả."
+        description="Chọn lớp, môn rồi chủ đề — hoặc trộn tất cả."
       >
-        <ul className="space-y-1">
-          <ScopeOption
-            active={topicSlug === null}
-            glyph={<Layers className="size-4" aria-hidden />}
-            title="Tất cả môn"
-            subtitle="Trộn câu hỏi từ mọi môn"
-            onSelect={() => {
-              onScopeChange(null)
-              setScopeOpen(false)
-            }}
-          />
-
-          {topics.map((topic) => (
-            <ScopeOption
-              key={topic.id}
-              active={topicSlug === topic.slug}
-              glyph={topic.emoji}
-              title={topic.name}
-              onSelect={() => {
-                onScopeChange(topic.slug)
-                setScopeOpen(false)
-              }}
-            />
-          ))}
-        </ul>
+        <TopicScopePicker
+          topics={topics}
+          activeSlug={topicSlug}
+          onSelect={(slug) => {
+            onScopeChange(slug)
+            setScopeOpen(false)
+          }}
+        />
       </Modal>
     </div>
   )
@@ -718,50 +701,6 @@ function FeedbackBanner({
         </Button>
       </div>
     </div>
-  )
-}
-
-function ScopeOption({
-  active,
-  glyph,
-  title,
-  subtitle,
-  onSelect,
-}: {
-  active: boolean
-  glyph: ReactNode
-  title: string
-  subtitle?: string
-  onSelect: () => void
-}) {
-  return (
-    <li>
-      <button
-        type="button"
-        onClick={onSelect}
-        aria-pressed={active}
-        className={cn(
-          'flex w-full items-center gap-3 rounded-xl border px-3.5 py-3 text-left transition-colors',
-          active ? 'border-neon-400/50 bg-neon-400/10' : 'border-transparent hover:bg-ink-800/60',
-        )}
-      >
-        <span
-          className="border-ink-600 bg-ink-800/70 flex size-8 shrink-0 items-center justify-center rounded-lg border text-base"
-          aria-hidden
-        >
-          {glyph}
-        </span>
-
-        <span className="min-w-0 flex-1">
-          <span className="text-ink-100 block truncate text-sm font-medium">{title}</span>
-          {subtitle ? (
-            <span className="text-ink-400 block truncate text-xs">{subtitle}</span>
-          ) : null}
-        </span>
-
-        {active ? <Check className="text-neon-300 size-4 shrink-0" aria-hidden /> : null}
-      </button>
-    </li>
   )
 }
 

@@ -19,6 +19,8 @@ export type QuizSort = 'new' | 'popular' | 'alphabetical'
 
 export interface QuizQuery {
   topicSlug?: string | null
+  /** Any of these topics — a whole grade or subject. Ignored when `topicSlug` is set. */
+  topicSlugs?: string[] | null
   search?: string
   difficulty?: string | null
   sort?: QuizSort
@@ -45,7 +47,7 @@ export async function fetchTopics(): Promise<TopicRow[]> {
 
 export async function fetchQuizCards(query: QuizQuery = {}): Promise<QuizCard[]> {
   const supabase = requireSupabase()
-  const { topicSlug, search, difficulty, sort = 'new', limit = 60 } = query
+  const { topicSlug, topicSlugs, search, difficulty, sort = 'new', limit = 60 } = query
 
   let builder = supabase
     .from('quiz_cards')
@@ -54,6 +56,7 @@ export async function fetchQuizCards(query: QuizQuery = {}): Promise<QuizCard[]>
     .eq('visibility', 'public')
 
   if (topicSlug) builder = builder.eq('topic_slug', topicSlug)
+  else if (topicSlugs) builder = builder.in('topic_slug', topicSlugs)
   if (difficulty) builder = builder.eq('difficulty', difficulty)
 
   const trimmed = search?.trim()

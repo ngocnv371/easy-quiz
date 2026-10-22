@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Compass, Search, SlidersHorizontal, X } from 'lucide-react'
+import { ChevronRight, Compass, GraduationCap, Search, SlidersHorizontal, X } from 'lucide-react'
 
 import { AuroraBackground } from '@/components/brand/aurora-background'
 import { Badge } from '@/components/ui/badge'
@@ -11,6 +11,7 @@ import { Input, Select } from '@/components/ui/field'
 import { Reveal } from '@/components/ui/reveal'
 import { QuizCardTile } from '@/features/quiz/quiz-card-tile'
 import { fetchQuizCards, fetchTopics, type QuizSort } from '@/features/quiz/api'
+import { groupTopics, locateTopic, schoolLevel } from '@/features/quiz/topic-groups'
 import { DIFFICULTY_LABELS } from '@/lib/labels'
 import type { QuizDifficulty } from '@/lib/domain'
 import { usePageMeta } from '@/lib/seo'
@@ -63,25 +64,56 @@ export function ExplorePage() {
     return () => window.clearTimeout(timer)
   }, [search, params, setParams])
 
-  const queryKey = useMemo(
-    () => `explore:${topicSlug ?? ''}:${difficulty ?? ''}:${sort}:${params.get('q') ?? ''}`,
-    [topicSlug, difficulty, sort, params],
-  )
-
   const topics = useAsyncData('explore:topics', fetchTopics, isSupabaseConfigured)
+
+  // Topics are browsed as Lớp › Môn › Chủ đề. `grade` and `subject` narrow to
+  // every chapter beneath them; a `topic` alone (an old link) implies both.
+  const tree = useMemo(() => groupTopics(topics.data ?? []), [topics.data])
+  const located = locateTopic(tree, topicSlug)
+  const grade = located?.grade ?? (Number(params.get('grade')) || null)
+  const subjectName = located?.subject ?? params.get('subject')
+  const gradeGroup = tree.grades.find((group) => group.grade === grade) ?? null
+  const subjectGroup = gradeGroup?.subjects.find((group) => group.name === subjectName) ?? null
+
+  const groupSlugs = topicSlug
+    ? null
+    : subjectGroup
+      ? subjectGroup.chapters.map((chapter) => chapter.topic.slug)
+      : gradeGroup
+        ? gradeGroup.subjects.flatMap((group) => group.chapters.map((chapter) => chapter.topic.slug))
+        : null
+
+  // A grade/subject filter can only be resolved once the topic list is in.
+  const scopeReady = topicSlug !== null || grade === null || !topics.loading
+
+  const queryKey = `explore:${topicSlug ?? ''}:${groupSlugs?.join(',') ?? ''}:${difficulty ?? ''}:${sort}:${params.get('q') ?? ''}`
 
   const quizzes = useAsyncData(
     queryKey,
     () =>
       fetchQuizCards({
         topicSlug,
+        topicSlugs: groupSlugs,
         difficulty,
         sort,
         search: params.get('q') ?? '',
         limit: 60,
       }),
-    isSupabaseConfigured,
+    isSupabaseConfigured && scopeReady,
   )
+
+  /** Moves the topic filter; each level clears the levels beneath it. */
+  const setScope = (scope: { grade?: number | null; subject?: string | null; topic?: string | null }) => {
+    setParams((previous) => {
+      const next = new URLSearchParams(previous)
+      for (const key of ['grade', 'subject', 'topic'] as const) {
+        const value = scope[key]
+        if (value === undefined || value === null) next.delete(key)
+        else next.set(key, String(value))
+      }
+      return next
+    })
+  }
 
   const patchParam = (key: string, value: string | null) => {
     setParams((previous) => {
@@ -92,7 +124,7 @@ export function ExplorePage() {
     })
   }
 
-  const hasFilters = Boolean(topicSlug || difficulty || params.get('q'))
+  const hasFilters = Boolean(topicSlug || grade || difficulty || params.get('q'))
 
   return (
     <div className="relative">
@@ -172,31 +204,77 @@ export function ExplorePage() {
             </div>
           </div>
 
-          {/* ── Topic filter ──────────────────────────────────────── */}
+          {/* ── Topic filter: Lớp › Môn › Chủ đề ───────────────────── */}
           {topics.data && topics.data.length > 0 ? (
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-ink-400 mr-1 inline-flex items-center gap-1.5 text-xs">
-                <SlidersHorizontal className="size-3.5" aria-hidden />
-                Chủ đề
-              </span>
-
-              <FilterChip
-                active={!topicSlug}
-                onClick={() => patchParam('topic', null)}
-                label="Tất cả"
-              />
-
-              {topics.data.map((topic) => (
+            <div className="flex flex-col gap-2.5" data-cy="explore-topic-filter">
+              <FilterRow icon={SlidersHorizontal} label="Chủ đề">
                 <FilterChip
-                  key={topic.id}
-                  active={topicSlug === topic.slug}
-                  onClick={() =>
-                    patchParam('topic', topicSlug === topic.slug ? null : topic.slug)
-                  }
-                  label={topic.name}
-                  emoji={topic.emoji}
+                  active={!topicSlug && !gradeGroup}
+                  onClick={() => setScope({})}
+                  label="Tất cả"
                 />
-              ))}
+
+                {tree.grades.map((group) => (
+                  <FilterChip
+                    key={group.grade}
+                    active={gradeGroup?.grade === group.grade}
+                    onClick={() =>
+                      setScope({ grade: gradeGroup?.grade === group.grade ? null : group.grade })
+                    }
+                    label={`Lớp ${group.grade}`}
+                    title={schoolLevel(group.grade)}
+                  />
+                ))}
+
+                {tree.other.map((topic) => (
+                  <FilterChip
+                    key={topic.id}
+                    active={topicSlug === topic.slug}
+                    onClick={() => setScope({ topic: topicSlug === topic.slug ? null : topic.slug })}
+                    label={topic.name}
+                    emoji={topic.emoji}
+                  />
+                ))}
+              </FilterRow>
+
+              {gradeGroup ? (
+                <FilterRow icon={GraduationCap} label={`Lớp ${gradeGroup.grade}`}>
+                  {gradeGroup.subjects.map((group) => (
+                    <FilterChip
+                      key={group.name}
+                      active={subjectGroup?.name === group.name}
+                      onClick={() =>
+                        setScope({
+                          grade: gradeGroup.grade,
+                          subject: subjectGroup?.name === group.name ? null : group.name,
+                        })
+                      }
+                      label={group.name}
+                      emoji={group.emoji}
+                    />
+                  ))}
+                </FilterRow>
+              ) : null}
+
+              {gradeGroup && subjectGroup ? (
+                <FilterRow icon={ChevronRight} label={subjectGroup.name}>
+                  {subjectGroup.chapters.map((chapter) => (
+                    <FilterChip
+                      key={chapter.topic.id}
+                      active={topicSlug === chapter.topic.slug}
+                      onClick={() =>
+                        setScope({
+                          grade: gradeGroup.grade,
+                          subject: subjectGroup.name,
+                          topic: topicSlug === chapter.topic.slug ? null : chapter.topic.slug,
+                        })
+                      }
+                      label={chapter.kicker ? `${chapter.kicker}: ${chapter.title}` : chapter.title}
+                    />
+                  ))}
+                </FilterRow>
+              ) : null}
+
             </div>
           ) : null}
 
@@ -275,21 +353,45 @@ export function ExplorePage() {
   )
 }
 
+function FilterRow({
+  icon: Icon,
+  label,
+  children,
+}: {
+  icon: typeof Compass
+  label: string
+  children: ReactNode
+}) {
+  return (
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
+      <span className="text-ink-400 inline-flex shrink-0 items-center gap-1.5 pt-1.5 text-xs sm:w-24">
+        <Icon className="size-3.5" aria-hidden />
+        <span className="truncate">{label}</span>
+      </span>
+      <div className="flex flex-wrap items-center gap-2">{children}</div>
+    </div>
+  )
+}
+
 function FilterChip({
   active,
   onClick,
   label,
   emoji,
+  title,
 }: {
   active: boolean
   onClick: () => void
   label: string
   emoji?: string
+  /** Hover text, for chips whose label is an abbreviation. */
+  title?: string
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      title={title}
       aria-pressed={active}
       className={cn(
         'inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm transition-colors duration-200',
