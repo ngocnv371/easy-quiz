@@ -30,7 +30,7 @@ import { cn } from '@/lib/utils'
 const PILLARS = [
   {
     icon: Zap,
-    title: 'Mở lên là hỏi ngay',
+    title: 'Mở lên chơi ngay',
     description:
       'Không màn hình chờ, không nút bắt đầu. Câu hỏi đầu tiên có mặt ngay khi trang mở, và bạn dừng lúc nào cũng được.',
     tone: 'neon' as const,
@@ -116,7 +116,7 @@ export function LandingPage() {
 
               <Reveal delay={0.06}>
                 <h1 className="font-display mt-5 text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl lg:leading-[1.05]">
-                  Mở lên là hỏi,
+                  Mở lên chơi ngay,
                   <br />
                   <span className="text-gradient-spark">dừng tùy thích.</span>
                 </h1>

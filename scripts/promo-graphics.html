@@ -461,6 +461,20 @@
         font-weight: 600;
       }
 
+      .summary-sub {
+        margin-top: 4px;
+        color: #7d88a8;
+        font-size: 14px;
+      }
+
+      .stat-correct b {
+        color: #34d399;
+      }
+
+      .stat-spark b {
+        color: #fcd34d;
+      }
+
       .stats {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -662,7 +676,7 @@
         font-size: 21px;
       }
 
-      .guest-head span {
+      .guest-head div span {
         display: block;
         margin-top: 2px;
         color: #7d88a8;
@@ -714,6 +728,30 @@
         justify-content: center;
         gap: 12px;
         max-width: 430px;
+      }
+
+      .topics-stack {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 18px;
+      }
+
+      .grade-pill {
+        padding: 10px 22px;
+        border: 1px solid rgb(251 191 36 / 0.45);
+        border-radius: 999px;
+        background: rgb(251 191 36 / 0.1);
+        color: #fcd34d;
+        font-family: "Space Grotesk", Inter, sans-serif;
+        font-size: 22px;
+        font-weight: 700;
+      }
+
+      .topics-note {
+        color: #7d88a8;
+        font-size: 14px;
+        text-align: center;
       }
 
       .topic {
@@ -825,13 +863,14 @@
           footer: 'Một sản phẩm của AiTechX',
           summary: 'TỔNG KẾT',
           stopped: 'Đã dừng',
-          session: 'Phiên luyện của bạn',
-          statQuestions: 'câu đã làm',
-          statAccuracy: 'chính xác',
-          statStreak: 'chuỗi dài nhất',
-          statTime: 'thời gian',
-          keepGoing: 'Tiếp tục',
-          home: 'Về nhà',
+          session: 'Phiên luyện tập',
+          stoppedAfter: (time) => `Bạn đã dừng sau ${time}.`,
+          statQuestions: 'Đã làm',
+          statCorrect: 'Đúng',
+          statAccuracy: 'Chính xác',
+          statStreak: 'Chuỗi dài nhất',
+          keepGoing: 'Chơi tiếp',
+          home: 'Trang chủ',
           scoreNote: 'điểm · chuỗi 7',
           you: 'Bạn',
           streakLabel: 'câu đúng liên tiếp',
@@ -841,7 +880,7 @@
           guestAccuracy: 'Chính xác',
           save: 'Lưu kết quả của bạn',
           endless: '∞ VÔ TẬN',
-          ctaSub: 'Chơi ngay trên trình duyệt · Miễn phí',
+          ctaSub: 'Chơi ngay trên trình duyệt · Có câu miễn phí mỗi ngày',
           questions: (n) => `${n} câu`,
         },
         en: {
@@ -849,12 +888,13 @@
           footer: 'An AiTechX product',
           summary: 'SUMMARY',
           stopped: 'Stopped',
-          session: 'Your session',
-          statQuestions: 'questions done',
-          statAccuracy: 'accuracy',
-          statStreak: 'longest streak',
-          statTime: 'time',
-          keepGoing: 'Keep going',
+          session: 'Practice session',
+          stoppedAfter: (time) => `You stopped after ${time}.`,
+          statQuestions: 'Answered',
+          statCorrect: 'Correct',
+          statAccuracy: 'Accuracy',
+          statStreak: 'Longest streak',
+          keepGoing: 'Play on',
           home: 'Home',
           scoreNote: 'points · streak 7',
           you: 'You',
@@ -865,7 +905,7 @@
           guestAccuracy: 'Accuracy',
           save: 'Save your results',
           endless: '∞ ENDLESS',
-          ctaSub: 'Play in your browser · Free',
+          ctaSub: 'Play in your browser · Free questions every day',
           questions: (n) => `${n} questions`,
         },
       }
@@ -940,11 +980,12 @@
           <div class="summary">
             <div class="summary-top"><span>${ui.summary}</span><span class="pill">${ui.stopped}</span></div>
             <h3>${ui.session}</h3>
+            <p class="summary-sub">${ui.stoppedAfter('02:41')}</p>
             <div class="stats">
               <div class="stat"><b>18</b><span>${ui.statQuestions}</span></div>
+              <div class="stat stat-correct"><b>15</b><span>${ui.statCorrect}</span></div>
               <div class="stat"><b>83%</b><span>${ui.statAccuracy}</span></div>
-              <div class="stat"><b>7</b><span>${ui.statStreak}</span></div>
-              <div class="stat"><b>02:41</b><span>${ui.statTime}</span></div>
+              <div class="stat stat-spark"><b>7</b><span>${ui.statStreak}</span></div>
             </div>
             <div class="summary-actions">
               <span class="btn-primary">${ui.keepGoing}</span>
@@ -1016,12 +1057,18 @@
       function topicsCard(lang) {
         const topics =
           lang === 'vi'
-            ? ['🔢 Toán học', '🏛️ Lịch sử', '🔬 Khoa học', '📖 Ngữ văn', '🌏 Địa lý', '💻 Tin học', '🎨 Nghệ thuật', '⚽ Thể thao']
-            : ['🔢 Math', '🏛️ History', '🔬 Science', '📖 Literature', '🌏 Geography', '💻 Computing', '🎨 Art', '⚽ Sport']
+            ? ['🔢 Toán', '🔤 Tiếng Anh', '🔬 KHTN', '🛠️ Công nghệ', '🧩 Tư duy logic']
+            : ['🔢 Math', '🔤 English', '🔬 Natural Science', '🛠️ Technology', '🧩 Logic']
 
-        return `<div class="topics">${topics
-          .map((topic) => `<span class="topic">${topic}</span>`)
-          .join('')}</div>`
+        const grades = lang === 'vi' ? 'Lớp 3 → Lớp 9' : 'Grades 3 → 9'
+        const books = lang === 'vi' ? 'Theo SGK Kết nối tri thức · Global Success' : 'Follows the KNTT and Global Success textbooks'
+
+        return `
+          <div class="topics-stack">
+            <span class="grade-pill">${grades}</span>
+            <div class="topics">${topics.map((topic) => `<span class="topic">${topic}</span>`).join('')}</div>
+            <span class="topics-note">${books}</span>
+          </div>`
       }
 
       function phoneCard(lang) {
@@ -1067,13 +1114,13 @@
           {
             layout: 'split',
             kicker: 'Ra mắt',
-            headline: 'Mở lên là hỏi,<br><span class="gradient">dừng tùy thích.</span>',
+            headline: 'Mở lên chơi ngay,<br><span class="gradient">dừng tùy thích.</span>',
             lede: 'Trắc nghiệm tức thì — không màn hình chờ, không cần tài khoản.',
             visual: questionCard('vi', {
-              tag: 'Địa lý',
+              tag: 'Toán 5',
               step: 'Câu 4 / 10',
-              question: 'Thủ đô của Việt Nam là thành phố nào?',
-              options: ['Hà Nội', 'Huế', 'Đà Nẵng', 'TP. Hồ Chí Minh'],
+              question: '0,5 + 0,25 bằng bao nhiêu?',
+              options: ['0,75', '0,30', '0,525', '7,5'],
               correct: 0,
               score: '+120',
             }),
@@ -1115,7 +1162,7 @@
             visual: `
               <div class="visual-stack">
                 ${questionCard('vi', {
-                  tag: 'Khoa học',
+                  tag: 'KHTN 6',
                   step: 'Câu 03',
                   question: 'Hành tinh nào gần Mặt Trời nhất?',
                   options: ['Sao Kim', 'Sao Thuỷ', 'Trái Đất', 'Sao Hoả'],
@@ -1141,14 +1188,14 @@
             layout: 'split',
             kicker: 'Không cần tài khoản',
             headline: 'Vào là chơi.<br><span class="gradient">Lưu sau cũng được.</span>',
-            lede: 'Không email, không mật khẩu. Kết quả vẫn được giữ khi bạn muốn tạo tài khoản.',
+            lede: 'Khách có 30 câu miễn phí mỗi ngày. Tạo tài khoản để lên 60 câu — kết quả cũ vẫn được giữ.',
             visual: guestCard('vi'),
           },
           {
             layout: 'split',
-            kicker: 'Mọi chủ đề',
-            headline: 'Toán, Lịch sử,<br><span class="gradient">Khoa học…</span>',
-            lede: 'Chọn môn bạn thích, hoặc để Easy Quiz chọn theo thế mạnh của bạn.',
+            kicker: 'Bám sát chương trình',
+            headline: 'Ôn bài từ<br><span class="gradient">lớp 3 đến lớp 9.</span>',
+            lede: 'Chọn Lớp › Môn › Chủ đề, hoặc để Easy Quiz chọn theo thế mạnh của bạn.',
             visual: topicsCard('vi'),
           },
           {
@@ -1162,7 +1209,7 @@
             layout: 'center',
             kicker: 'Sẵn sàng chưa?',
             headline: 'Câu hỏi đầu tiên<br><span class="gradient">đang chờ bạn.</span>',
-            lede: 'Không cần cài đặt, không cần tài khoản. Mở lên là hỏi ngay.',
+            lede: 'Không cần cài đặt, không cần tài khoản. Muốn luyện không giới hạn? Có Easy Quiz Plus.',
             visual: ctaCard('vi'),
           },
         ],
@@ -1174,10 +1221,10 @@
             headline: 'Open. Answer.<br><span class="gradient">Stop anytime.</span>',
             lede: 'Instant quizzes — no waiting screen, no account needed.',
             visual: questionCard('en', {
-              tag: 'Geography',
+              tag: 'Math 5',
               step: 'Question 4 / 10',
-              question: 'What is the capital of Vietnam?',
-              options: ['Hanoi', 'Hue', 'Da Nang', 'Ho Chi Minh City'],
+              question: 'What is 0.5 + 0.25?',
+              options: ['0.75', '0.30', '0.525', '7.5'],
               correct: 0,
               score: '+120',
             }),
@@ -1219,7 +1266,7 @@
             visual: `
               <div class="visual-stack">
                 ${questionCard('en', {
-                  tag: 'Science',
+                  tag: 'Science 6',
                   step: 'Question 03',
                   question: 'Which planet is closest to the Sun?',
                   options: ['Venus', 'Mercury', 'Earth', 'Mars'],
@@ -1245,14 +1292,14 @@
             layout: 'split',
             kicker: 'No account needed',
             headline: 'Jump in and play.<br><span class="gradient">Save it later.</span>',
-            lede: 'No email, no password. Your results stay with you when you are ready to create an account.',
+            lede: 'Guests get 30 free questions a day. Create an account for 60 — and keep everything you already played.',
             visual: guestCard('en'),
           },
           {
             layout: 'split',
-            kicker: 'Every subject',
-            headline: 'Math, history,<br><span class="gradient">science…</span>',
-            lede: 'Pick the subjects you love, or let Easy Quiz choose based on your strengths.',
+            kicker: 'Built on the curriculum',
+            headline: 'Review for<br><span class="gradient">grades 3 to 9.</span>',
+            lede: 'Pick grade › subject › topic, or let Easy Quiz choose based on your strengths.',
             visual: topicsCard('en'),
           },
           {
@@ -1266,7 +1313,7 @@
             layout: 'center',
             kicker: 'Ready?',
             headline: 'Your first question<br><span class="gradient">is waiting.</span>',
-            lede: 'No install, no account. Open it and answer.',
+            lede: 'No install, no account. Want unlimited practice? There is Easy Quiz Plus.',
             visual: ctaCard('en'),
           },
         ],

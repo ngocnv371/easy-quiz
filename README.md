@@ -1,6 +1,6 @@
 # Easy Quiz
 
-> Mở lên là hỏi, dừng tùy thích.
+> Mở lên chơi ngay, dừng tùy thích.
 
 An instant-play quiz platform from **AiTechX**: open it and the first question is already on
 screen — no waiting screen, no account required — and you stop whenever you like. Answers are

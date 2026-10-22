@@ -16,7 +16,7 @@ export const SITE_URL = (
   rawSiteUrl && rawSiteUrl !== '' ? rawSiteUrl : 'https://easyquiz.aitechx.vn'
 ).replace(/\/+$/, '')
 
-export const TAGLINE = 'Mở lên là hỏi, dừng tùy thích'
+export const TAGLINE = 'Mở lên chơi ngay, dừng tùy thích'
 
 export const APP_DESCRIPTION =
   'Mở lên là có câu hỏi ngay — không màn hình chờ, không bắt buộc tài khoản, và dừng lúc nào cũng được. Mỗi câu được chấm tức thì và chọn theo trình độ của bạn, để việc luyện tập vừa nhanh vừa vui.'
