@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from 'motion/react'
 import {
   ArrowRight,
   CheckCircle2,
+  ChevronRight,
   Flame,
   Home,
   Infinity as InfinityIcon,
@@ -22,7 +23,6 @@ import { AuroraBackground } from '@/components/brand/aurora-background'
 import { EasyQuizLogo } from '@/components/brand/logo'
 import { UserMenu } from '@/components/layout/user-menu'
 import { QuestionRevealVideo } from '@/components/remotion/players'
-import { Badge } from '@/components/ui/badge'
 import { Button, ButtonLink, Spinner } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Alert, EmptyState, Skeleton } from '@/components/ui/feedback'
@@ -282,7 +282,11 @@ function EndlessPlayer({
   // question boundary, so a mid-question re-render cannot replay it.
   const recipe =
     QUESTION_MOTION_RECIPES[shown % QUESTION_MOTION_RECIPES.length] ?? QUESTION_MOTION_RECIPES[0]
-  const promptTokens = current ? tokenizePrompt(current.prompt, recipe.prompt.unit) : []
+  const promptWords = current ? tokenizePrompt(current.prompt, recipe.prompt.unit) : []
+  // Each unit's position across the whole prompt, so the stagger runs word to word.
+  const promptOffsets = promptWords.map((_, wordIndex) =>
+    promptWords.slice(0, wordIndex).reduce((count, word) => count + word.length, 0),
+  )
 
   // The Remotion beat announces the question number; the prompt words and
   // answer tiles animate themselves.
@@ -341,29 +345,31 @@ function EndlessPlayer({
     phase === 'loading' || (!current && phase !== 'stopped' && phase !== 'error' && !exhausted)
 
   return (
-    <div className="bg-ink-950 relative flex min-h-dvh flex-col overflow-hidden">
+    <div className="bg-ink-950 relative flex min-h-dvh flex-col overflow-clip">
       <AuroraBackground grid={false} variant="quiz" />
 
       <div className="relative flex min-h-dvh flex-col">
         {/* ── Top bar ─────────────────────────────────────────────────── */}
-        <header className="border-ink-600/50 border-b backdrop-blur-sm">
-          <div className="mx-auto flex w-full max-w-3xl items-center gap-2 px-5 py-3.5">
+        <header className="border-ink-600/50 bg-ink-950/80 sticky top-0 z-20 border-b backdrop-blur-sm">
+          <div className="relative mx-auto flex w-full max-w-3xl items-center gap-2 px-4 py-3 sm:px-5 sm:py-3.5">
             <Link to="/" aria-label="Easy Quiz" className="shrink-0">
-              <EasyQuizLogo markClassName="size-7" />
+              <EasyQuizLogo
+                markClassName="size-8"
+                tagline={
+                  <span className="inline-flex items-center gap-1">
+                    <InfinityIcon className="size-3" aria-hidden />
+                    Chế độ vô tận
+                  </span>
+                }
+              />
             </Link>
 
-            <Badge tone="violet" icon={InfinityIcon} className="hidden sm:inline-flex">
-              Vô tận
-            </Badge>
-
-            <div className="ml-auto flex items-center gap-1.5">
-              <EnergyMeter dataCy="endless-energy" />
-
+            <div className="ml-auto flex min-w-0 items-center gap-1.5">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setScopeOpen(true)}
-                className="gap-1.5"
+                className="gap-1.5 px-2.5 sm:px-3"
                 data-cy="endless-scope"
                 aria-label={`Môn học: ${scopeName ?? 'tất cả'}`}
               >
@@ -382,27 +388,31 @@ function EndlessPlayer({
               <StatPill icon={Target} tone="neon" dataCy="endless-accuracy">
                 {formatPercent(accuracy)}
               </StatPill>
-
-              <StatPill icon={Timer} tone="neutral" className="hidden sm:inline-flex">
-                {formatClock(seconds)}
-              </StatPill>
             </div>
 
-            <Button
-              variant="ghost"
-              size="sm"
+            {/* Clock and stop float just under the bar, well away from the answers. */}
+            <button
+              type="button"
               onClick={stop}
-              className="shrink-0"
               data-cy="endless-stop"
+              aria-label={`Dừng phiên luyện tập (${formatClock(seconds)})`}
+              className="border-ink-600/70 bg-ink-900/90 hover:border-ink-500 hover:bg-ink-800 text-ink-100 absolute top-full right-4 mt-3 inline-flex items-center gap-2.5 rounded-full border py-2 pr-4 pl-3.5 text-sm font-medium shadow-lg shadow-black/40 backdrop-blur transition-colors sm:right-5"
             >
-              <Pause className="size-4" aria-hidden />
-              Dừng
-            </Button>
+              <span className="text-ink-300 inline-flex items-center gap-1.5 tabular-nums" data-cy="endless-timer">
+                <Timer className="size-4" aria-hidden />
+                {formatClock(seconds)}
+              </span>
+              <span className="bg-ink-600 h-4 w-px" aria-hidden />
+              <span className="inline-flex items-center gap-1.5">
+                <Pause className="size-4" aria-hidden />
+                Dừng
+              </span>
+            </button>
           </div>
         </header>
 
         {/* ── Question ───────────────────────────────────────────────── */}
-        <main className="relative mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center px-5 py-8">
+        <main className="relative mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center px-4 pt-20 pb-6 sm:px-5 sm:pt-24 sm:pb-8">
           {current && shown > 0 && !reduceMotion ? (
             <div
               data-cy="endless-reveal"
@@ -452,23 +462,26 @@ function EndlessPlayer({
 
               <motion.h1
                 data-cy="endless-prompt"
-                className="font-display text-ink-50 mt-5 text-xl leading-snug font-semibold sm:text-2xl"
+                className="font-display text-ink-50 text-xl leading-snug font-semibold sm:text-2xl"
                 variants={recipe.prompt.container}
                 initial={motionFrom}
                 animate={introReady ? 'visible' : 'hidden'}
               >
-                {promptTokens.map((token, tokenIndex) => (
-                  <Fragment key={`${tokenIndex}-${token}`}>
-                    <motion.span
-                      custom={tokenIndex}
-                      variants={recipe.prompt.item}
-                      className="inline-block whitespace-pre"
-                    >
-                      {token}
-                    </motion.span>
-                    {recipe.prompt.unit === 'words' && tokenIndex < promptTokens.length - 1
-                      ? ' '
-                      : null}
+                {promptWords.map((units, wordIndex) => (
+                  <Fragment key={`${wordIndex}-${units.join('')}`}>
+                    <span className="inline-block whitespace-nowrap">
+                      {units.map((unit, unitIndex) => (
+                        <motion.span
+                          key={unitIndex}
+                          custom={(promptOffsets[wordIndex] ?? 0) + unitIndex}
+                          variants={recipe.prompt.item}
+                          className="inline-block"
+                        >
+                          {unit}
+                        </motion.span>
+                      ))}
+                    </span>
+                    {wordIndex < promptWords.length - 1 ? ' ' : null}
                   </Fragment>
                 ))}
               </motion.h1>
@@ -483,7 +496,7 @@ function EndlessPlayer({
 
               <motion.div
                 data-cy="endless-options"
-                className="mt-7 space-y-3"
+                className="mt-5 space-y-2.5 sm:mt-7 sm:space-y-3"
                 variants={recipe.choice.container}
                 initial={motionFrom}
                 animate={introReady ? 'visible' : 'hidden'}
@@ -527,40 +540,37 @@ function EndlessPlayer({
 
         {/* ── Account ─────────────────────────────────────────────────── */}
         <footer className="border-ink-600/50 border-t backdrop-blur-sm">
-          <div className="mx-auto flex w-full max-w-3xl items-center gap-3 px-5 py-3">
+          <div className="mx-auto flex w-full max-w-3xl items-center gap-2 px-4 py-2.5 sm:px-5 sm:py-3">
             <UserMenu
               placement="top"
               align="start"
               size="sm"
               guestJoin
               dataCy="endless-user"
-              className="shrink-0"
+              className="min-w-0 shrink"
             />
 
-            <Link
-              to="/leaderboard?board=endless"
-              className="text-ink-300 hover:text-neon-300 inline-flex items-center gap-1.5 text-xs transition-colors"
-              data-cy="endless-leaderboard-link"
-            >
-              <Trophy className="size-3.5" aria-hidden />
-              Bảng xếp hạng
-            </Link>
+            <div className="ml-auto flex shrink-0 items-center gap-1.5">
+              <EnergyMeter dataCy="endless-energy" />
 
-            <span
-              data-cy="endless-highscore"
-              className="border-spark-400/40 bg-spark-400/10 text-spark-300 ml-auto inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium tabular-nums"
-              title="Chuỗi trả lời đúng dài nhất trong phiên này"
-            >
-              <Trophy className="size-3.5" aria-hidden />
-              Kỷ lục
-              <span
-                key={stats.bestStreak}
-                data-cy="endless-highscore-value"
-                className="text-ink-50 animate-pop inline-block font-semibold"
+              <Link
+                to="/leaderboard?board=endless"
+                data-cy="endless-highscore"
+                className="border-spark-400/40 bg-spark-400/10 text-spark-300 hover:border-spark-400/70 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium whitespace-nowrap tabular-nums transition-colors"
+                title="Chuỗi trả lời đúng dài nhất trong phiên này · Xem bảng xếp hạng"
               >
-                {stats.bestStreak}
-              </span>
-            </span>
+                <Trophy className="size-3.5" aria-hidden />
+                Kỷ lục
+                <span
+                  key={stats.bestStreak}
+                  data-cy="endless-highscore-value"
+                  className="text-ink-50 animate-pop inline-block font-semibold"
+                >
+                  {stats.bestStreak}
+                </span>
+                <ChevronRight className="-mr-1 size-3.5 opacity-70" aria-hidden />
+              </Link>
+            </div>
           </div>
         </footer>
       </div>
@@ -651,14 +661,14 @@ function FeedbackBanner({
     <div
       data-cy="endless-feedback"
       className={cn(
-        'animate-feedback-in mt-5 rounded-2xl border p-4',
+        'animate-feedback-in mt-4 rounded-2xl border p-3.5 sm:mt-5 sm:p-4',
         feedback.is_correct
           ? 'border-correct-400/40 bg-correct-500/10'
           : 'border-wrong-400/40 bg-wrong-500/10',
       )}
       role="status"
     >
-      <div className="flex items-start gap-3">
+      <div className="flex flex-wrap items-start gap-3 sm:flex-nowrap">
         {feedback.is_correct ? (
           <CheckCircle2 className="text-correct-400 mt-0.5 size-5 shrink-0" aria-hidden />
         ) : (
@@ -694,7 +704,8 @@ function FeedbackBanner({
           size="sm"
           variant={feedback.is_correct ? 'secondary' : 'primary'}
           onClick={onAdvance}
-          className="shrink-0"
+          // On phones the button drops to its own row, so the explanation keeps the full width.
+          className="ml-auto shrink-0 max-sm:basis-full"
         >
           Tiếp
           <ArrowRight className="size-4" aria-hidden />
@@ -727,7 +738,7 @@ function StatPill({
     <span
       data-cy={dataCy}
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium tabular-nums',
+        'inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-1 text-xs font-medium whitespace-nowrap tabular-nums sm:gap-1.5 sm:px-2.5',
         tones[tone],
         className,
       )}

@@ -22,7 +22,6 @@ const S = {
   scope: '[data-cy=endless-scope]',
   highscore: '[data-cy=endless-highscore]',
   highscoreValue: '[data-cy=endless-highscore-value]',
-  leaderboardLink: '[data-cy=endless-leaderboard-link]',
   summary: '[data-cy=endless-summary]',
   streak: '[data-cy=endless-streak]',
   accuracy: '[data-cy=endless-accuracy]',
@@ -74,8 +73,9 @@ describe('Endless mode', () => {
     // The subject-scope control and the session highscore live in the chrome,
     // not in an inventory of areas.
     cy.get(S.scope).should('be.visible')
+    // The highscore pill doubles as the way into the Endless leaderboard.
     cy.get(S.highscore).should('be.visible')
-    cy.get(S.leaderboardLink).should('have.attr', 'href').and('include', '/leaderboard')
+    cy.get(S.highscore).should('have.attr', 'href').and('include', '/leaderboard')
 
     // The first question skips the intro and plays immediately.
     cy.get(S.reveal).should('not.exist')

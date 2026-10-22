@@ -25,10 +25,13 @@ const SOFT = { type: 'spring', stiffness: 150, damping: 22 } as const
 const POP = { type: 'spring', stiffness: 460, damping: 18, mass: 0.8 } as const
 const EASE_OUT = { duration: 0.5, ease: [0.16, 1, 0.3, 1] } as const
 
-/** Splits a prompt into the units a recipe animates. */
-export function tokenizePrompt(text: string, unit: PromptUnit): string[] {
-  if (unit === 'chars') return Array.from(text)
-  return text.split(/\s+/).filter(Boolean)
+/**
+ * Splits a prompt into words, each holding the units a recipe animates. Keeping
+ * the word grouping lets a line wrap only between words, never mid-word.
+ */
+export function tokenizePrompt(text: string, unit: PromptUnit): string[][] {
+  const words = text.split(/\s+/).filter(Boolean)
+  return unit === 'chars' ? words.map((word) => Array.from(word)) : words.map((word) => [word])
 }
 
 export const QUESTION_MOTION_RECIPES: QuestionMotionRecipe[] = [
