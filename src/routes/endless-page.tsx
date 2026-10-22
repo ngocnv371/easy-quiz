@@ -364,19 +364,18 @@ function EndlessPlayer({
               />
             </Link>
 
-            <div className="ml-auto flex min-w-0 items-center gap-1.5">
+            {/* The subject label takes whatever room the brand and stats leave. */}
+            <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-1.5">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setScopeOpen(true)}
-                className="gap-1.5 px-2.5 sm:px-3"
+                className="min-w-0 gap-1.5 px-2.5 sm:max-w-xs sm:px-3"
                 data-cy="endless-scope"
                 aria-label={`Môn học: ${scopeName ?? 'tất cả'}`}
               >
-                <Layers className="size-4" aria-hidden />
-                <span className="hidden max-w-[8rem] truncate sm:inline">
-                  {scopeName ?? 'Tất cả môn'}
-                </span>
+                <Layers className="size-4 shrink-0" aria-hidden />
+                <span className="min-w-0 truncate">{scopeName ?? 'Tất cả môn'}</span>
               </Button>
 
               <StatPill icon={Flame} tone={stats.streak >= 2 ? 'spark' : 'neutral'} dataCy="endless-streak">
