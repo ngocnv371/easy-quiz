@@ -3,12 +3,12 @@
 /**
  * Endless mode — end-to-end.
  *
- * These run against the real app plus a local Supabase stack. The page signs in
+ * These run against the real app and its Worker (local D1). The page signs in
  * anonymously on its own, then pulls batches of questions from every published
  * public quiz and grades each answer server-side.
  *
  * Prerequisites:
- *   npm run supabase:start   # backend up + migrations applied + seed
+ *   npm run db:migrate       # local D1 tables, then import questions (README)
  *   npm run dev              # app on http://localhost:5173
  *
  * Then: npm run e2e   (Cypress runs in Edge)

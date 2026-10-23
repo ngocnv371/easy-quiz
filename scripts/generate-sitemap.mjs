@@ -1,15 +1,14 @@
 #!/usr/bin/env node
 /**
- * Rewrites `public/sitemap.xml` from the quizzes published in Supabase.
+ * Rewrites `public/sitemap.xml` from the quizzes published on the site.
  *
  * A quiz catalogue is the whole point of this site and its URLs only exist at
- * runtime, so a hand-written sitemap would always be stale. This queries the
- * Supabase REST API with the publishable (anon) key — the same credentials the
- * browser already holds, so row level security returns exactly the quizzes a
+ * runtime, so a hand-written sitemap would always be stale. This asks the
+ * site's own API (`/api/quizzes`) — the public list, exactly the quizzes a
  * visitor can reach.
  *
- * Values come from `.env.local` and `.env.production` (production wins, as it
- * does in Vite), so nothing has to be exported by hand. Run it before a
+ * `VITE_SITE_URL` comes from `.env.local` and `.env.production` (production
+ * wins, as it does in Vite), so nothing has to be exported by hand. Run it before a
  * production deploy; a failure keeps the existing file rather than emptying it.
  */
 
@@ -51,23 +50,14 @@ if (configuredSiteUrl && configuredSiteUrl !== siteUrl) {
   console.warn(`Bỏ qua VITE_SITE_URL=${configuredSiteUrl} — dùng ${siteUrl}.`)
 }
 
-const supabaseUrl = pick('VITE_SUPABASE_URL')
-const anonKey = pick('VITE_SUPABASE_ANON_KEY')
-
-if (!supabaseUrl || !anonKey) {
-  console.error('Thiếu VITE_SUPABASE_URL hoặc VITE_SUPABASE_ANON_KEY — không sinh được sitemap.')
-  process.exit(1)
-}
-
-const endpoint =
-  `${supabaseUrl}/rest/v1/quiz_cards` +
-  '?select=slug,updated_at&status=eq.published&visibility=eq.public' +
-  '&order=updated_at.desc.nullslast&limit=5000'
+// The live site's API by default; SITEMAP_API_URL points it elsewhere (e.g. http://localhost:5173).
+const apiUrl = (pick('SITEMAP_API_URL') || siteUrl).replace(/\/+$/, '')
+const endpoint = `${apiUrl}/api/quizzes?sort=new&limit=1000`
 
 let quizzes
 try {
   const response = await fetch(endpoint, {
-    headers: { apikey: anonKey, accept: 'application/json' },
+    headers: { accept: 'application/json' },
   })
 
   if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`)

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Imports every file in `samples/` through the `import-questions` edge function.
+ * Imports every file in `samples/` through the admin importer (`/api/manage/import`).
  *
  * The admin console uploads one CSV at a time by hand; this is the same path
  * without the clicking, so a fresh database can be filled with the sample
@@ -9,14 +9,14 @@
  *   npm run import:samples            # everything in ./samples
  *   npm run import:samples -- some/dir # a different folder
  *
- * Credentials come from `.env` then `.env.local` (local wins, as in Vite) — set
- * `IMPORT_ENV_FILE` to read a single different file instead. Because a stray
- * `VITE_SUPABASE_URL` can point at production, a non-local target is refused
- * unless `IMPORT_ALLOW_REMOTE=1` is set.
+ * The site defaults to the dev server (http://localhost:5173); set
+ * `IMPORT_SITE_URL` for another. A non-local target is refused unless
+ * `IMPORT_ALLOW_REMOTE=1` is set.
  *
- * The importer is admin-only, so the script signs in as an admin first. The
- * demo admin seeded for local development is used by default; override with
- * `IMPORT_ADMIN_EMAIL` / `IMPORT_ADMIN_PASSWORD` for any other project.
+ * The importer is admin-only, so the script signs in first with
+ * `IMPORT_ADMIN_EMAIL` / `IMPORT_ADMIN_PASSWORD` — an account whose email is
+ * confirmed and that `npm run admin:promote` made an admin. Both can live in
+ * `.env.local` (or the file named by `IMPORT_ENV_FILE`).
  */
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
@@ -45,30 +45,27 @@ const envFiles = process.env.IMPORT_ENV_FILE
 const fileEnv = Object.assign({}, ...envFiles.map(readEnvFile))
 const pick = (key) => (process.env[key] ?? fileEnv[key] ?? '').trim()
 
-const supabaseUrl = pick('VITE_SUPABASE_URL').replace(/\/+$/, '')
-const anonKey = pick('VITE_SUPABASE_ANON_KEY')
-const email = pick('IMPORT_ADMIN_EMAIL') || 'admin@easyquiz.local'
-const password = pick('IMPORT_ADMIN_PASSWORD') || 'easyquiz123'
+const siteUrl = (pick('IMPORT_SITE_URL') || 'http://localhost:5173').replace(/\/+$/, '')
+const email = pick('IMPORT_ADMIN_EMAIL')
+const password = pick('IMPORT_ADMIN_PASSWORD')
 
 const samplesDir = resolve(projectRoot, process.argv[2] ?? 'samples')
 
-if (!supabaseUrl || !anonKey) {
-  console.error(
-    'Thiếu VITE_SUPABASE_URL hoặc VITE_SUPABASE_ANON_KEY — sao chép .env.example sang .env.local.',
-  )
+if (!email || !password) {
+  console.error('Thiếu IMPORT_ADMIN_EMAIL hoặc IMPORT_ADMIN_PASSWORD — đặt trong .env.local.')
   process.exit(1)
 }
 
-// `.env` can hold a production project; never write there by accident.
-if (!/^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(?::\d+)?(?:\/|$)/.test(supabaseUrl)) {
+// Never write to a live site by accident.
+if (!/^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(?::\d+)?(?:\/|$)/.test(siteUrl)) {
   if (process.env.IMPORT_ALLOW_REMOTE !== '1') {
     console.error(
-      `Từ chối nhập vào ${supabaseUrl} — không phải máy cục bộ.\n` +
+      `Từ chối nhập vào ${siteUrl} — không phải máy cục bộ.\n` +
         'Đặt IMPORT_ALLOW_REMOTE=1 nếu bạn thật sự muốn nhập lên môi trường từ xa.',
     )
     process.exit(1)
   }
-  console.warn(`Cảnh báo: đang nhập lên môi trường từ xa — ${supabaseUrl}`)
+  console.warn(`Cảnh báo: đang nhập lên môi trường từ xa — ${siteUrl}`)
 }
 
 if (!existsSync(samplesDir)) {
@@ -86,36 +83,34 @@ if (files.length === 0) {
   process.exit(1)
 }
 
-/** Signs in as the admin and returns a bearer token for the edge function. */
+/** Signs in as the admin and returns the session cookie for the importer. */
 async function signIn() {
-  const response = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
+  const response = await fetch(`${siteUrl}/api/auth/sign-in/email`, {
     method: 'POST',
-    headers: { apikey: anonKey, 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Origin: siteUrl },
     body: JSON.stringify({ email, password }),
   })
 
   const body = await response.json().catch(() => null)
+  const cookie = response.headers
+    .getSetCookie()
+    .map((value) => value.split(';')[0])
+    .join('; ')
 
-  if (!response.ok || typeof body?.access_token !== 'string') {
-    const reason =
-      body?.error_description ?? body?.msg ?? body?.error ?? `HTTP ${response.status}`
-    throw new Error(`Đăng nhập thất bại cho ${email}: ${reason}`)
+  if (!response.ok || cookie === '') {
+    throw new Error(`Đăng nhập thất bại cho ${email}: ${body?.message ?? body?.code ?? `HTTP ${response.status}`}`)
   }
 
-  return body.access_token
+  return cookie
 }
 
-/** Sends one CSV to the edge function; resolves to its JSON summary. */
-async function importFile(name, token) {
+/** Sends one CSV to the importer; resolves to its JSON summary. */
+async function importFile(name, cookie) {
   const csv = readFileSync(resolve(samplesDir, name), 'utf8')
 
-  const response = await fetch(`${supabaseUrl}/functions/v1/import-questions`, {
+  const response = await fetch(`${siteUrl}/api/manage/import`, {
     method: 'POST',
-    headers: {
-      apikey: anonKey,
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
+    headers: { Cookie: cookie, 'Content-Type': 'application/json', Origin: siteUrl },
     body: JSON.stringify({ csv, filename: name }),
   })
 
@@ -128,11 +123,11 @@ async function importFile(name, token) {
   return body
 }
 
-console.log(`Nhập ${files.length} tệp từ ${samplesDir} vào ${supabaseUrl} …`)
+console.log(`Nhập ${files.length} tệp từ ${samplesDir} vào ${siteUrl} …`)
 
-let token
+let cookie
 try {
-  token = await signIn()
+  cookie = await signIn()
 } catch (error) {
   console.error(error instanceof Error ? error.message : error)
   process.exit(1)
@@ -150,7 +145,7 @@ for (const name of files) {
   }
 
   try {
-    const result = await importFile(name, token)
+    const result = await importFile(name, cookie)
 
     totals.subjects += result.subjects ?? 0
     totals.quizzes += result.quizzes ?? 0
