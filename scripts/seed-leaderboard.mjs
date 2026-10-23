@@ -13,8 +13,9 @@
 import { execFileSync } from 'node:child_process'
 import { randomUUID } from 'node:crypto'
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 
 const args = process.argv.slice(2)
 const remote = args.includes('--remote')
@@ -27,34 +28,41 @@ if (!Number.isFinite(playerCount) || playerCount < 1 || playerCount > 500) {
   process.exit(1)
 }
 
-// Runs SQL through wrangler and returns the rows of the last statement; exits on a database error.
-function d1(sql) {
-  // as a file: on Windows npx needs a shell, which would split a --command argument apart
-  const dir = mkdtempSync(join(tmpdir(), 'easy-quiz-'))
-  const file = join(dir, 'seed.sql')
-  writeFileSync(file, sql)
+// wrangler's own entry point, run with this node: no npx, so no shell to split arguments apart
+const wrangler = join(dirname(createRequire(import.meta.url).resolve('wrangler/package.json')), 'bin', 'wrangler.js')
+
+// With --json, wrangler still prints upload progress first on --remote; the JSON starts at the first
+// line that opens an array or object.
+const parseOutput = (out) => JSON.parse(out.slice(out.search(/^[[{]/m)))
+
+// Runs SQL through wrangler; exits on a database error. A read (one statement) goes as --command and
+// returns its rows; a write goes as a file, since a remote --file run only reports a summary.
+function d1(sql, { read = false } = {}) {
+  const dir = read ? null : mkdtempSync(join(tmpdir(), 'easy-quiz-'))
+  const source = read ? ['--command', sql.replace(/\s+/g, ' ').trim()] : ['--file', join(dir, 'seed.sql')]
+  if (dir) writeFileSync(source[1], sql)
   try {
     const out = execFileSync(
-      'npx',
-      ['wrangler', 'd1', 'execute', 'DB', remote ? '--remote' : '--local', '--file', file, '--yes', '--json'],
-      { stdio: ['ignore', 'pipe', 'inherit'], shell: process.platform === 'win32', encoding: 'utf8' },
+      process.execPath,
+      [wrangler, 'd1', 'execute', 'DB', remote ? '--remote' : '--local', ...source, '--yes', '--json'],
+      { stdio: ['ignore', 'pipe', 'inherit'], encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 },
     )
-    return JSON.parse(out).at(-1)?.results ?? []
+    return parseOutput(out).at(-1)?.results ?? []
   } catch (error) {
     // with --json, wrangler puts the database's complaint on stdout
     const text = (() => {
       try {
-        return JSON.parse(error.stdout).error?.text
+        return parseOutput(error.stdout).error?.text
       } catch {
         return null
       }
     })()
     console.error(`D1 báo lỗi: ${text ?? error.message}`)
-    rmSync(dir, { recursive: true, force: true })
+    if (dir) rmSync(dir, { recursive: true, force: true })
     if (text?.includes('no such table')) console.error('Cơ sở dữ liệu chưa có bảng — chạy npm run db:migrate trước.')
     process.exit(1)
   } finally {
-    rmSync(dir, { recursive: true, force: true })
+    if (dir) rmSync(dir, { recursive: true, force: true })
   }
 }
 
@@ -83,7 +91,7 @@ const quizzes = d1(`select q.id, q.topic_id, q.time_limit_seconds, count(qu.id) 
     coalesce(sum(qu.points), 0) as max_score
   from quizzes q join questions qu on qu.quiz_id = q.id
   where q.status = 'published' and q.visibility = 'public'
-  group by q.id having max_score > 0;`)
+  group by q.id having max_score > 0`, { read: true })
 
 if (quizzes.length === 0) {
   console.error('Chưa có đề nào được xuất bản công khai — nhập câu hỏi trước (npm run import:samples).')
