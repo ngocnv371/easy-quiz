@@ -1,0 +1,66 @@
+// Cloudflare Workers configuration: one Worker serves the app (static assets built by Vite into
+// dist/client) and the API under /api/* (worker/index.ts). `vite build` writes the final config into
+// dist/ and `wrangler deploy` picks that up, so deploy with `npm run deploy`.
+//
+// Secrets (`npx wrangler secret put <NAME>`; locally in .dev.vars, see .dev.vars.example):
+//   BETTER_AUTH_SECRET, RESEND_API_KEY, PAYOS_CLIENT_ID, PAYOS_API_KEY, PAYOS_CHECKSUM_KEY,
+//   and the AI provider key (GEMINI_API_KEY, OPENAI_API_KEY or DEEPSEEK_API_KEY)
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "easy-quiz",
+	"main": "./worker/index.ts",
+	"compatibility_date": "2026-10-06",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	// the site's domain; also reachable at easy-quiz.<account>.workers.dev
+	"routes": [
+		{
+			"pattern": "easyquiz.aitechx.vn",
+			"custom_domain": true
+		}
+	],
+	"observability": {
+		"enabled": true,
+		"logs": {
+			"enabled": true,
+			"head_sampling_rate": 1,
+			"invocation_logs": true
+		},
+		"traces": {
+			"enabled": true,
+			"head_sampling_rate": 1
+		}
+	},
+	"assets": {
+		"not_found_handling": "single-page-application",
+		"run_worker_first": [
+			"/api/*"
+		]
+	},
+	// the database from `npx wrangler d1 create easy-quiz` (README → Deployment); `npm run dev` uses a local copy
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "easy-quiz",
+			"database_id": "7575fc1e-b96f-4dd9-b0be-549cfbd002fd",
+			"migrations_dir": "migrations"
+		}
+	],
+	"analytics_engine_datasets": [
+		{
+			"binding": "EVENTS",
+			"dataset": "easy_quiz_events"
+		}
+	],
+	"vars": {
+		"SITE_URL": "https://easyquiz.aitechx.vn",
+		// hosts sign-in works on (add any other domain the worker is served on)
+		"AUTH_HOSTS": "easyquiz.aitechx.vn,*.workers.dev,localhost:*",
+		"EMAIL_FROM": "Easy Quiz <no-reply@aitechx.vn>",
+		// AI Assist: gemini | openai | deepseek | mock (see worker/ai.ts for the model variables)
+		"AI_PROVIDER": "mock",
+		// credits one AI Assist generation costs; 0 makes it free
+		"AI_CREDIT_COST": "1"
+	}
+}

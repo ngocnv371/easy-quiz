@@ -18,10 +18,6 @@ dist-ssr
 !.env.example
 !.env.*.example
 
-# Supabase CLI local state
-supabase/.temp
-supabase/.branches
-supabase/functions/.env
 
 # Cypress
 cypress/videos
@@ -38,3 +34,7 @@ cypress/downloads
 *.njsproj
 *.sln
 *.sw?
+
+# Cloudflare local state and secrets
+.wrangler
+.dev.vars
