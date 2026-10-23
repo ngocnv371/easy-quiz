@@ -33,7 +33,7 @@ rendered live in the browser via `@remotion/player`.
 | Build     | Vite 8 + React 19 + TypeScript 6                               |
 | Routing   | React Router 7, route-level code splitting                     |
 | Styling   | Tailwind CSS v4 (`@theme` tokens, no config file)              |
-| Backend   | Supabase — Postgres, Auth, Row Level Security, Edge Functions   |
+| Backend   | Cloudflare Workers — Hono API, D1 (SQLite), Better Auth         |
 | Animation | Motion (DOM) + Remotion (video compositions)                   |
 | Icons     | lucide-react                                                   |
 | Lint      | Oxlint                                                         |
@@ -43,34 +43,36 @@ rendered live in the browser via `@remotion/player`.
 
 ## Getting started
 
-**Prerequisites:** Node 20+, Docker Desktop (for the Supabase CLI), and npm.
+**Prerequisites:** Node 22.5+ and npm. Everything runs on Cloudflare: one Worker serves the app
+(built by Vite) and the API under `/api/*`, with data in **D1**, accounts through **Better Auth**,
+app events in **Analytics Engine** and account emails through **Resend**. Locally, `npm run dev`
+runs the same Worker inside Vite with a local D1 — no Docker.
 
 ```bash
 npm install
-
-# 1. Local backend (Postgres, Auth, Studio, Edge Functions)
-npm run supabase:start
-
-# 2. Point the app at it
-cp .env.example .env.local
-#   paste the API_URL and ANON_KEY printed by `supabase start`
-#   (Easy Quiz's local stack uses ports in the 544xx range — see supabase/config.toml)
-
-# 3. Run the app
-npm run dev
+cp .dev.vars.example .dev.vars   # then put a long random string in BETTER_AUTH_SECRET
+npm run db:migrate               # creates the local D1 database (in .wrangler/)
+npm run dev                      # http://localhost:5173: the app and the Worker
 ```
+
+Locally, account emails are not sent: the dev server prints them, confirmation link included (set
+`RESEND_API_KEY` in `.dev.vars` to send real ones). `PAYOS_MOCK=1` makes every purchase succeed as
+soon as you come back from "checkout", with no PayOS account. `AI_PROVIDER` defaults to `mock`.
 
 ### Demo data
 
-`supabase db reset` (and the first `supabase start`) applies the migrations and then seeds:
+The migrations seed the **8 starter topics** and the store's products. There is no seeded admin
+(passwords are hashed by Better Auth, so they can't be written as SQL). To get one:
 
-- **8 topics** — Toán học, Lịch sử, Khoa học, …
-- **A demo admin** — `admin@easyquiz.local` / `easyquiz123` (role: admin)
+1. Sign up in the app, then open the confirmation link the dev server prints.
+2. `npm run admin:promote -- you@example.com --credits 50` (admin role plus 50 AI Assist credits;
+   add `--remote` for the real database).
 
-Quizzes are not seeded. Sign in as the admin and use **Nhập câu hỏi** (the CSV bulk import) to load
-them, or run `npm run import:samples` to import every CSV in `samples/` in one go.
+Quizzes are not seeded. Use **Nhập câu hỏi** (the CSV bulk import) in the console, or put
+`IMPORT_ADMIN_EMAIL` / `IMPORT_ADMIN_PASSWORD` in `.env.local` and run `npm run import:samples` to
+import every CSV in `samples/` through the same API (the 35 sample banks are ~7,500 questions).
 
-Studio is at <http://127.0.0.1:54423> if you want to poke at the data directly.
+To look at the data: `npx wrangler d1 execute DB --local --command "select …"`.
 
 ---
 
@@ -81,7 +83,7 @@ src/
   routes/               one file per page (lazy-loaded)
     manage/             the admin console
   features/
-    auth/               session context, guards, auth chrome
+    auth/               session context (Better Auth client), guards, auth chrome
     quiz/               catalogue, play engine, result cache
     manage/             admin data access, AI Assist panel
     ai/                 AI Assist client
@@ -91,14 +93,23 @@ src/
     brand/              marks, logo, aurora background
     remotion/           <Player> wrappers
   remotion/             the video compositions themselves
-  lib/                  supabase client, domain types, helpers
+  lib/                  API client (api.ts), domain types, helpers
   styles/globals.css    design tokens
 
-supabase/
-  migrations/           schema → RLS → views + RPCs
-  functions/ai-quiz/    AI Assist edge function
-  functions/import-questions/  admin CSV bulk import
-  seed.sql              reference data (topics, demo admin)
+worker/                 the Cloudflare Worker: everything under /api/*
+  index.ts              the routes (Hono)
+  auth.ts               Better Auth (email + password, anonymous guests), guest upgrade
+  catalog.ts            topics, quiz cards, leaderboards, profiles
+  play.ts               play payload (no key), paid start, server-side grading
+  endless.ts            Endless batches, grading, streaks, leaderboard
+  energy.ts             energy wallets, daily allowance, spending
+  payments.ts           PayOS checkout, return check, webhook
+  manage.ts             admin quizzes, the editor's save, reports
+  import.ts             CSV bulk import
+  ai.ts                 AI Assist providers and credits
+  email.ts, events.ts   account emails (Resend), analytics (Analytics Engine)
+
+migrations/             D1 schema (0001_auth.sql generated, 0002_app.sql the app's tables)
 ```
 
 ---
@@ -112,42 +123,33 @@ makes a leaderboard meaningless, because anyone can read the answer key from the
 
 So the split is:
 
-| Function              | Who calls it       | What it does                                                     |
-| --------------------- | ------------------ | ---------------------------------------------------------------- |
-| `get_quiz_for_play()` | anyone             | returns the quiz **with `is_correct` stripped out**               |
-| `submit_attempt()`    | any signed-in user | grades **on the server**, stores the attempt, returns the review  |
-| `save_quiz()`         | admins             | atomically replaces a quiz's questions and options                |
+| Route                                | Who calls it       | What it does                                                    |
+| ------------------------------------ | ------------------ | --------------------------------------------------------------- |
+| `GET /api/quizzes/:slug/play`        | anyone             | returns the quiz **with `is_correct` stripped out**              |
+| `POST /api/quizzes/:slug/submit`     | any signed-in user | grades **on the server**, stores the attempt, returns the review |
+| `POST /api/manage/quizzes`           | admins             | replaces a quiz's questions and options in one batch            |
 
-All three are `SECURITY DEFINER`, so the browser never holds a query that can reach the answer
-key. `attempts` has **no INSERT policy at all** — the RPC is the only writer, which is what
-makes a posted score trustworthy. The per-question review lives in `attempt_answers`, a separate
-table with its own policy, because that row *does* name the correct option.
-
-Two smaller decisions fall out of the same reasoning:
-
-- `quiz_cards` and `leaderboard_entries` are views with `security_invoker = true`, so the
-  caller's RLS still applies. View columns are therefore typed nullable, and
-  `src/lib/domain.ts` narrows them into the shapes the UI actually uses.
-- A view cannot compute a question count without tripping RLS (a user cannot read another
-  author's `questions` rows), so `quiz_stats()` is a narrow `SECURITY DEFINER` function that
-  exposes the count and the maximum score and nothing else.
+D1 has no row-level security, so the Worker is the only door: every query lives in `worker/`,
+scoped to the caller, and the answer key only leaves through grading. `attempts` are written
+only by the submit route — which is what makes a posted score trustworthy. The per-question
+review (`attempt_answers`) names the correct option, so it is only returned to the player (at
+submit time) and to the quiz's owner (the report).
 
 ### Guest play
 
-"Chơi ngay" uses Supabase's **anonymous sign-in**: a throwaway identity that still owns a
-profile, so a guest's score can appear on the leaderboard straight away.
-`enable_anonymous_sign_ins = true` is set in `supabase/config.toml`.
+"Chơi ngay" uses Better Auth's **anonymous plugin**: a throwaway identity that is still a real user
+row with a profile, so a guest's score can appear on the leaderboard straight away.
 
-"Lưu kết quả của bạn" then converts that account **in place** — `updateUser({ email, password })`
-keeps the same user id, so the profile and every attempt already recorded survive. Calling
-`signUp()` instead would silently start the player from zero, which is the wrong answer for a
-button whose whole promise is saving results. The remaining details (display name and organization)
-travel through `upgrade_guest_profile()`, the only path allowed to clear `is_guest` for a
-player. It deliberately leaves `role` alone, so a guest can never promote itself to admin.
+"Lưu kết quả của bạn" then converts that account **in place** (`POST /api/me/upgrade`): the same
+user id gets an email, a password and a confirmation email, so the profile and every attempt,
+Endless run and energy balance already recorded survive. Signing up afresh instead would silently
+start the player from zero. The upgrade also clears the profile's `is_guest` and deliberately
+leaves `role` alone, so a guest can never promote itself to admin.
 
 Because a guest *is* signed in, `/login` and `/register` deliberately do **not** redirect them the
 way they redirect a real account — those two pages are exactly where a guest needs to be. `/login`
 says plainly that signing in would replace the guest session, and links to the upgrade instead.
+(The guest's rows are kept when they sign in elsewhere, so their leaderboard places stay.)
 
 Play is **exam-style** — no per-question feedback while answering, then a full review with
 explanations once the attempt is graded. That keeps the answer key secret *and* gives the result
@@ -160,23 +162,22 @@ identity — an anonymous guest is fine — the first question is on screen, and
 the next. "Dừng" ends the session with a summary at any point.
 
 - Questions are drawn from every published public quiz in **batches of 10**
-  (`get_endless_batch()`), keyed by the quiz's topic as the "area of expertise", so there is no
+  (`POST /api/endless/batch`), keyed by the quiz's topic as the "area of expertise", so there is no
   per-question tagging to maintain.
 - The stream can be **scoped to one subject** with `/endless?topic=<slug>` — the player picks it
   from a selector in the top bar, and the choice lives in the URL so it survives a refresh and can
   be shared. The slug resolves against the live topic list, so a stale link falls back to all
-  subjects. `get_endless_batch(..., p_topic_id)` filters the pool; `NULL` keeps the whole
-  catalogue in play.
-- Each answer is graded on its own (`grade_endless_answer()`), which reveals the key for that one
+  subjects. The batch route takes a `topic_id`; none keeps the whole catalogue in play.
+- Each answer is graded on its own (`POST /api/endless/grade`), which reveals the key for that one
   question and folds the result into `endless_progress` — one row per player and topic. The answer
   key still never reaches the browser.
 - Endless has its **own leaderboard** — the "Vô tận" tab on `/leaderboard` — ranked by the best
-  correct-answer streak in a single run (`get_endless_leaderboard()`). A run is opened with
-  `start_endless_session()`, and every graded answer advances its streak inside
-  `grade_endless_answer()`, so the score is server-earned rather than client-claimed.
+  correct-answer streak in a single run (`GET /api/leaderboard/endless`). A run is opened with
+  `POST /api/endless/sessions`, and every graded answer advances its streak inside the grading
+  route, so the score is server-earned rather than client-claimed.
 - The next batch is **weighted** toward a player's stronger topics, while the weakest topic is
   guaranteed a slot in every batch, so the stream leans into strengths without abandoning the
-  areas still being learned. The weighting lives in SQL, not the client.
+  areas still being learned. The weighting lives in the Worker (`worker/endless.ts`), not the client.
 - The question's own words and answer tiles are animated with **Motion**, on the real DOM: the
   prompt is split into word (or character) spans and the tiles are staggered, cycling through six
   choreographies (`src/features/quiz/question-motion.ts`). A Remotion composition
@@ -184,21 +185,9 @@ the next. "Dừng" ends the session with a summary at any point.
   before each question after the first, tinted by the question's topic, so a long session never
   looks static.
 
-### Sessions that outlive their account
-
-A JWT stays valid after the user row behind it is deleted — an admin removing an account, a
-restore from backup, a local `db reset` under a live browser. Supabase then answers every request
-with *"User from sub claim in JWT does not exist"*, which is accurate and useless to a player.
-
-The app uses a missing profile row as that signal: `handle_new_user` creates the row in the same
-transaction as the user, so a live session can never legitimately lack one. On detecting it the
-session is discarded **locally** (a server-side revoke would fail with the same error), the
-visitor drops back to guest, and a toast says why — instead of leaving a session that fails
-cryptically on every later click.
-
 ### AI Assist
 
-`supabase/functions/ai-quiz/index.ts` takes a brief:
+`POST /api/manage/ai` (`worker/ai.ts`) takes a brief:
 
 ```json
 { "topic": "Ôn tập lịch sử Việt Nam lớp 9", "level": "Lớp 9", "difficulty": "medium", "count": 10 }
@@ -216,7 +205,7 @@ and returns validated questions:
 }
 ```
 
-- The provider key lives **only** in the function's environment — never in the client bundle.
+- The provider key lives **only** in the Worker's secrets — never in the client bundle.
 - `AI_PROVIDER` selects `gemini`, `openai`, `deepseek`, or `mock`. Gemini uses its own API;
   the other two share one OpenAI-compatible `/chat/completions` adapter, so
   `OPENAI_BASE_URL` turns `openai` into a generic escape hatch for anything that speaks that
@@ -224,23 +213,19 @@ and returns validated questions:
   working without a key, and is also the automatic fallback when a provider errors, so a dead
   API never dead-ends an admin mid-lesson. A *missing key* is not an outage, though: that is
   reported as an error rather than masked with placeholder questions.
-- The function verifies the JWT **and** re-checks the caller's role through `is_admin()`, so an
-  anonymous session cannot spend your provider quota.
+- The route requires a session **and** the admin role, so an anonymous session cannot spend your
+  provider quota.
 - **AI Assist is metered.** An admin spends credits from `profiles.ai_credits`; each generation
   reserves `AI_CREDIT_COST` (default `1`) up front and hands it back if no paid provider actually
   produced the questions — so `mock` and `mock:fallback` runs are free. Every movement is logged in
   `ai_credit_ledger`. The UI shows the balance in the editor's AI Assist panel and on the admin
-  dashboard; the panel is blocked at zero. Both changes go through `apply_ai_credits()` /
-  `grant_ai_credits()` — the balance is never client-writable.
+  dashboard; the panel is blocked at zero. The balance only moves inside the Worker.
 
-  There is no purchase flow yet, so credits are handed out by editing the database. Run
-  `supabase/snippets/grant-ai-credits.sql` in Studio's SQL editor, or in short:
+  There is no purchase flow yet, so credits are handed out by hand:
+  `npm run admin:promote -- <email> --credits 100` (it also makes the account an admin).
 
-  ```sql
-  select public.grant_ai_credits('<admin-uuid>', 100, 'grant');
-  ```
-
-To use a real model, edit `supabase/functions/.env`:
+To use a real model, set `AI_PROVIDER` (in `wrangler.jsonc`, or `.dev.vars` locally) and the key as a
+secret (`npx wrangler secret put GEMINI_API_KEY`, or a line in `.dev.vars`):
 
 ```bash
 # Gemini
@@ -258,23 +243,20 @@ OPENAI_MODEL=your-model
 OPENAI_BASE_URL=https://your-endpoint/v1
 ```
 
-then `npm run fn:serve`, or restart the stack.
-
 ### Bulk question import
 
 An **admin** can load a whole CSV of questions from the manage screen's **Nhập câu hỏi**
 button. The file is read in the browser but parsed and validated on the server, so the format
 rules live in exactly one place.
 
-- `supabase/functions/import-questions/index.ts` parses the CSV (RFC-4180: quoted fields,
-  commas and newlines inside quotes), maps the columns, rejects bad rows with a reason, and
-  groups the rest by subject. It calls `import_question_bank()` with the shaped payload.
-- `import_question_bank()` is `SECURITY DEFINER` and admin-only. It upserts each subject into
-  `topics`, upserts **one quiz per subject** (found by owner + topic via `quizzes.imported_at`,
-  so a re-import replaces that quiz's questions instead of duplicating it), and replaces the
-  question set atomically. Hand-authored quizzes are never touched.
-- The role is checked in the edge function **and** inside the RPC, so hiding the button is
-  only a courtesy — it is not the thing enforcing the rule.
+- `worker/import.ts` parses the CSV (RFC-4180: quoted fields, commas and newlines inside quotes),
+  maps the columns, rejects bad rows with a reason, and groups the rest by subject.
+- Then, in one D1 batch (a single transaction), it upserts each subject into `topics`, upserts
+  **one quiz per subject** (found by owner + topic via `quizzes.imported_at`, so a re-import
+  replaces that quiz's questions instead of duplicating it), and replaces the question set.
+  Hand-authored quizzes are never touched.
+- The admin role is checked by the Worker, so hiding the button is only a courtesy — it is not
+  the thing enforcing the rule.
 
 Columns (case- and accent-insensitive headers; Vietnamese aliases in parentheses):
 
@@ -296,42 +278,36 @@ The dialog has a **Tải tệp mẫu** button that writes the same template show
 ### Energy and Plus
 
 Practice is metered: **every answered question costs one energy.** It is all enforced in the
-database (`20261020090000_energy_membership.sql`); the client only displays the balance.
+Worker (`worker/energy.ts`); the client only displays the balance.
 
-- **Free daily allowance:** 30 for guests, 60 for accounts. It refills at midnight Vietnam time
-  (`energy_today()`), does not carry over, and is spent before purchased energy. A guest who signs
-  up gets the difference straight away. Tune both numbers in `energy_daily_allowance()`.
+- **Free daily allowance:** 30 for guests, 60 for accounts. It refills at midnight Vietnam time,
+  does not carry over, and is spent before purchased energy. A guest who signs up gets the
+  difference straight away. Tune both numbers in `dailyAllowance()`.
 - **Purchased energy** never expires. **Plus** (`energy_wallets.plus_until`) makes everything
   free while it lasts; admins are never charged either.
 - **Where it is charged:**
-  - **Endless** charges inside `grade_endless_answer()`, after the question is known to be
-    gradable and in the same transaction, so a failed grade costs nothing.
-  - **A normal quiz** is graded in one batch, so `start_quiz_attempt()` charges its question count
-    up front. It returns a one-time ticket that `submit_attempt()` now requires.
-- **Out of energy:** a refused charge raises SQLSTATE `EQ001`, with the balance in the error
-  `details`. The client turns that into `OutOfEnergyError` and opens the refill dialog instead of
-  an error screen.
-- **Writes:** balances live in `energy_wallets`, not on the publicly readable `profiles`. They
-  move only through definer functions, and `energy_ledger` records every spend, purchase and
-  grant. Top up an account by hand with `grant_energy(user_id, amount)`.
+  - **Endless** charges in the grading route, after the question is known to be gradable.
+  - **A normal quiz** is graded in one batch, so `POST /api/quizzes/:slug/start` charges its
+    question count up front. It returns a one-time ticket that submitting redeems.
+- **Out of energy:** a refused charge is HTTP 402 with `code: 'out_of_energy'` and the balance as
+  `energy`. The client turns that into `OutOfEnergyError` and opens the refill dialog.
+- **Writes:** D1 can't hold a transaction open, so a spend is one guarded update (it only applies
+  if the balance is still what was read, and retries otherwise), with its `energy_ledger` row in
+  the same batch. Top up an account by hand with SQL on `energy_wallets.paid_balance`.
 
-**Payments (PayOS).** The catalogue is the `store_products` table: two energy packs and Plus.
+**Payments (PayOS).** The catalogue is the `store_products` table: two energy packs and Plus
+(change prices there, no deploy needed).
 
-- **`payments` edge function:**
-  - `checkout` creates a `payment_orders` row, snapshotting the price, plus a PayOS link. Guests
-    are refused, so a purchase always lands on a durable account.
-  - `sync` is the return page's check with PayOS.
-- **`payos-webhook`** is PayOS's callback. It verifies the HMAC signature over `data` with
-  `PAYOS_CHECKSUM_KEY`, and has no JWT.
-- **Fulfilment:** both paths end in `fulfill_payment_order()`. It is service-role only,
-  idempotent, and rejects underpayment.
+- `POST /api/payments/checkout` creates a `payment_orders` row, snapshotting the price, plus a
+  PayOS link. Guests are refused, so a purchase always lands on a durable account.
+- `POST /api/payments/sync` is the return page's check with PayOS.
+- `POST /api/payments/webhook` is PayOS's callback, trusted by the HMAC signature over `data`.
+- **Fulfilment:** both paths end in `fulfil()` (`worker/payments.ts`): one batch that credits an
+  order exactly once and rejects underpayment.
 
-Secrets go in `supabase/functions/.env`; see `supabase/.env.example`. Set `PAYOS_MOCK=true` to
-click through the whole flow locally without PayOS keys: every order is treated as paid on
-return. Mock mode is ignored unless the function runs against a local stack.
-
-In the PayOS dashboard, set the webhook URL to
-`https://<project-ref>.supabase.co/functions/v1/payos-webhook`.
+`PAYOS_MOCK=1` (in `.dev.vars`, and only without PayOS keys) clicks through the whole flow locally:
+every order is treated as paid on return. In the PayOS dashboard, set the webhook URL to
+`https://easyquiz.aitechx.vn/api/payments/webhook`.
 
 ### Remotion
 
@@ -375,37 +351,36 @@ no stylesheet.
 
 ## Scripts
 
-| Script                                        | What it does                                     |
-| --------------------------------------------- | ------------------------------------------------ |
-| `npm run dev`                                 | Vite dev server                                   |
-| `npm run build`                               | Type-check, then production build                 |
-| `npm run preview`                             | Serve the built app                               |
-| `npm run lint`                                | Oxlint                                            |
-| `npm run typecheck`                           | `tsc -b`                                          |
-| `npm run e2e` / `:open` / `:headed`           | Cypress end-to-end suite, in Edge                 |
-| `npm run supabase:start` / `:stop` / `:status`| Local stack lifecycle                             |
-| `npm run db:reset`                            | Re-apply migrations and seed                      |
-| `npm run db:push`                             | Push migrations to the linked remote project      |
-| `npm run types:gen`                           | Regenerate `src/lib/database.types.ts`            |
-| `npm run sitemap:gen`                         | Rewrite `public/sitemap.xml` from the published quizzes |
-| `npm run og:image`                            | Render `public/og-image.png` from `scripts/og-image.html` |
-| `npm run import:samples`                      | Import every CSV in `samples/` through the edge function |
-| `npm run fn:serve`                            | Serve edge functions with `supabase/functions/.env` |
+| Script                                | What it does                                                   |
+| ------------------------------------- | -------------------------------------------------------------- |
+| `npm run dev`                         | The app and the Worker, with a local D1                         |
+| `npm run build`                       | Type-check, then build the app and the Worker into `dist/`      |
+| `npm run preview`                     | Build, then serve it as it will run on Cloudflare               |
+| `npm run deploy`                      | Build and `wrangler deploy`                                     |
+| `npm run lint`                        | Oxlint                                                          |
+| `npm run typecheck`                   | `tsc -b` (app, Worker, Node config)                             |
+| `npm run e2e` / `:open` / `:headed`   | Cypress end-to-end suite, in Edge                               |
+| `npm run db:migrate` / `:remote`      | Apply `migrations/` to the local / real D1                       |
+| `npm run db:auth-schema`              | Regenerate `migrations/0001_auth.sql` from `worker/auth.ts`     |
+| `npm run admin:promote -- <email>`    | Make an account an admin (`--remote`, `--credits <n>`)          |
+| `npm run sitemap:gen`                 | Rewrite `public/sitemap.xml` from the live quizzes              |
+| `npm run og:image`                    | Render `public/og-image.png` from `scripts/og-image.html`       |
+| `npm run import:samples`              | Import every CSV in `samples/` through the admin importer       |
 
-> `src/lib/database.types.ts` is generated. Change the schema in `supabase/migrations`, then run
-> `npm run types:gen`.
+> After changing the Better Auth options in `worker/auth.ts`, run `npm run db:auth-schema` and add
+> the difference as a new migration (0001 is already applied wherever the app runs).
 
 ---
 
 ## End-to-end tests
 
-Cypress drives the real app against a local Supabase stack, in **Edge** by default. The Endless
+Cypress drives the real app and its Worker (local D1), in **Edge** by default. The Endless
 spec (`cypress/e2e/endless.cy.ts`) covers the flow that matters most: landing straight on a
 question, grading an answer, revealing the key, the streak/accuracy readouts, the subject-scope
 control, the batch prefetch, and the stop summary.
 
 ```bash
-npm run supabase:start   # backend + migrations + seed
+npm run db:migrate       # local D1 tables (then import questions, see Demo data)
 npm run dev              # app on http://localhost:5173
 npm run e2e              # headless, Edge
 npm run e2e:open         # interactive, Edge
@@ -440,45 +415,49 @@ Three files are served straight from `public/`:
 | `sitemap.xml`  | Static routes — regenerate with `npm run sitemap:gen` to add the quizzes      |
 | `og-image.png` | 1200×630 share card. Edit `scripts/og-image.html`, then `npm run og:image`    |
 
-The host does a catch-all rewrite to `index.html` for client-side routing. Check that it still
-serves these three files as-is rather than rewriting them too.
+The Worker's assets fall back to `index.html` for client-side routing
+(`not_found_handling: "single-page-application"`), and files that exist — these three included —
+are served as-is.
 
 ---
 
 ## Deployment
 
-1. **Supabase** — link the project, then push:
+The Worker's config is `wrangler.jsonc`; `npm run deploy` builds and deploys. On Cloudflare's Git
+integration (Workers Builds) use build command `npm run build` and deploy command
+`npx wrangler deploy`. The custom domain, `easyquiz.aitechx.vn`, is in `routes` in `wrangler.jsonc`:
+change domains there rather than in the dashboard, so deploys keep them.
 
-   ```bash
-   npx supabase link --project-ref <ref>
-   npm run db:push
-   npx supabase secrets set --env-file supabase/functions/.env
-   npx supabase functions deploy ai-quiz
-   npx supabase functions deploy import-questions
-   npx supabase functions deploy payments
-   npx supabase functions deploy payos-webhook --no-verify-jwt
-   ```
+First time:
 
-   Then enable **anonymous sign-ins** under Authentication → Providers.
+1. `npx wrangler login`, then `npx wrangler d1 create easy-quiz`; put the `database_id` it prints
+   into `d1_databases` in `wrangler.jsonc` and commit it. The Analytics Engine dataset appears by
+   itself with the first event.
+2. `npm run db:migrate:remote` applies `migrations/` to the real database. Run it again whenever a
+   migration is added, before deploying the code that needs it.
+3. Secrets (`npx wrangler secret put <NAME>`):
+   - `BETTER_AUTH_SECRET`: a long random string (`openssl rand -base64 32`). Changing it signs everyone out.
+   - `RESEND_API_KEY`: from [Resend](https://resend.com), with the domain in `EMAIL_FROM`
+     (`wrangler.jsonc`, `no-reply@aitechx.vn`) verified there.
+   - `PAYOS_CLIENT_ID`, `PAYOS_API_KEY`, `PAYOS_CHECKSUM_KEY`: from [my.payOS](https://my.payos.vn).
+     Never set `PAYOS_MOCK` on Cloudflare.
+   - The AI provider's key (`GEMINI_API_KEY`, `OPENAI_API_KEY` or `DEEPSEEK_API_KEY`), with
+     `AI_PROVIDER` set in `wrangler.jsonc`.
+4. In my.payOS set the channel's webhook URL to `https://easyquiz.aitechx.vn/api/payments/webhook`.
+5. `AUTH_HOSTS` in `wrangler.jsonc` lists the hosts sign-in works on: add any other domain the
+   Worker is served on. `SITE_URL` is the fallback for links in emails.
+6. `npm run deploy`, then sign up, `npm run admin:promote -- <email> --remote`, and import the
+   question banks (`IMPORT_SITE_URL=https://easyquiz.aitechx.vn IMPORT_ALLOW_REMOTE=1 npm run import:samples`).
+7. Refresh the sitemap (`npm run sitemap:gen`) and check the result with the
+   [Rich Results Test](https://search.google.com/test/rich-results) and the
+   [Facebook sharing debugger](https://developers.facebook.com/tools/debug/).
 
-2. **Front end** — build with `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` set, and serve
-   `dist/` from any static host. The app uses client-side routing, so configure a **catch-all
-   rewrite to `index.html`**.
+Logs and traces are on (`observability` in `wrangler.jsonc`): Workers → easy-quiz → Observability.
+App events (signups, quiz starts and submits, Endless answers, out-of-energy, checkouts, payments,
+errors) go to the `easy_quiz_events` Analytics Engine dataset; see `worker/events.ts` for the columns.
 
-   Before building, refresh the sitemap so the live quizzes are advertised to search engines:
-
-   ```bash
-   npm run sitemap:gen
-   npm run build
-   ```
-
-   Confirm `VITE_SITE_URL` in `.env.production` is the real host, then check the deployed result
-   with the [Rich Results Test](https://search.google.com/test/rich-results) and refresh the card
-   in the [Facebook sharing debugger](https://developers.facebook.com/tools/debug/).
-
-3. **Remotion licensing** — Remotion is free for individuals and small teams, but **companies
-   need a paid license**. That is what the console notice refers to; see
-   <https://remotion.dev/license>.
+**Remotion licensing** — Remotion is free for individuals and small teams, but **companies need a
+paid license**. That is what the console notice refers to; see <https://remotion.dev/license>.
 
 ---
 
@@ -488,13 +467,14 @@ Called out honestly rather than hidden:
 
 - **Editing a quiz deletes and re-inserts its questions**, so per-question review detail for
   *past* attempts no longer resolves. Aggregate scores in `attempts` are preserved.
+- **No password reset yet.** Better Auth supports it; the page has no "forgot password" flow.
 - **Sign-up creates an ordinary user.** Admin is not self-serve; promote an account with
-  `supabase/snippets/promote-admin.sql`. Put the console behind real approval before opening it
+  `npm run admin:promote`. Put the console behind real approval before opening it
   up publicly.
 - **Guests can reset their free energy** by clearing site data, since each new anonymous session
   is a fresh wallet. Accounts get double the allowance to make signing up the better deal;
-  turning on captcha for anonymous sign-ins would close the gap.
-- **`submit_attempt()` has no rate limit.** A determined player could flood the leaderboard.
+  a captcha on anonymous sign-ins would close the gap.
+- **Submitting an attempt has no rate limit** (only Better Auth's own routes are rate-limited). A determined player could flood the leaderboard.
 - **No image upload.** `questions.image_url` exists and renders, but nothing writes to it yet.
 - **The result review lives in `sessionStorage`.** Opening a result link in a fresh tab shows the
   summary without the per-question review — the correct trade-off, since the review names the
