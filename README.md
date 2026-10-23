@@ -72,6 +72,12 @@ Quizzes are not seeded. Use **Nhập câu hỏi** (the CSV bulk import) in the c
 `IMPORT_ADMIN_EMAIL` / `IMPORT_ADMIN_PASSWORD` in `.env.local` and run `npm run import:samples` to
 import every CSV in `samples/` through the same API (the 35 sample banks are ~7,500 questions).
 
+So the leaderboards don't open empty, `npm run seed:leaderboard` adds 40 made-up players (`--players
+<n>` for more) with profiles, attempts on the published public quizzes and Endless runs, and bumps
+the quizzes' play counts to match. Their user ids start with `seed-` and they have no password, so
+nobody can sign in as one. Running it again replaces them, and `npm run seed:leaderboard -- --clean`
+removes them and their plays. Add `--remote` to either for the real database. Import quizzes first.
+
 To look at the data: `npx wrangler d1 execute DB --local --command "select …"`.
 
 ---
@@ -366,6 +372,7 @@ no stylesheet.
 | `npm run sitemap:gen`                 | Rewrite `public/sitemap.xml` from the live quizzes              |
 | `npm run og:image`                    | Render `public/og-image.png` from `scripts/og-image.html`       |
 | `npm run import:samples`              | Import every CSV in `samples/` through the admin importer       |
+| `npm run seed:leaderboard`            | Fill the leaderboards with fake players (`--clean`, `--remote`) |
 
 > After changing the Better Auth options in `worker/auth.ts`, run `npm run db:auth-schema` and add
 > the difference as a new migration (0001 is already applied wherever the app runs).

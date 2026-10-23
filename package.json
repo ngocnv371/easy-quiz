@@ -20,7 +20,8 @@
     "sitemap:gen": "node scripts/generate-sitemap.mjs",
     "og:image": "node scripts/generate-og-image.mjs",
     "promo:graphics": "node scripts/generate-promo-graphics.mjs",
-    "import:samples": "node scripts/import-samples.mjs"
+    "import:samples": "node scripts/import-samples.mjs",
+    "seed:leaderboard": "node scripts/seed-leaderboard.mjs"
   },
   "dependencies": {
     "@remotion/google-fonts": "^4.0.530",
