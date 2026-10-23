@@ -18,10 +18,9 @@ function AuthLoading() {
 
 /** Sends anonymous visitors to sign in, remembering where they were headed. */
 export function RequireAuth({ children }: { children: ReactNode }) {
-  const { status, user, isConfigured } = useAuth()
+  const { status, user } = useAuth()
   const location = useLocation()
 
-  if (!isConfigured) return <>{children}</>
   if (status === 'loading') return <AuthLoading />
 
   if (!user) {
@@ -34,10 +33,9 @@ export function RequireAuth({ children }: { children: ReactNode }) {
 
 /** The admin console: ordinary users have no business here. */
 export function RequireAdmin({ children }: { children: ReactNode }) {
-  const { status, user, isAdmin, isConfigured } = useAuth()
+  const { status, user, isAdmin } = useAuth()
   const location = useLocation()
 
-  if (!isConfigured) return <>{children}</>
   if (status === 'loading') return <AuthLoading />
 
   if (!user) {

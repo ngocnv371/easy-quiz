@@ -14,7 +14,7 @@ import { toast } from 'sonner'
 
 import { Button, ButtonLink } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Alert, EmptyState, Skeleton } from '@/components/ui/feedback'
+import { EmptyState, Skeleton } from '@/components/ui/feedback'
 import { Input, Select } from '@/components/ui/field'
 import { QuizListRow } from '@/features/quiz/quiz-card-tile'
 import { deleteQuiz, fetchMyQuizzes, updateQuizStatus } from '@/features/manage/api'
@@ -22,14 +22,13 @@ import { ImportQuestionsButton } from '@/features/manage/import-questions-dialog
 import { useAuth } from '@/features/auth/auth-context'
 import { formatCompact } from '@/lib/format'
 import type { QuizCard, QuizStatus } from '@/lib/domain'
-import { isSupabaseConfigured } from '@/lib/supabase'
 import { useAsyncData } from '@/lib/use-async-data'
 import { errorMessage } from '@/lib/utils'
 
 type StatusFilter = QuizStatus | 'all'
 
 export function ManageQuizListPage() {
-  const { user, isConfigured } = useAuth()
+  const { user } = useAuth()
 
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState<StatusFilter>('all')
@@ -38,7 +37,7 @@ export function ManageQuizListPage() {
   const queries = useAsyncData(
     `manage:list:${user?.id ?? 'none'}`,
     () => fetchMyQuizzes(user!.id),
-    Boolean(user?.id) && isConfigured,
+    Boolean(user?.id),
   )
 
   const all = useMemo(() => queries.data ?? [], [queries.data])
@@ -108,16 +107,6 @@ export function ManageQuizListPage() {
     } finally {
       setBusyId(null)
     }
-  }
-
-  if (!isSupabaseConfigured) {
-    return (
-      <div className="p-6 lg:p-10">
-        <Alert tone="warning" title="Chưa kết nối Supabase">
-          Cấu hình <code>.env.local</code> để dùng trang quản lý.
-        </Alert>
-      </div>
-    )
   }
 
   return (

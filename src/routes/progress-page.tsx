@@ -29,7 +29,6 @@ import {
 } from '@/features/quiz/progress'
 import { formatCompact, formatPercent, formatRelative } from '@/lib/format'
 import { usePageMeta } from '@/lib/seo'
-import { isSupabaseConfigured } from '@/lib/supabase'
 import { useAsyncData } from '@/lib/use-async-data'
 import { cn } from '@/lib/utils'
 
@@ -62,7 +61,7 @@ export function ProgressPage() {
   const attempts = useAsyncData(
     `progress:attempts:${user?.id ?? 'none'}`,
     () => fetchMyAttempts(user!.id, 100),
-    Boolean(user?.id) && isSupabaseConfigured,
+    Boolean(user?.id),
   )
 
   const report = useMemo(() => buildProgressReport(attempts.data ?? []), [attempts.data])
@@ -90,13 +89,7 @@ export function ProgressPage() {
         </div>
 
         <div className="mt-10">
-          {!isSupabaseConfigured ? (
-            <EmptyState
-              icon={LineChart}
-              title="Chưa kết nối Supabase"
-              description="Trang tiến độ cần dữ liệu thật. Hãy cấu hình .env.local và chạy npm run supabase:start."
-            />
-          ) : attempts.loading ? (
+          {attempts.loading ? (
             <ProgressSkeleton />
           ) : attempts.error ? (
             <EmptyState

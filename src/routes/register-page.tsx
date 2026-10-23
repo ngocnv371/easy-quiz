@@ -15,7 +15,6 @@ export function RegisterPage() {
     upgradeGuest,
     user,
     status,
-    isConfigured,
     isGuest,
     displayName: currentName,
   } = useAuth()
@@ -38,7 +37,7 @@ export function RegisterPage() {
 
   // A guest is signed in, but they belong on this page: it is where their
   // scores stop being disposable. Only a real account gets redirected away.
-  if (isConfigured && status === 'ready' && user && !isGuest && !needsConfirmation) {
+  if (status === 'ready' && user && !isGuest && !needsConfirmation) {
     return <Navigate to="/explore" replace />
   }
 
@@ -131,12 +130,6 @@ export function RegisterPage() {
         )
       }
     >
-      {!isConfigured ? (
-        <Alert tone="warning" title="Chưa kết nối Supabase" className="mb-5">
-          Hãy sao chép <code>.env.example</code> thành <code>.env.local</code> trước khi đăng ký.
-        </Alert>
-      ) : null}
-
       {error ? (
         <Alert tone="error" className="mb-5">
           {error}

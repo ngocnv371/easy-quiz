@@ -26,7 +26,6 @@ import { AiAssistPanel } from '@/features/manage/ai-assist-panel'
 import { fetchQuizForEdit, saveQuiz } from '@/features/manage/api'
 import { fetchTopics } from '@/features/quiz/api'
 import type { AiQuestion } from '@/features/ai/ai-assist'
-import { useAuth } from '@/features/auth/auth-context'
 import {
   DIFFICULTY_DESCRIPTIONS,
   DIFFICULTY_LABELS,
@@ -42,7 +41,6 @@ import {
   type QuizDraftQuestion,
   type QuizVisibility,
 } from '@/lib/domain'
-import { isSupabaseConfigured } from '@/lib/supabase'
 import { useAsyncData } from '@/lib/use-async-data'
 import { cn, errorMessage } from '@/lib/utils'
 
@@ -63,17 +61,16 @@ function toDraftQuestion(question: AiQuestion): QuizDraftQuestion {
 export function ManageQuizEditorPage() {
   const { quizId } = useParams()
   const navigate = useNavigate()
-  const { isConfigured } = useAuth()
 
   const isNew = !quizId
 
   const existing = useAsyncData(
     `manage:editor:${quizId ?? 'new'}`,
     () => fetchQuizForEdit(quizId!),
-    Boolean(quizId) && isConfigured,
+    Boolean(quizId),
   )
 
-  const topics = useAsyncData('manage:topics', fetchTopics, isConfigured)
+  const topics = useAsyncData('manage:topics', fetchTopics)
 
   const [draft, setDraft] = useState<QuizDraft | null>(null)
   const [dirty, setDirty] = useState(false)
@@ -356,16 +353,6 @@ export function ManageQuizEditorPage() {
   )
 
   // ── Render ─────────────────────────────────────────────────────────────
-
-  if (!isSupabaseConfigured) {
-    return (
-      <div className="p-6 lg:p-10">
-        <Alert tone="warning" title="Chưa kết nối Supabase">
-          Cấu hình <code>.env.local</code> để dùng trình soạn thảo.
-        </Alert>
-      </div>
-    )
-  }
 
   if (!isNew && existing.loading) {
     return (

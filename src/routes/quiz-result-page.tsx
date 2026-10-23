@@ -31,7 +31,6 @@ import { useAuth } from '@/features/auth/auth-context'
 import { formatDuration, formatPercent, medalFor } from '@/lib/format'
 import type { ReviewItem } from '@/lib/domain'
 import { usePageMeta } from '@/lib/seo'
-import { isSupabaseConfigured } from '@/lib/supabase'
 import { useAsyncData } from '@/lib/use-async-data'
 import { SITE_URL } from '@/lib/site'
 import { cn } from '@/lib/utils'
@@ -46,7 +45,7 @@ export function QuizResultPage() {
   const attemptQuery = useAsyncData(
     `attempt:${attemptId}`,
     () => fetchAttempt(attemptId),
-    !stashed && isSupabaseConfigured,
+    !stashed,
   )
 
   const attempt = stashed?.attempt ?? attemptQuery.data
@@ -62,7 +61,7 @@ export function QuizResultPage() {
   const card = useAsyncData(
     `result:card:${slug}`,
     () => fetchQuizCardBySlug(slug),
-    !stashed && slug !== '' && isSupabaseConfigured,
+    !stashed && slug !== '',
   )
 
   const rank = useAsyncData(
@@ -72,7 +71,7 @@ export function QuizResultPage() {
       const position = board.findIndex((entry) => entry.attempt_id === attemptId)
       return { position: position >= 0 ? position + 1 : null, total: board.length }
     },
-    Boolean(attempt?.quiz_id) && isSupabaseConfigured,
+    Boolean(attempt?.quiz_id),
   )
 
   const previousBest = useAsyncData(

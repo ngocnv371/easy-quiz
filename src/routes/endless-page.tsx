@@ -81,7 +81,7 @@ const STRENGTH_BAR: Record<AreaStrength, string> = {
 const INTRO_LEAD_MS = 430
 
 export function EndlessPage() {
-  const { user, status, isConfigured, signInAsGuest } = useAuth()
+  const { user, status, signInAsGuest } = useAuth()
   const [authIssue, setAuthIssue] = useState<string | null>(null)
   const [retrying, setRetrying] = useState(false)
   const attemptedRef = useRef(false)
@@ -110,7 +110,7 @@ export function EndlessPage() {
   }, [signInAsGuest])
 
   useEffect(() => {
-    if (!isConfigured || status !== 'ready') return
+    if (status !== 'ready') return
 
     // A live session clears the guard, so a later dead session can re-guest.
     if (user) {
@@ -122,7 +122,7 @@ export function EndlessPage() {
 
     attemptedRef.current = true
     void signIn()
-  }, [isConfigured, status, user, signIn])
+  }, [status, user, signIn])
 
   // ── Subject scope ────────────────────────────────────────────────────────
   // `/endless?topic=<slug>` pins the stream to one subject; the slug resolves
@@ -130,7 +130,7 @@ export function EndlessPage() {
   const [params, setParams] = useSearchParams()
   const topicSlug = params.get('topic')
 
-  const topics = useAsyncData('endless:topics', fetchTopics, isConfigured)
+  const topics = useAsyncData('endless:topics', fetchTopics)
 
   const scopedTopic = topicSlug
     ? ((topics.data ?? []).find((topic) => topic.slug === topicSlug) ?? null)
@@ -155,22 +155,9 @@ export function EndlessPage() {
   // Wait for the topic list so a deep-linked scope boots already scoped.
   const scopeReady = topicSlug === null || !topics.loading
 
-  const enabled = isConfigured && status === 'ready' && !!user && scopeReady
+  const enabled = status === 'ready' && !!user && scopeReady
 
   // ── Pre-session states ───────────────────────────────────────────────────
-  if (!isConfigured) {
-    return (
-      <CenteredShell>
-        <EmptyState
-          icon={Sparkles}
-          title="Chưa kết nối Supabase"
-          description="Chế độ vô tận cần máy chủ để chấm điểm. Hãy cấu hình .env.local rồi thử lại."
-          action={<ButtonLink to="/explore">Về thư viện</ButtonLink>}
-        />
-      </CenteredShell>
-    )
-  }
-
   if (status === 'loading' || (!user && !authIssue)) {
     return (
       <CenteredShell>

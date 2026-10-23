@@ -40,7 +40,7 @@ import { cn, errorMessage } from '@/lib/utils'
 export function QuizPlayPage() {
   const { slug = '' } = useParams()
   const navigate = useNavigate()
-  const { user, status, isConfigured, signInAsGuest, displayName } = useAuth()
+  const { user, status, signInAsGuest, displayName } = useAuth()
   const { energy, update: updateEnergy, showOutOfEnergy } = useEnergy()
   /** The paid start this run will be submitted against. */
   const ticketRef = useRef<string | null>(null)
@@ -48,7 +48,7 @@ export function QuizPlayPage() {
   const query = useAsyncData(
     `play:${slug}`,
     () => fetchPlayPayload(slug),
-    isConfigured && slug !== '',
+    slug !== '',
   )
 
   // The player is a sub-view of the quiz, so the canonical points at the detail
@@ -204,19 +204,6 @@ export function QuizPlayPage() {
   }
 
   // ── Render ─────────────────────────────────────────────────────────────
-
-  if (!isConfigured) {
-    return (
-      <PlayShell>
-        <EmptyState
-          icon={AlertTriangle}
-          title="Chưa kết nối Supabase"
-          description="Trình chơi cần máy chủ để chấm điểm. Hãy cấu hình .env.local rồi thử lại."
-          action={<ButtonLink to="/explore">Về thư viện</ButtonLink>}
-        />
-      </PlayShell>
-    )
-  }
 
   if (query.loading || status === 'loading') {
     return (

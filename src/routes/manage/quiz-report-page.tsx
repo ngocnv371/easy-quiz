@@ -28,7 +28,6 @@ import {
   type WrongAnswerer,
 } from '@/features/manage/report'
 import { DifficultyBadge } from '@/features/quiz/quiz-card-tile'
-import { useAuth } from '@/features/auth/auth-context'
 import {
   formatClock,
   formatCompact,
@@ -39,7 +38,6 @@ import {
 } from '@/lib/format'
 import { STATUS_LABELS } from '@/lib/labels'
 import { usePageMeta } from '@/lib/seo'
-import { isSupabaseConfigured } from '@/lib/supabase'
 import { useAsyncData } from '@/lib/use-async-data'
 import { cn } from '@/lib/utils'
 
@@ -52,7 +50,6 @@ const GENERATED_AT = formatDate(new Date().toISOString())
 
 export function ManageQuizReportPage() {
   const { quizId } = useParams()
-  const { isConfigured } = useAuth()
 
   // The console already marks itself noindex; this keeps the canonical honest
   // while the page is open.
@@ -65,7 +62,7 @@ export function ManageQuizReportPage() {
   const query = useAsyncData(
     `manage:report:${quizId ?? 'none'}`,
     () => fetchQuizReport(quizId!),
-    Boolean(quizId) && isConfigured,
+    Boolean(quizId),
   )
 
   const card = query.data?.card ?? null
@@ -107,16 +104,6 @@ export function ManageQuizReportPage() {
       })),
     [report],
   )
-
-  if (!isSupabaseConfigured) {
-    return (
-      <div className="p-6 lg:p-10">
-        <Alert tone="warning" title="Chưa kết nối Supabase">
-          Cấu hình <code>.env.local</code> để xem thống kê.
-        </Alert>
-      </div>
-    )
-  }
 
   if (query.loading) {
     return (

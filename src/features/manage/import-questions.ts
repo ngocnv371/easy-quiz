@@ -1,5 +1,4 @@
-import { requireSupabase } from '@/lib/supabase'
-import { errorMessage } from '@/lib/utils'
+import { api } from '@/lib/api'
 
 export interface ImportSkippedRow {
   row: number
@@ -24,7 +23,7 @@ export interface ImportQuestionsResult {
 }
 
 /**
- * Sends a CSV to the `import-questions` edge function.
+ * Sends a CSV to the Worker's importer (`worker/import.ts`).
  *
  * The file is parsed and validated on the server, so the browser never holds
  * the rules; only the raw text travels. The caller must be an admin — the
@@ -34,31 +33,10 @@ export async function importQuestionsCsv(
   csv: string,
   filename?: string,
 ): Promise<ImportQuestionsResult> {
-  const supabase = requireSupabase()
-
-  const { data, error } = await supabase.functions.invoke('import-questions', {
+  const payload = await api<Partial<ImportQuestionsResult> | null>('manage/import', {
+    method: 'POST',
     body: { csv, filename: filename ?? null },
   })
-
-  if (error) {
-    // The function puts an actionable message under `error`, sometimes with the
-    // rejected rows alongside it. Pull it out of the response body.
-    let message = errorMessage(error)
-    const context = (error as { context?: unknown }).context
-
-    if (context instanceof Response) {
-      try {
-        const body = (await context.clone().json()) as { error?: unknown }
-        if (typeof body.error === 'string' && body.error !== '') message = body.error
-      } catch {
-        // Body was not JSON — keep the original message.
-      }
-    }
-
-    throw new Error(message)
-  }
-
-  const payload = data as Partial<ImportQuestionsResult> | null
 
   if (!payload) throw new Error('Máy chủ không trả về kết quả nhập.')
 

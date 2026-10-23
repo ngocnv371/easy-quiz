@@ -1,6 +1,5 @@
 import { toEnergyError } from '@/features/energy/api'
-import { requireSupabase } from '@/lib/supabase'
-import { errorMessage } from '@/lib/utils'
+import { api } from '@/lib/api'
 import {
   toEndlessLeaderboardEntry,
   type EndlessBatch,
@@ -9,7 +8,7 @@ import {
 } from '@/lib/domain'
 
 /**
- * Endless mode's two server calls.
+ * Endless mode's server calls.
  *
  * The client never holds the answer key: `fetchEndlessBatch()` returns questions
  * with options but no `is_correct`, and `gradeEndlessAnswer()` reveals the key
@@ -24,14 +23,11 @@ export const ENDLESS_BATCH_SIZE = 10
  * can score the session's best streak for the leaderboard.
  */
 export async function startEndlessSession(topicId: string | null = null): Promise<string | null> {
-  const supabase = requireSupabase()
-
-  const { data, error } = await supabase.rpc('start_endless_session', {
-    p_topic_id: topicId ?? undefined,
+  const { id } = await api<{ id: string }>('endless/sessions', {
+    method: 'POST',
+    body: { topic_id: topicId },
   })
-
-  if (error) throw new Error(errorMessage(error))
-  return typeof data === 'string' ? data : null
+  return id ?? null
 }
 
 export async function fetchEndlessBatch(
@@ -39,18 +35,12 @@ export async function fetchEndlessBatch(
   exclude: string[] = [],
   topicId: string | null = null,
 ): Promise<EndlessBatch> {
-  const supabase = requireSupabase()
-
-  const { data, error } = await supabase.rpc('get_endless_batch', {
-    p_limit: limit,
-    p_exclude: exclude,
-    // `undefined` omits the argument, so the SQL default (all subjects) applies.
-    p_topic_id: topicId ?? undefined,
+  const batch = await api<EndlessBatch | null>('endless/batch', {
+    method: 'POST',
+    // A null topic keeps every subject in play.
+    body: { limit, exclude, topic_id: topicId },
   })
 
-  if (error) throw new Error(errorMessage(error))
-
-  const batch = (data ?? null) as unknown as EndlessBatch | null
   return {
     questions: batch?.questions ?? [],
     progress: batch?.progress ?? [],
@@ -62,30 +52,22 @@ export async function gradeEndlessAnswer(
   optionId: string,
   sessionId: string | null = null,
 ): Promise<EndlessGrade> {
-  const supabase = requireSupabase()
-
-  const { data, error } = await supabase.rpc('grade_endless_answer', {
-    p_question_id: questionId,
-    p_option_id: optionId,
-    p_session_id: sessionId ?? undefined,
-  })
-
-  // Out of energy surfaces as `OutOfEnergyError`, so the player can refill
-  // instead of hitting the generic error screen.
-  if (error) throw toEnergyError(error)
-  if (!data) throw new Error('Không nhận được kết quả từ máy chủ.')
-
-  return data as unknown as EndlessGrade
+  try {
+    return await api<EndlessGrade>('endless/grade', {
+      method: 'POST',
+      body: { question_id: questionId, option_id: optionId, session_id: sessionId },
+    })
+  } catch (error) {
+    // Out of energy surfaces as `OutOfEnergyError`, so the player can refill
+    // instead of hitting the generic error screen.
+    throw toEnergyError(error)
+  }
 }
 
 /** The separate Endless leaderboard — ranked by best session streak. */
 export async function fetchEndlessLeaderboard(
   limit = 50,
 ): Promise<EndlessLeaderboardEntry[]> {
-  const supabase = requireSupabase()
-
-  const { data, error } = await supabase.rpc('get_endless_leaderboard', { p_limit: limit })
-
-  if (error) throw new Error(errorMessage(error))
-  return (data ?? []).map(toEndlessLeaderboardEntry)
+  const rows = await api<EndlessLeaderboardEntry[]>(`leaderboard/endless?limit=${limit}`)
+  return rows.map(toEndlessLeaderboardEntry)
 }

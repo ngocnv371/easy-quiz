@@ -11,21 +11,11 @@ import { formatCompact, formatPercent, formatRelative, medalFor } from '@/lib/fo
 import { ROLE_LABELS } from '@/lib/labels'
 import { asRole, type ProfileRow } from '@/lib/domain'
 import { usePageMeta } from '@/lib/seo'
-import { requireSupabase, isSupabaseConfigured } from '@/lib/supabase'
-import { errorMessage } from '@/lib/utils'
+import { apiOrNull } from '@/lib/api'
 import { useAsyncData } from '@/lib/use-async-data'
 
 async function fetchProfileByUsername(username: string): Promise<ProfileRow | null> {
-  const supabase = requireSupabase()
-
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('username', username)
-    .maybeSingle()
-
-  if (error) throw new Error(errorMessage(error))
-  return data ?? null
+  return apiOrNull<ProfileRow>(`profiles/${encodeURIComponent(username)}`)
 }
 
 /** Public profile at `/u/:username`. */
@@ -35,7 +25,7 @@ export function ProfilePage() {
   const profile = useAsyncData(
     `profile:${username}`,
     () => fetchProfileByUsername(username),
-    isSupabaseConfigured && username !== '',
+    username !== '',
   )
 
   const attempts = useAsyncData(

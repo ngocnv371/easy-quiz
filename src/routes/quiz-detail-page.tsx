@@ -28,7 +28,6 @@ import { useAuth } from '@/features/auth/auth-context'
 import { formatCompact, formatDuration, medalFor } from '@/lib/format'
 import { usePageMeta } from '@/lib/seo'
 import { absoluteUrl } from '@/lib/site'
-import { isSupabaseConfigured } from '@/lib/supabase'
 import { useAsyncData } from '@/lib/use-async-data'
 
 export function QuizDetailPage() {
@@ -38,7 +37,7 @@ export function QuizDetailPage() {
   const quiz = useAsyncData(
     `quiz:${slug}`,
     () => fetchQuizCardBySlug(slug),
-    isSupabaseConfigured && slug !== '',
+    slug !== '',
   )
 
   const card = quiz.data

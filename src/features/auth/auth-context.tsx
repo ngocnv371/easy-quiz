@@ -8,14 +8,13 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import type { Session, User } from '@supabase/supabase-js'
 
-import { errorMessage } from '@/lib/utils'
+import { api } from '@/lib/api'
 import type { ProfileRow, UserRole } from '@/lib/domain'
 import { asRole } from '@/lib/domain'
-import { isSupabaseConfigured, supabase } from '@/lib/supabase'
 
-import { DEAD_SESSION_MESSAGE, authErrorMessage, isDeadSessionError } from './errors'
+import { authClient } from './auth-client'
+import { SESSION_ENDED_MESSAGE, authErrorMessage } from './errors'
 
 export interface SignUpInput {
   email: string
@@ -27,12 +26,25 @@ export interface SignUpInput {
 /** The same details, but applied to the anonymous session already in hand. */
 export type UpgradeGuestInput = SignUpInput
 
+/** The signed-in account, as `/api/me` reports it. */
+export interface AuthUser {
+  id: string
+  /** Null for a guest: their placeholder address is not one to show. */
+  email: string | null
+  emailVerified: boolean
+  isAnonymous: boolean
+}
+
+interface MeResponse {
+  user: AuthUser | null
+  profile: ProfileRow | null
+}
+
 interface AuthContextValue {
-  /** False when `.env.local` has no Supabase credentials yet. */
+  /** Always true: the API is served by the same Worker as the page. */
   isConfigured: boolean
   status: 'loading' | 'ready'
-  session: Session | null
-  user: User | null
+  user: AuthUser | null
   profile: ProfileRow | null
   isGuest: boolean
   isAdmin: boolean
@@ -51,12 +63,12 @@ interface AuthContextValue {
   signOut: () => Promise<void>
   updateProfile: (patch: Partial<ProfileRow>) => Promise<void>
   refreshProfile: () => Promise<void>
-  /** A message the UI can surface instead of a raw Supabase error. */
+  /** A message the UI can surface instead of a raw error. */
   authError: string | null
   clearAuthError: () => void
   /**
-   * Set when a session had to be thrown away — for example the account behind
-   * it no longer exists. The UI shows it once and clears it.
+   * Set when a session went away underneath us — expired, or signed out on
+   * another device. The UI shows it once and clears it.
    */
   sessionNotice: string | null
   clearSessionNotice: () => void
@@ -64,290 +76,167 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
-function isAnonymous(user: User | null): boolean {
-  if (!user) return false
-  if (typeof user.is_anonymous === 'boolean') return user.is_anonymous
-  return user.app_metadata?.provider === 'anonymous'
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null)
+  const [user, setUser] = useState<AuthUser | null>(null)
   const [profile, setProfile] = useState<ProfileRow | null>(null)
   const [status, setStatus] = useState<'loading' | 'ready'>('loading')
   const [authError, setAuthError] = useState<string | null>(null)
   const [sessionNotice, setSessionNotice] = useState<string | null>(null)
 
-  // Guards against a slow profile fetch resolving after the user signed out.
+  // Who we believe is signed in, so a vanished session can be told apart from
+  // a visitor who never had one.
   const userIdRef = useRef<string | null>(null)
 
-  /**
-   * Throws the current session away and says why.
-   *
-   * Local-only: the account is already gone on the server, so a global revoke
-   * would just fail with the same error we are recovering from.
-   */
-  const discardSession = useCallback(async (notice: string) => {
-    userIdRef.current = null
-    setProfile(null)
-    setSession(null)
-    setSessionNotice(notice)
-
-    if (supabase) await supabase.auth.signOut({ scope: 'local' })
-  }, [])
-
-  const loadProfile = useCallback(
-    async (user: User | null) => {
-      if (!supabase || !user) {
-        setProfile(null)
-        return
-      }
-
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .maybeSingle()
-
-      // Drop a stale response if the session moved on while we were fetching.
-      if (userIdRef.current !== user.id) return
-
-      // A row always exists for a live user (the sign-up trigger creates it),
-      // so an empty result means the account is gone while the token is not.
-      // Recovering here beats letting every later request fail on its own.
-      if (!error && !data) {
-        await discardSession(DEAD_SESSION_MESSAGE)
-        return
-      }
-
-      setProfile(data ?? null)
-    },
-    [discardSession],
-  )
-
-  useEffect(() => {
-    if (!isSupabaseConfigured || !supabase) {
+  const load = useCallback(async () => {
+    let me: MeResponse
+    try {
+      me = await api<MeResponse>('me')
+    } catch {
+      // Offline or a server hiccup: keep what we have rather than signing out.
       setStatus('ready')
       return
     }
 
-    let active = true
+    if (userIdRef.current && !me.user) setSessionNotice(SESSION_ENDED_MESSAGE)
 
-    // `onAuthStateChange` fires an INITIAL_SESSION event, so the explicit
-    // getSession() call below is only a safety net for very fast mounts.
-    const { data: subscription } = supabase.auth.onAuthStateChange((_event, next) => {
-      if (!active) return
+    userIdRef.current = me.user?.id ?? null
+    setUser(me.user ? { ...me.user, email: me.user.isAnonymous ? null : me.user.email } : null)
+    setProfile(me.profile)
+    setStatus('ready')
+  }, [])
 
-      userIdRef.current = next?.user?.id ?? null
-      setSession(next)
-      setStatus('ready')
+  useEffect(() => {
+    void load()
+  }, [load])
 
-      // Synchronous callbacks must not await Supabase, so defer the read.
-      void loadProfile(next?.user ?? null)
-    })
-
-    void supabase.auth.getSession().then(({ data }) => {
-      if (!active) return
-      userIdRef.current = data.session?.user?.id ?? null
-      setSession(data.session)
-      setStatus('ready')
-      void loadProfile(data.session?.user ?? null)
-    })
-
-    return () => {
-      active = false
-      subscription.subscription.unsubscribe()
-    }
-  }, [loadProfile])
-
-  /**
-   * One exit for every auth failure: recover from a dead session, or surface a
-   * message a person can act on.
-   */
-  const fail = useCallback(
-    async (error: unknown): Promise<never> => {
-      if (isDeadSessionError(error)) {
-        await discardSession(DEAD_SESSION_MESSAGE)
-        throw new Error(DEAD_SESSION_MESSAGE)
-      }
-
-      const message = authErrorMessage(error)
-      setAuthError(message)
-      throw new Error(message)
-    },
-    [discardSession],
-  )
+  /** One exit for every auth failure: a message a person can act on. */
+  const fail = useCallback((error: unknown): never => {
+    const message = authErrorMessage(error)
+    setAuthError(message)
+    throw new Error(message)
+  }, [])
 
   const signIn = useCallback(
     async (email: string, password: string) => {
-      if (!supabase) throw new Error('Supabase chưa được cấu hình.')
       setAuthError(null)
-
-      const { error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      })
-
-      if (error) await fail(error)
+      const { error } = await authClient.signIn.email({ email: email.trim(), password })
+      if (error) fail(error)
+      userIdRef.current = null
+      await load()
     },
-    [fail],
+    [fail, load],
   )
 
   const signUp = useCallback(
     async (input: SignUpInput) => {
-      if (!supabase) throw new Error('Supabase chưa được cấu hình.')
       setAuthError(null)
 
-      const { data, error } = await supabase.auth.signUp({
+      const { data, error } = await authClient.signUp.email({
         email: input.email.trim(),
         password: input.password,
-        options: {
-          data: {
-            display_name: input.displayName.trim(),
-            organization: input.organization?.trim() || null,
-          },
-        },
+        name: input.displayName.trim(),
+        organization: input.organization?.trim() || undefined,
+        // Where the confirmation link lands, signed in.
+        callbackURL: '/account',
       })
 
-      if (error) await fail(error)
+      if (error) fail(error)
 
-      // With email confirmation switched on, Supabase returns a user but no
-      // session — the caller then shows a "check your inbox" screen instead of
-      // pretending the person is signed in.
-      return { needsEmailConfirmation: data.session === null }
+      // Email confirmation is required, so a new account has no session yet —
+      // the caller shows a "check your inbox" screen instead of pretending the
+      // person is signed in.
+      const signedIn = Boolean(data && 'token' in data && data.token)
+      if (signedIn) await load()
+      return { needsEmailConfirmation: !signedIn }
     },
-    [fail],
+    [fail, load],
   )
 
-  const signInAsGuest = useCallback(async (name: string) => {
-    if (!supabase) throw new Error('Supabase chưa được cấu hình.')
-    setAuthError(null)
+  const signInAsGuest = useCallback(
+    async (name: string) => {
+      setAuthError(null)
 
-    const existing = await supabase.auth.getSession()
-    const currentUser = existing.data.session?.user
-
-    const { data, error } =
-      currentUser && isAnonymous(currentUser)
-        ? { data: { user: currentUser }, error: null }
-        : await supabase.auth.signInAnonymously()
-
-    if (error) await fail(error)
-
-    const user = data.user
-    if (!user) throw new Error('Không tạo được phiên chơi ẩn danh.')
-
-    const trimmed = name.trim()
-    if (trimmed !== '') {
-      // The trigger has already created the profile row, so this is an update.
-      const { data: updated, error: profileError } = await supabase
-        .from('profiles')
-        .update({ display_name: trimmed.slice(0, 60) })
-        .eq('id', user.id)
-        .select('*')
-        .maybeSingle()
-
-      if (profileError) {
-        // A failed rename must not block play — the placeholder name is fine.
-        setAuthError(errorMessage(profileError))
-      } else if (updated) {
-        setProfile(updated)
+      if (!userIdRef.current) {
+        const { error } = await authClient.signIn.anonymous()
+        if (error) fail(error)
       }
-    }
-  }, [])
+
+      const trimmed = name.trim()
+      if (trimmed !== '') {
+        try {
+          await api('me/profile', { method: 'PATCH', body: { display_name: trimmed.slice(0, 60) } })
+        } catch (error) {
+          // A failed rename must not block play — the placeholder name is fine.
+          setAuthError(authErrorMessage(error))
+        }
+      }
+
+      userIdRef.current = null
+      await load()
+    },
+    [fail, load],
+  )
 
   const signOut = useCallback(async () => {
-    if (!supabase) return
     userIdRef.current = null
+    setUser(null)
     setProfile(null)
-    await supabase.auth.signOut()
+    await authClient.signOut()
+    await load()
+  }, [load])
+
+  const updateProfile = useCallback(async (patch: Partial<ProfileRow>) => {
+    if (!userIdRef.current) throw new Error('Bạn cần đăng nhập.')
+    const updated = await api<ProfileRow>('me/profile', { method: 'PATCH', body: patch })
+    setProfile(updated)
   }, [])
 
-  const updateProfile = useCallback(
-    async (patch: Partial<ProfileRow>) => {
-      if (!supabase) throw new Error('Supabase chưa được cấu hình.')
-      const userId = userIdRef.current
-      if (!userId) throw new Error('Bạn cần đăng nhập.')
-
-      const { data, error } = await supabase
-        .from('profiles')
-        .update(patch)
-        .eq('id', userId)
-        .select('*')
-        .maybeSingle()
-
-      if (error) throw new Error(errorMessage(error))
-      if (data) setProfile(data)
-    },
-    [],
-  )
-
   const refreshProfile = useCallback(async () => {
-    if (!supabase) return
-    const { data } = await supabase.auth.getSession()
-    await loadProfile(data.session?.user ?? null)
-  }, [loadProfile])
+    await load()
+  }, [load])
 
   const upgradeGuest = useCallback(
     async (input: UpgradeGuestInput) => {
-      if (!supabase) throw new Error('Supabase chưa được cấu hình.')
       setAuthError(null)
 
-      const email = input.email.trim()
+      // Converts the guest in place — same id, same profile, same history.
+      let result: { needsEmailConfirmation: boolean }
+      try {
+        result = await api<{ needsEmailConfirmation: boolean }>('me/upgrade', {
+          method: 'POST',
+          body: {
+            email: input.email.trim(),
+            password: input.password,
+            displayName: input.displayName.trim(),
+            organization: input.organization?.trim() || null,
+          },
+        })
+      } catch (error) {
+        fail(error)
+      }
 
-      // `updateUser` converts the anonymous user in place — same id, same
-      // profile, same attempt history.
-      const { data, error } = await supabase.auth.updateUser({
-        email,
-        password: input.password,
-        data: {
-          display_name: input.displayName.trim(),
-          organization: input.organization?.trim() || null,
-        },
-      })
-
-      if (error) await fail(error)
-
-      // With email confirmation switched on, the address only lands once the
-      // link is followed, so `user.email` still reads as null here.
-      const applied = data.user?.email?.toLowerCase() === email.toLowerCase()
-
-      // Run while the profile is still flagged as a guest — that flag is the
-      // guard this function checks.
-      const { error: profileError } = await supabase.rpc('upgrade_guest_profile', {
-        p_display_name: input.displayName.trim(),
-        // `undefined` rather than `null`: the argument is optional, and the SQL
-        // default is already null.
-        p_school: input.organization?.trim() || undefined,
-      })
-
-      if (profileError) throw new Error(errorMessage(profileError))
-
-      await refreshProfile()
-      return { needsEmailConfirmation: !applied }
+      await load()
+      return result!
     },
-    [refreshProfile],
+    [fail, load],
   )
 
   const clearSessionNotice = useCallback(() => setSessionNotice(null), [])
 
   const value = useMemo<AuthContextValue>(() => {
-    const guest = isAnonymous(session?.user ?? null)
     const role = asRole(profile?.role ?? null)
 
     return {
-      isConfigured: isSupabaseConfigured,
+      isConfigured: true,
       status,
-      session,
-      user: session?.user ?? null,
+      user,
       profile,
-      // The session is the authority on whether someone is a guest. The
-      // `profiles.is_guest` column is only an aggregation flag for the
-      // leaderboard, so it must not drive this.
+      // The session is the authority on whether someone is a guest; the
+      // profile's `is_guest` is only the leaderboard's flag.
+      isGuest: user?.isAnonymous ?? false,
       isAdmin: role === 'admin',
       role,
-      isGuest: guest,
-      displayName:
-        profile?.display_name ??
-        (session?.user?.email ? session.user.email.split('@')[0] : 'Khách'),
+      displayName: profile?.display_name ?? (user?.email ? user.email.split('@')[0]! : 'Khách'),
       signIn,
       signUp,
       signInAsGuest,
@@ -362,7 +251,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [
     status,
-    session,
+    user,
     profile,
     authError,
     sessionNotice,

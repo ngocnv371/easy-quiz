@@ -1,35 +1,30 @@
-import { requireSupabase } from '@/lib/supabase'
-import { errorMessage } from '@/lib/utils'
+import { api, apiOrNull, query } from '@/lib/api'
 import {
   asDifficulty,
   asStatus,
   asVisibility,
+  toLeaderboardEntry,
   toQuizCard,
   type AttemptAnswerRow,
   type AttemptRow,
-  type Json,
+  type LeaderboardEntryRow,
   type QuizCard,
+  type QuizCardRow,
   type QuizDraft,
   type QuizDraftQuestion,
   type QuestionRow,
   type OptionRow,
   type ProfileRow,
+  type QuizRow,
   type SaveQuizResult,
 } from '@/lib/domain'
 import { buildQuizReport, buildWrongAnswerIndex, type QuizReport, type WrongAnswerIndex } from './report'
 
 /** Every quiz the signed-in admin owns, drafts included. */
-export async function fetchMyQuizzes(ownerId: string): Promise<QuizCard[]> {
-  const supabase = requireSupabase()
-
-  const { data, error } = await supabase
-    .from('quiz_cards')
-    .select('*')
-    .eq('owner_id', ownerId)
-    .order('updated_at', { ascending: false })
-
-  if (error) throw new Error(errorMessage(error))
-  return (data ?? []).map(toQuizCard)
+export async function fetchMyQuizzes(_ownerId: string): Promise<QuizCard[]> {
+  // The Worker scopes this to the session's own quizzes; the id only keys the cache.
+  const rows = await api<QuizCardRow[]>('manage/quizzes')
+  return rows.map(toQuizCard)
 }
 
 export interface QuizEditDocument {
@@ -37,77 +32,32 @@ export interface QuizEditDocument {
   draft: QuizDraft
 }
 
+interface EditResponse {
+  quiz: QuizRow
+  card: QuizCardRow
+  questions: Array<Omit<QuestionRow, 'quiz_id' | 'created_at' | 'updated_at'> & { options: Omit<OptionRow, 'question_id'>[] }>
+}
+
 /**
- * Loads a quiz into the editor's document shape. Tables rather than the view,
- * because the editor needs questions and options — which the `quiz_cards` read
- * model deliberately does not carry.
+ * Loads a quiz into the editor's document shape — questions and options
+ * included, which the `QuizCard` read model deliberately does not carry.
  */
 export async function fetchQuizForEdit(quizId: string): Promise<QuizEditDocument | null> {
-  const supabase = requireSupabase()
+  const doc = await apiOrNull<EditResponse>(`manage/quizzes/${quizId}`)
+  if (!doc) return null
 
-  const { data: quiz, error } = await supabase
-    .from('quizzes')
-    .select('*')
-    .eq('id', quizId)
-    .maybeSingle()
-
-  if (error) throw new Error(errorMessage(error))
-  if (!quiz) return null
-
-  const [{ data: cardData }, { data: questionData, error: questionError }] = await Promise.all([
-    supabase.from('quiz_cards').select('*').eq('id', quizId).maybeSingle(),
-    supabase
-      .from('questions')
-      .select('*')
-      .eq('quiz_id', quizId)
-      .order('position', { ascending: true }),
-  ])
-
-  if (questionError) throw new Error(errorMessage(questionError))
-
-  const questions = (questionData ?? []) as QuestionRow[]
-  const questionIds = questions.map((question) => question.id)
-
-  let options: OptionRow[] = []
-  if (questionIds.length > 0) {
-    const { data: optionData, error: optionError } = await supabase
-      .from('options')
-      .select('*')
-      .in('question_id', questionIds)
-      .order('position', { ascending: true })
-
-    if (optionError) throw new Error(errorMessage(optionError))
-    options = (optionData ?? []) as OptionRow[]
-  }
+  const { quiz, questions } = doc
 
   const draftQuestions: QuizDraftQuestion[] = questions.map((question) => ({
     prompt: question.prompt,
     explanation: question.explanation ?? '',
     points: question.points,
     time_limit_seconds: question.time_limit_seconds,
-    options: options
-      .filter((option) => option.question_id === question.id)
-      .map((option) => ({ label: option.label, is_correct: option.is_correct })),
+    options: question.options.map((option) => ({ label: option.label, is_correct: option.is_correct })),
   }))
 
   return {
-    card: toQuizCard(
-      cardData ?? {
-        // The view row is missing only if RLS hid it, which cannot happen for
-        // an owner. Fall back to the table row so the editor still opens.
-        ...quiz,
-        topic_slug: null,
-        topic_name: null,
-        topic_emoji: null,
-        topic_accent: null,
-        author_username: null,
-        author_name: null,
-        author_avatar: null,
-        question_count: questions.length,
-        max_score: 0,
-        attempt_count: 0,
-      },
-    ),
+    card: toQuizCard(doc.card),
     draft: {
       id: quiz.id,
       slug: quiz.slug,
@@ -123,7 +73,7 @@ export async function fetchQuizForEdit(quizId: string): Promise<QuizEditDocument
       time_limit_seconds: quiz.time_limit_seconds,
       shuffle_questions: quiz.shuffle_questions,
       shuffle_options: quiz.shuffle_options,
-      questions: draftQuestions.length > 0 ? draftQuestions : [],
+      questions: draftQuestions,
     },
   }
 }
@@ -132,65 +82,53 @@ export async function fetchQuizForEdit(quizId: string): Promise<QuizEditDocument
  * One atomic write for the whole editor document. Publishing is validated
  * server-side, so the error messages that reach the user are the real rules.
  *
- * `aiGenerated` is only honoured when the quiz is created — the database keeps
+ * `aiGenerated` is only honoured when the quiz is created — the server keeps
  * the original provenance of a quiz rather than letting a later edit rewrite it.
  */
 export async function saveQuiz(
   draft: QuizDraft,
   aiGenerated = false,
 ): Promise<SaveQuizResult> {
-  const supabase = requireSupabase()
-
-  const payload = {
-    id: draft.id,
-    // Only sent for an existing quiz: a new one lets the server derive it.
-    slug: draft.slug,
-    title: draft.title,
-    description: draft.description,
-    cover_emoji: draft.cover_emoji,
-    topic_id: draft.topic_id,
-    difficulty: draft.difficulty,
-    visibility: draft.visibility,
-    status: draft.status,
-    time_limit_seconds: draft.time_limit_seconds,
-    shuffle_questions: draft.shuffle_questions,
-    shuffle_options: draft.shuffle_options,
-    ai_generated: aiGenerated,
-    questions: draft.questions.map((question) => ({
-      prompt: question.prompt,
-      explanation: question.explanation,
-      points: question.points,
-      time_limit_seconds: question.time_limit_seconds,
-      options: question.options.map((option) => ({
-        label: option.label,
-        is_correct: option.is_correct,
+  return api<SaveQuizResult>('manage/quizzes', {
+    method: 'POST',
+    body: {
+      id: draft.id,
+      // Only sent for an existing quiz: a new one lets the server derive it.
+      slug: draft.slug,
+      title: draft.title,
+      description: draft.description,
+      cover_emoji: draft.cover_emoji,
+      topic_id: draft.topic_id,
+      difficulty: draft.difficulty,
+      visibility: draft.visibility,
+      status: draft.status,
+      time_limit_seconds: draft.time_limit_seconds,
+      shuffle_questions: draft.shuffle_questions,
+      shuffle_options: draft.shuffle_options,
+      ai_generated: aiGenerated,
+      questions: draft.questions.map((question) => ({
+        prompt: question.prompt,
+        explanation: question.explanation,
+        points: question.points,
+        time_limit_seconds: question.time_limit_seconds,
+        options: question.options.map((option) => ({
+          label: option.label,
+          is_correct: option.is_correct,
+        })),
       })),
-    })),
-  } as unknown as Json
-
-  const { data, error } = await supabase.rpc('save_quiz', { p_payload: payload })
-
-  if (error) throw new Error(errorMessage(error))
-  if (!data) throw new Error('Không lưu được đề thi.')
-
-  return data as unknown as SaveQuizResult
+    },
+  })
 }
 
 export async function updateQuizStatus(
   quizId: string,
   patch: { status?: QuizCard['status']; visibility?: QuizCard['visibility'] },
 ): Promise<void> {
-  const supabase = requireSupabase()
-
-  const { error } = await supabase.from('quizzes').update(patch).eq('id', quizId)
-  if (error) throw new Error(errorMessage(error))
+  await api(`manage/quizzes/${quizId}`, { method: 'PATCH', body: patch })
 }
 
 export async function deleteQuiz(quizId: string): Promise<void> {
-  const supabase = requireSupabase()
-
-  const { error } = await supabase.from('quizzes').delete().eq('id', quizId)
-  if (error) throw new Error(errorMessage(error))
+  await api(`manage/quizzes/${quizId}`, { method: 'DELETE' })
 }
 
 /** Aggregate stats for the admin dashboard. */
@@ -241,27 +179,18 @@ export async function fetchAttemptsForOwner(
 > {
   if (quizIds.length === 0) return []
 
-  const supabase = requireSupabase()
+  const rows = await api<LeaderboardEntryRow[]>(`manage/attempts${query({ limit })}`)
 
-  const { data, error } = await supabase
-    .from('leaderboard_entries')
-    .select('*')
-    .in('quiz_id', quizIds)
-    .order('completed_at', { ascending: false })
-    .limit(limit)
-
-  if (error) throw new Error(errorMessage(error))
-
-  return (data ?? []).map((row) => ({
-    attempt_id: row.attempt_id ?? '',
-    quiz_id: row.quiz_id ?? '',
-    quiz_title: row.quiz_title ?? '',
-    display_name: row.display_name ?? 'Người chơi ẩn danh',
-    avatar_emoji: row.avatar_emoji ?? '🎓',
-    score: row.score ?? 0,
-    max_score: row.max_score ?? 0,
-    accuracy: row.accuracy ?? 0,
-    completed_at: row.completed_at ?? '',
+  return rows.map(toLeaderboardEntry).map((row) => ({
+    attempt_id: row.attempt_id,
+    quiz_id: row.quiz_id,
+    quiz_title: row.quiz_title,
+    display_name: row.display_name,
+    avatar_emoji: row.avatar_emoji,
+    score: row.score,
+    max_score: row.max_score,
+    accuracy: row.accuracy,
+    completed_at: row.completed_at,
   }))
 }
 
@@ -272,78 +201,27 @@ export interface QuizReportDocument {
   wrongAnswers: WrongAnswerIndex
 }
 
+interface ReportResponse {
+  card: QuizCardRow
+  attempts: AttemptRow[]
+  questions: QuestionRow[]
+  answers: AttemptAnswerRow[]
+  profiles: ProfileRow[]
+}
+
 /**
- * Everything the performance report needs for one quiz.
- *
- * RLS already lets an owner read their own `attempts`, `attempt_answers` and
- * `questions`, so this is three reads plus the pure aggregation in
- * `buildQuizReport()`. The answer rows are fetched only for the attempts at
- * hand, which keeps the payload proportional to the class size.
+ * Everything the performance report needs for one quiz: the owner's attempts,
+ * questions, answers and the players' names, plus the pure aggregation in
+ * `buildQuizReport()`. `null` when the quiz is not the caller's.
  */
 export async function fetchQuizReport(quizId: string): Promise<QuizReportDocument | null> {
-  const supabase = requireSupabase()
+  const doc = await apiOrNull<ReportResponse>(`manage/quizzes/${quizId}/report`)
+  if (!doc) return null
 
-  const { data: cardData, error: cardError } = await supabase
-    .from('quiz_cards')
-    .select('*')
-    .eq('id', quizId)
-    .maybeSingle()
-
-  if (cardError) throw new Error(errorMessage(cardError))
-  // The view hides a quiz the caller does not own, which is the honest "not
-  // found" for a report on someone else's quiz.
-  if (!cardData) return null
-
-  const [
-    { data: attemptData, error: attemptError },
-    { data: questionData, error: questionError },
-  ] = await Promise.all([
-    supabase.from('attempts').select('*').eq('quiz_id', quizId),
-    supabase
-      .from('questions')
-      .select('*')
-      .eq('quiz_id', quizId)
-      .order('position', { ascending: true }),
-  ])
-
-  if (attemptError) throw new Error(errorMessage(attemptError))
-  if (questionError) throw new Error(errorMessage(questionError))
-
-  const attempts = (attemptData ?? []) as AttemptRow[]
-  const questions = (questionData ?? []) as QuestionRow[]
-
-  let answers: AttemptAnswerRow[] = []
-  const attemptIds = attempts.map((attempt) => attempt.id)
-
-  if (attemptIds.length > 0) {
-    const { data: answerData, error: answerError } = await supabase
-      .from('attempt_answers')
-      .select('*')
-      .in('attempt_id', attemptIds)
-
-    if (answerError) throw new Error(errorMessage(answerError))
-    answers = (answerData ?? []) as AttemptAnswerRow[]
-  }
-
-  // Names for the per-question roster. `profiles` is publicly readable, but the
-  // query is still narrowed to the players who actually sat this quiz.
-  const userIds = [
-    ...new Set(attempts.map((attempt) => attempt.user_id).filter((id): id is string => Boolean(id))),
-  ]
-
-  let profiles: ProfileRow[] = []
-  if (userIds.length > 0) {
-    const { data: profileData, error: profileError } = await supabase
-      .from('profiles')
-      .select('*')
-      .in('id', userIds)
-
-    if (profileError) throw new Error(errorMessage(profileError))
-    profiles = (profileData ?? []) as ProfileRow[]
-  }
+  const { attempts, questions, answers, profiles } = doc
 
   return {
-    card: toQuizCard(cardData),
+    card: toQuizCard(doc.card),
     report: buildQuizReport({ attempts, questions, answers }),
     wrongAnswers: buildWrongAnswerIndex({ attempts, answers, profiles }),
   }

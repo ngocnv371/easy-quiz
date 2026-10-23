@@ -23,7 +23,6 @@ import { QuizCardTile } from '@/features/quiz/quiz-card-tile'
 import { fetchQuizCards, fetchTopics } from '@/features/quiz/api'
 import { usePageMeta } from '@/lib/seo'
 import { APP_DESCRIPTION, TAGLINE } from '@/lib/site'
-import { isSupabaseConfigured } from '@/lib/supabase'
 import { useAsyncData } from '@/lib/use-async-data'
 import { cn } from '@/lib/utils'
 
@@ -92,11 +91,10 @@ export function LandingPage() {
   // The home page relies on the site-wide title and description.
   usePageMeta({ path: '/' })
 
-  const topics = useAsyncData('landing:topics', fetchTopics, isSupabaseConfigured)
+  const topics = useAsyncData('landing:topics', fetchTopics)
   const popular = useAsyncData(
     'landing:popular',
     () => fetchQuizCards({ sort: 'popular', limit: 3 }),
-    isSupabaseConfigured,
   )
 
   return (
@@ -346,46 +344,42 @@ export function LandingPage() {
       </section>
 
       {/* ══ Popular quizzes ════════════════════════════════════════════ */}
-      {isSupabaseConfigured ? (
-        <section className="py-16">
-          <div className="container-page">
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <SectionHeading
-                align="left"
-                eyebrow="Đang được chơi nhiều"
-                title="Đề thi nổi bật"
-                titleClassName="text-3xl sm:text-4xl"
-              />
-              <ButtonLink to="/explore" variant="outline" size="sm">
-                Xem tất cả
-              </ButtonLink>
-            </div>
-
-            <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-              {popular.loading
-                ? Array.from({ length: 3 }, (_, index) => (
-                    <Card key={index} className="p-5">
-                      <Skeleton className="size-11 rounded-xl" />
-                      <Skeleton className="mt-4 h-4 w-3/4" />
-                      <Skeleton className="mt-2 h-3 w-full" />
-                      <Skeleton className="mt-2 h-3 w-2/3" />
-                    </Card>
-                  ))
-                : (popular.data ?? []).map((quiz, index) => (
-                    <Reveal key={quiz.id} delay={index * 0.06}>
-                      <QuizCardTile quiz={quiz} />
-                    </Reveal>
-                  ))}
-            </div>
-
-            {popular.error ? (
-              <p className="text-wrong-300 mt-6 text-sm">{popular.error}</p>
-            ) : null}
+      <section className="py-16">
+        <div className="container-page">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <SectionHeading
+              align="left"
+              eyebrow="Đang được chơi nhiều"
+              title="Đề thi nổi bật"
+              titleClassName="text-3xl sm:text-4xl"
+            />
+            <ButtonLink to="/explore" variant="outline" size="sm">
+              Xem tất cả
+            </ButtonLink>
           </div>
-        </section>
-      ) : (
-        <SetupNotice />
-      )}
+
+          <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {popular.loading
+              ? Array.from({ length: 3 }, (_, index) => (
+                  <Card key={index} className="p-5">
+                    <Skeleton className="size-11 rounded-xl" />
+                    <Skeleton className="mt-4 h-4 w-3/4" />
+                    <Skeleton className="mt-2 h-3 w-full" />
+                    <Skeleton className="mt-2 h-3 w-2/3" />
+                  </Card>
+                ))
+              : (popular.data ?? []).map((quiz, index) => (
+                  <Reveal key={quiz.id} delay={index * 0.06}>
+                    <QuizCardTile quiz={quiz} />
+                  </Reveal>
+                ))}
+          </div>
+
+          {popular.error ? (
+            <p className="text-wrong-300 mt-6 text-sm">{popular.error}</p>
+          ) : null}
+        </div>
+      </section>
 
       {/* ══ How it works ═══════════════════════════════════════════════ */}
       <section className="py-20">
@@ -443,26 +437,5 @@ export function LandingPage() {
         </div>
       </section>
     </>
-  )
-}
-
-/** Shown when the app is running before Supabase is wired up. */
-function SetupNotice() {
-  return (
-    <section className="py-16">
-      <div className="container-page">
-        <Card className="border-spark-400/30 p-6 sm:p-8">
-          <Badge tone="spark">Chưa kết nối Supabase</Badge>
-          <h2 className="font-display text-ink-50 mt-4 text-xl font-semibold">
-            Kho đề thi sẽ hiện ở đây
-          </h2>
-          <p className="text-ink-300 mt-2 max-w-2xl text-sm leading-relaxed">
-            Trang này đang chạy ở chế độ tĩnh. Sao chép <code>.env.example</code> thành{' '}
-            <code>.env.local</code>, chạy <code>npm run supabase:start</code> rồi dán URL và anon
-            key vào đó — đề thi mẫu và bảng xếp hạng sẽ xuất hiện ngay.
-          </p>
-        </Card>
-      </div>
-    </section>
   )
 }

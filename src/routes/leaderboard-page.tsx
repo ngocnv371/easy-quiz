@@ -17,7 +17,6 @@ import { fetchEndlessLeaderboard } from '@/features/quiz/endless-api'
 import { formatCompact, formatPercent, formatRelative, medalFor } from '@/lib/format'
 import type { EndlessLeaderboardEntry, LeaderboardEntry } from '@/lib/domain'
 import { usePageMeta } from '@/lib/seo'
-import { isSupabaseConfigured } from '@/lib/supabase'
 import { useAsyncData } from '@/lib/use-async-data'
 import { cn } from '@/lib/utils'
 
@@ -29,19 +28,18 @@ export function LeaderboardPage() {
   const global = useAsyncData(
     'leaderboard:global',
     () => fetchGlobalLeaderboard(50),
-    isSupabaseConfigured && !quizSlug && !endlessMode,
+    !quizSlug && !endlessMode,
   )
 
   const endless = useAsyncData(
     'leaderboard:endless',
     () => fetchEndlessLeaderboard(50),
-    isSupabaseConfigured && endlessMode,
+    endlessMode,
   )
 
   const quizzes = useAsyncData(
     'leaderboard:quizzes',
     () => fetchQuizCards({ sort: 'popular', limit: 40 }),
-    isSupabaseConfigured,
   )
 
   const selectedQuiz = useMemo(
@@ -52,7 +50,7 @@ export function LeaderboardPage() {
   const perQuiz = useAsyncData(
     `leaderboard:quiz:${selectedQuiz?.id ?? 'none'}`,
     () => fetchQuizLeaderboard(selectedQuiz!.id, 30),
-    isSupabaseConfigured && Boolean(selectedQuiz) && !endlessMode,
+    Boolean(selectedQuiz) && !endlessMode,
   )
 
   usePageMeta({
@@ -159,13 +157,7 @@ export function LeaderboardPage() {
 
         {/* ── Body ─────────────────────────────────────────────────── */}
         <div className="mt-10">
-          {!isSupabaseConfigured ? (
-            <EmptyState
-              icon={Trophy}
-              title="Chưa kết nối Supabase"
-              description="Bảng xếp hạng cần dữ liệu thật. Hãy cấu hình .env.local và chạy npm run supabase:start."
-            />
-          ) : endlessMode ? (
+          {endlessMode ? (
             <EndlessBoard
               loading={endless.loading}
               error={endless.error}

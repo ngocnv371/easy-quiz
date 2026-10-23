@@ -23,7 +23,7 @@ import { cn, errorMessage } from '@/lib/utils'
  * asked to sign up first, which also doubles their free allowance.
  */
 export function EnergyPage() {
-  const { user, isGuest, isConfigured } = useAuth()
+  const { user, isGuest } = useAuth()
   const { energy, loading } = useEnergy()
   const { hash } = useLocation()
   const [buying, setBuying] = useState<string | null>(null)
@@ -35,7 +35,7 @@ export function EnergyPage() {
     path: '/energy',
   })
 
-  const products = useAsyncData('store:products', fetchStoreProducts, isConfigured)
+  const products = useAsyncData('store:products', fetchStoreProducts)
   const packs = (products.data ?? []).filter((product) => product.kind === 'energy')
   const plans = (products.data ?? []).filter((product) => product.kind === 'plus')
 

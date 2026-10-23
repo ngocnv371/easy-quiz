@@ -1,15 +1,15 @@
 /**
- * The boundary between the database and the app.
+ * The boundary between the API and the app.
  *
- * `database.types.ts` is generated and types every view column as nullable
- * (PostgreSQL does not record NOT NULL on views). Rather than sprinkle `??`
- * through the UI, the rows are narrowed once, here, and the components work
- * with shapes that say what is actually guaranteed.
+ * Row shapes mirror the tables in `migrations/0002_app.sql` as the Worker
+ * returns them (booleans already true/false). Read models can carry gaps — an
+ * attempt whose player was deleted, a quiz without a topic — so they are
+ * narrowed once, here, and the components work with shapes that say what is
+ * actually guaranteed.
  */
 
-import type { Database, Json } from './database.types'
-
-export type { Database, Json }
+/** Any JSON value. */
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
 // ── Domain unions ──────────────────────────────────────────────────────────
 export type TopicAccent = 'neon' | 'violet' | 'magenta' | 'spark' | 'lime'
@@ -19,20 +19,103 @@ export type QuizVisibility = 'private' | 'unlisted' | 'public'
 export type QuizStatus = 'draft' | 'published' | 'archived'
 
 // ── Raw rows ───────────────────────────────────────────────────────────────
-type Tables = Database['public']['Tables']
-type Views = Database['public']['Views']
+export interface TopicRow {
+  id: string
+  slug: string
+  name: string
+  description: string | null
+  emoji: string
+  accent: string
+  sort_order: number
+  is_active: boolean
+  created_at: string
+}
 
-export type TopicRow = Tables['topics']['Row']
-export type ProfileRow = Tables['profiles']['Row']
-export type QuizRow = Tables['quizzes']['Row']
-export type QuestionRow = Tables['questions']['Row']
-export type OptionRow = Tables['options']['Row']
-export type AttemptRow = Tables['attempts']['Row']
-export type AttemptAnswerRow = Tables['attempt_answers']['Row']
+export interface ProfileRow {
+  id: string
+  username: string
+  display_name: string
+  avatar_emoji: string
+  role: string
+  is_guest: boolean
+  organization: string | null
+  bio: string | null
+  /** Only on the signed-in player's own profile. */
+  ai_credits?: number
+  created_at: string
+  updated_at: string
+}
 
-export type QuizCardRow = Views['quiz_cards']['Row']
-export type LeaderboardEntryRow = Views['leaderboard_entries']['Row']
-export type GlobalLeaderboardRow = Views['global_leaderboard']['Row']
+export interface QuizRow {
+  id: string
+  owner_id: string
+  topic_id: string | null
+  slug: string
+  title: string
+  description: string | null
+  cover_emoji: string
+  difficulty: string
+  visibility: string
+  status: string
+  time_limit_seconds: number
+  shuffle_questions: boolean
+  shuffle_options: boolean
+  ai_generated: boolean
+  play_count: number
+  published_at: string | null
+  imported_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface QuestionRow {
+  id: string
+  quiz_id: string
+  position: number
+  prompt: string
+  explanation: string | null
+  points: number
+  time_limit_seconds: number | null
+  image_url: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface OptionRow {
+  id: string
+  question_id: string
+  position: number
+  label: string
+  is_correct: boolean
+}
+
+export interface AttemptRow {
+  id: string
+  quiz_id: string
+  user_id: string | null
+  guest_name: string | null
+  score: number
+  max_score: number
+  correct_count: number
+  question_count: number
+  accuracy: number
+  duration_seconds: number
+  completed_at: string
+}
+
+export interface AttemptAnswerRow {
+  attempt_id: string
+  question_id: string
+  option_id: string | null
+  is_correct: boolean
+  time_ms: number
+}
+
+type Nullable<T> = { [K in keyof T]: T[K] | null }
+
+export type QuizCardRow = Nullable<Omit<QuizCard, 'topic_accent'>> & { topic_accent: string | null }
+export type LeaderboardEntryRow = Nullable<LeaderboardEntry>
+export type GlobalLeaderboardRow = Nullable<GlobalLeaderboardEntry>
 
 // ── Guards ─────────────────────────────────────────────────────────────────
 const DIFFICULTIES: readonly QuizDifficulty[] = ['easy', 'medium', 'hard']
@@ -365,10 +448,7 @@ export interface EndlessLeaderboardEntry {
   last_played_at: string
 }
 
-type EndlessLeaderboardRow =
-  Database['public']['Functions']['get_endless_leaderboard']['Returns'][number]
-
-export function toEndlessLeaderboardEntry(row: EndlessLeaderboardRow): EndlessLeaderboardEntry {
+export function toEndlessLeaderboardEntry(row: EndlessLeaderboardEntry): EndlessLeaderboardEntry {
   return {
     user_id: row.user_id,
     username: row.username,

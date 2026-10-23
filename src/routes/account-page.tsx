@@ -8,14 +8,13 @@ import { Badge } from '@/components/ui/badge'
 import { Button, ButtonLink } from '@/components/ui/button'
 import { Card, Stat } from '@/components/ui/card'
 import { EmojiPicker } from '@/components/ui/emoji-picker'
-import { Alert, EmptyState, Skeleton } from '@/components/ui/feedback'
+import { Alert, Skeleton } from '@/components/ui/feedback'
 import { Field, Input, Textarea } from '@/components/ui/field'
 import { fetchMyAttempts, fetchGlobalLeaderboard } from '@/features/quiz/api'
 import { useAuth } from '@/features/auth/auth-context'
 import { formatCompact, formatPercent, formatRelative, medalFor } from '@/lib/format'
 import { AVATAR_EMOJIS, ROLE_LABELS } from '@/lib/labels'
 import { usePageMeta } from '@/lib/seo'
-import { isSupabaseConfigured } from '@/lib/supabase'
 import { useAsyncData } from '@/lib/use-async-data'
 import { errorMessage } from '@/lib/utils'
 
@@ -56,13 +55,13 @@ export function AccountPage() {
   const attempts = useAsyncData(
     `account:attempts:${user?.id ?? 'none'}`,
     () => fetchMyAttempts(user!.id, 20),
-    Boolean(user?.id) && isSupabaseConfigured,
+    Boolean(user?.id),
   )
 
   const board = useAsyncData(
     'account:board',
     () => fetchGlobalLeaderboard(100),
-    Boolean(user?.id) && isSupabaseConfigured,
+    Boolean(user?.id),
   )
 
   const myRank = (() => {
@@ -104,18 +103,6 @@ export function AccountPage() {
   const handleSignOut = async () => {
     await signOut()
     navigate('/')
-  }
-
-  if (!isSupabaseConfigured) {
-    return (
-      <Shell>
-        <EmptyState
-          icon={Trophy}
-          title="Chưa kết nối Supabase"
-          description="Hồ sơ cần máy chủ. Hãy cấu hình .env.local trước."
-        />
-      </Shell>
-    )
   }
 
   return (

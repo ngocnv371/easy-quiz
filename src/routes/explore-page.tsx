@@ -15,7 +15,6 @@ import { groupTopics, locateTopic, schoolLevel } from '@/features/quiz/topic-gro
 import { DIFFICULTY_LABELS } from '@/lib/labels'
 import type { QuizDifficulty } from '@/lib/domain'
 import { usePageMeta } from '@/lib/seo'
-import { isSupabaseConfigured } from '@/lib/supabase'
 import { useAsyncData } from '@/lib/use-async-data'
 import { cn } from '@/lib/utils'
 
@@ -64,7 +63,7 @@ export function ExplorePage() {
     return () => window.clearTimeout(timer)
   }, [search, params, setParams])
 
-  const topics = useAsyncData('explore:topics', fetchTopics, isSupabaseConfigured)
+  const topics = useAsyncData('explore:topics', fetchTopics)
 
   // Topics are browsed as Lớp › Môn › Chủ đề. `grade` and `subject` narrow to
   // every chapter beneath them; a `topic` alone (an old link) implies both.
@@ -99,7 +98,7 @@ export function ExplorePage() {
         search: params.get('q') ?? '',
         limit: 60,
       }),
-    isSupabaseConfigured && scopeReady,
+    scopeReady,
   )
 
   /** Moves the topic filter; each level clears the levels beneath it. */
@@ -297,13 +296,7 @@ export function ExplorePage() {
 
         {/* ── Results ──────────────────────────────────────────────── */}
         <div className="mt-10">
-          {!isSupabaseConfigured ? (
-            <EmptyState
-              icon={Compass}
-              title="Chưa kết nối Supabase"
-              description="Sao chép .env.example thành .env.local và chạy npm run supabase:start để nạp kho đề thi mẫu."
-            />
-          ) : quizzes.loading ? (
+          {quizzes.loading ? (
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 6 }, (_, index) => (
                 <Card key={index} className="p-5">

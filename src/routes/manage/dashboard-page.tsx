@@ -14,22 +14,21 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { ButtonLink } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Alert, EmptyState, Skeleton } from '@/components/ui/feedback'
+import { EmptyState, Skeleton } from '@/components/ui/feedback'
 import { fetchAttemptsForOwner, fetchMyQuizzes, summariseQuizzes } from '@/features/manage/api'
 import { ImportQuestionsButton } from '@/features/manage/import-questions-dialog'
 import { useAuth } from '@/features/auth/auth-context'
 import { formatCompact, formatPercent, formatRelative } from '@/lib/format'
-import { isSupabaseConfigured } from '@/lib/supabase'
 import { useAsyncData } from '@/lib/use-async-data'
 
 export function ManageDashboardPage() {
-  const { user, profile, displayName, isConfigured } = useAuth()
+  const { user, profile, displayName } = useAuth()
   const credits = profile?.ai_credits ?? 0
 
   const quizzes = useAsyncData(
     `manage:quizzes:${user?.id ?? 'none'}`,
     () => fetchMyQuizzes(user!.id),
-    Boolean(user?.id) && isConfigured,
+    Boolean(user?.id),
   )
 
   const list = useMemo(() => quizzes.data ?? [], [quizzes.data])
@@ -41,17 +40,6 @@ export function ManageDashboardPage() {
     () => fetchAttemptsForOwner(quizIds, 12),
     quizIds.length > 0,
   )
-
-  if (!isSupabaseConfigured) {
-    return (
-      <div className="p-6 lg:p-10">
-        <Alert tone="warning" title="Chưa kết nối Supabase">
-          Cấu hình <code>.env.local</code> rồi chạy <code>npm run supabase:start</code> để dùng
-          trang quản lý.
-        </Alert>
-      </div>
-    )
-  }
 
   return (
     <div className="p-6 lg:p-10">
