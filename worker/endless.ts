@@ -5,6 +5,8 @@
 //   · each answer is graded here, one at a time, costing one energy; the key for that one question
 //     is revealed only after it has been answered
 //   · a run (endless_sessions) keeps the streak the Endless leaderboard ranks by
+//   · only single-choice questions are drawn: the stream is one tap per question, and true/false
+//     and short-answer questions need a check step it doesn't have
 import type { Member } from './env.ts'
 import { spendEnergy } from './energy.ts'
 import { LISTED } from './catalog.ts'
@@ -51,7 +53,7 @@ export async function nextBatch(db: D1Database, userId: string | null, limit: nu
     db
       .prepare(`select qu.id, q.topic_id from questions qu join quizzes q on q.id = qu.quiz_id
         where ${LISTED} and (?1 is null or q.topic_id = ?1)
-          and qu.id not in (select value from json_each(?2))
+          and qu.kind = 'single' and qu.id not in (select value from json_each(?2))
           and exists (select 1 from options o where o.question_id = qu.id)`)
       .bind(topicId, JSON.stringify(exclude.slice(0, 2000)))
       .all<{ id: string; topic_id: string | null }>(),

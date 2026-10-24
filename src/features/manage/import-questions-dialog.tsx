@@ -131,10 +131,15 @@ export function ImportQuestionsButton({
           <Alert tone="info" icon={ShieldAlert} title="Chỉ quản trị viên">
             Tệp được xử lý an toàn trên máy chủ. Cột bắt buộc:{' '}
             <code className="text-ink-100">subject</code>,{' '}
-            <code className="text-ink-100">prompt</code>, và ít nhất hai cột lựa chọn{' '}
+            <code className="text-ink-100">prompt</code> và các cột lựa chọn{' '}
             <code className="text-ink-100">option_a</code>… Cột{' '}
-            <code className="text-ink-100">correct</code> nhận chữ cái (A–D) hoặc số thứ tự,
-            mặc định là A.
+            <code className="text-ink-100">type</code> (không bắt buộc) chọn dạng câu:{' '}
+            <code className="text-ink-100">single</code> — trắc nghiệm,{' '}
+            <code className="text-ink-100">correct</code> là chữ cái đúng (mặc định A);{' '}
+            <code className="text-ink-100">true_false</code> — mỗi lựa chọn là một mệnh đề,{' '}
+            <code className="text-ink-100">correct</code> liệt kê các mệnh đề đúng, ví dụ
+            “A,C”; <code className="text-ink-100">short_answer</code> — mỗi lựa chọn là một đáp
+            án được chấp nhận.
           </Alert>
 
           <Field

@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import type { AnswerSubmission, PlayPayload, PlayQuestion } from '@/lib/domain'
+import {
+  isAnswered,
+  type AnswerSubmission,
+  type PlayPayload,
+  type PlayQuestion,
+  type PlayerAnswer,
+} from '@/lib/domain'
 import { seededShuffle } from '@/lib/utils'
 
 export type PlayPhase = 'idle' | 'countdown' | 'playing' | 'submitting' | 'error'
@@ -11,7 +17,7 @@ export interface PlaySession {
   questions: PlayQuestion[]
   index: number
   current: PlayQuestion | null
-  answers: Record<string, string>
+  answers: Record<string, PlayerAnswer>
   answeredCount: number
   /** Seconds remaining on the whole quiz, or null when there is no limit. */
   secondsLeft: number | null
@@ -24,6 +30,10 @@ export interface PlaySession {
   /** Called when the countdown composition finishes, to open question one. */
   beginQuestions: () => void
   select: (optionId: string) => void
+  /** True/false: mark one statement. */
+  mark: (optionId: string, value: boolean) => void
+  /** Short answer: the text typed so far. */
+  type: (text: string) => void
   next: () => void
   previous: () => void
   goTo: (index: number) => void
@@ -45,7 +55,7 @@ export interface PlaySession {
 export function usePlaySession(payload: PlayPayload | null): PlaySession {
   const [phase, setPhase] = useState<PlayPhase>('idle')
   const [index, setIndex] = useState(0)
-  const [answers, setAnswers] = useState<Record<string, string>>({})
+  const [answers, setAnswers] = useState<Record<string, PlayerAnswer>>({})
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -100,11 +110,16 @@ export function usePlaySession(payload: PlayPayload | null): PlaySession {
   const buildSubmission = useCallback((): AnswerSubmission[] => {
     flushQuestionTime()
 
-    return questions.map((question) => ({
-      question_id: question.id,
-      option_id: answers[question.id] ?? null,
-      time_ms: Math.round(timeSpentRef.current[question.id] ?? 0),
-    }))
+    return questions.map((question) => {
+      const answer = answers[question.id]
+      return {
+        question_id: question.id,
+        option_id: answer?.option_id ?? null,
+        ...(answer?.marks ? { marks: answer.marks } : {}),
+        ...(answer?.text ? { text: answer.text } : {}),
+        time_ms: Math.round(timeSpentRef.current[question.id] ?? 0),
+      }
+    })
   }, [answers, flushQuestionTime, questions])
 
   const start = useCallback(() => {
@@ -125,14 +140,30 @@ export function usePlaySession(payload: PlayPayload | null): PlaySession {
     setPhase('playing')
   }, [])
 
-  const select = useCallback(
-    (optionId: string) => {
+  const answerCurrent = useCallback(
+    (update: (previous: PlayerAnswer | undefined) => PlayerAnswer) => {
       const question = questions[index]
       if (!question) return
 
-      setAnswers((previous) => ({ ...previous, [question.id]: optionId }))
+      setAnswers((previous) => ({ ...previous, [question.id]: update(previous[question.id]) }))
     },
     [index, questions],
+  )
+
+  const select = useCallback(
+    (optionId: string) => answerCurrent(() => ({ option_id: optionId })),
+    [answerCurrent],
+  )
+
+  const mark = useCallback(
+    (optionId: string, value: boolean) =>
+      answerCurrent((previous) => ({ marks: { ...previous?.marks, [optionId]: value } })),
+    [answerCurrent],
+  )
+
+  const type = useCallback(
+    (text: string) => answerCurrent(() => ({ text })),
+    [answerCurrent],
   )
 
   const goTo = useCallback(
@@ -153,7 +184,9 @@ export function usePlaySession(payload: PlayPayload | null): PlaySession {
     setPhase('error')
   }, [])
 
-  const answeredCount = Object.keys(answers).length
+  const answeredCount = questions.filter((question) =>
+    isAnswered(question, answers[question.id]),
+  ).length
 
   return {
     phase,
@@ -170,6 +203,8 @@ export function usePlaySession(payload: PlayPayload | null): PlaySession {
     start,
     beginQuestions,
     select,
+    mark,
+    type,
     next,
     previous,
     goTo,

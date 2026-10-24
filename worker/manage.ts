@@ -2,6 +2,7 @@
 // and the per-quiz report. Every query is scoped to the owner.
 import type { Member } from './env.ts'
 import { CARD_SELECT, card } from './catalog.ts'
+import { KINDS } from './grading.ts'
 import { questionsOf } from './play.ts'
 import { AppError, NOW, bools, jsonRows, nowIso, oneOf, slugSuffix, slugify, toInt, trimTo, uuid } from './sql.ts'
 
@@ -14,6 +15,7 @@ interface DraftOption {
   is_correct?: unknown
 }
 interface DraftQuestion {
+  kind?: unknown
   prompt?: unknown
   explanation?: unknown
   points?: unknown
@@ -24,35 +26,54 @@ interface DraftQuestion {
 
 const truthy = (v: unknown) => v === true || v === 'true' || v === 1 || v === '1'
 
+// What a question needs before it can be published, per kind (worker/grading.ts says what options
+// mean); null when it is fine.
+function publishProblem(q: DraftQuestion): string | null {
+  const options = Array.isArray(q.options) ? q.options : []
+  const filled = options.filter((o) => trimTo(o?.label, 240))
+  if (!trimTo(q.prompt, 600)) return 'Mỗi câu hỏi cần có nội dung.'
+  const kind = oneOf(KINDS, q.kind, 'single')
+  if (kind === 'true_false') {
+    return filled.length === 0 || filled.length !== options.length ? 'Câu Đúng/Sai cần ít nhất 1 mệnh đề và mệnh đề nào cũng có nội dung.' : null
+  }
+  if (kind === 'short_answer') return filled.length === 0 ? 'Câu trả lời ngắn cần ít nhất 1 đáp án được chấp nhận.' : null
+  return options.length < 2 || options.filter((o) => truthy(o?.is_correct)).length !== 1 ? 'Mỗi câu trắc nghiệm cần ít nhất 2 lựa chọn và đúng 1 đáp án.' : null
+}
+
 // The statements that replace a quiz's questions wholesale (options go with them by cascade).
-// Only the first option marked correct counts, and a question with none gets its first option,
-// so a quiz is always gradable.
+// For a single-choice question only the first option marked correct counts, and one with none gets
+// its first option, so a quiz is always gradable. A true/false statement keeps its own truth; every
+// short answer is accepted, and blank ones are dropped (a placeholder would be an accepted answer).
 export function replaceQuestions(db: D1Database, quizId: string, questions: DraftQuestion[]) {
   const qs: unknown[] = []
   const os: unknown[] = []
   questions.forEach((q, i) => {
     const id = uuid()
     const timeLimit = q.time_limit_seconds === null || q.time_limit_seconds === undefined || q.time_limit_seconds === '' ? null : Math.max(toInt(q.time_limit_seconds, 0), 0)
+    const kind = oneOf(KINDS, q.kind, 'single')
     qs.push({
       id,
       position: i + 1,
+      kind,
       prompt: trimTo(q.prompt, 600) ?? `Câu hỏi ${i + 1}`,
       explanation: trimTo(q.explanation, 600),
       points: Math.max(toInt(q.points, 1), 0),
       time_limit_seconds: timeLimit,
       image_url: trimTo(q.image_url, 1000),
     })
-    const options = Array.isArray(q.options) ? q.options : []
+    let options = Array.isArray(q.options) ? q.options : []
+    if (kind === 'short_answer') options = options.filter((o) => trimTo(o?.label, 240))
     let keyAt = options.findIndex((o) => truthy(o?.is_correct))
     if (keyAt < 0) keyAt = 0
     options.forEach((o, j) => {
-      os.push({ id: uuid(), question_id: id, position: j + 1, label: trimTo(o?.label, 240) ?? `Lựa chọn ${j + 1}`, is_correct: j === keyAt ? 1 : 0 })
+      const isCorrect = kind === 'single' ? j === keyAt : kind === 'short_answer' || truthy(o?.is_correct)
+      os.push({ id: uuid(), question_id: id, position: j + 1, label: trimTo(o?.label, 240) ?? `Lựa chọn ${j + 1}`, is_correct: isCorrect ? 1 : 0 })
     })
   })
   return [
     db.prepare('delete from questions where quiz_id = ?').bind(quizId),
-    db.prepare(`insert into questions (id, quiz_id, position, prompt, explanation, points, time_limit_seconds, image_url)
-        select value ->> 'id', ?1, value ->> 'position', value ->> 'prompt', value ->> 'explanation', value ->> 'points',
+    db.prepare(`insert into questions (id, quiz_id, position, kind, prompt, explanation, points, time_limit_seconds, image_url)
+        select value ->> 'id', ?1, value ->> 'position', value ->> 'kind', value ->> 'prompt', value ->> 'explanation', value ->> 'points',
           value ->> 'time_limit_seconds', value ->> 'image_url' from json_each(?2)`).bind(quizId, jsonRows(qs)),
     db.prepare(`insert into options (id, question_id, position, label, is_correct)
         select value ->> 'id', value ->> 'question_id', value ->> 'position', value ->> 'label', value ->> 'is_correct' from json_each(?1)`).bind(jsonRows(os)),
@@ -89,7 +110,7 @@ interface SavePayload extends Record<string, unknown> {
 }
 
 // One write for the whole editor document. Publishing is where quality is enforced: at least one
-// question, each with a prompt, two options and exactly one key.
+// question, each with a prompt and a complete key for its kind (publishProblem).
 export async function saveQuiz(db: D1Database, member: Member, p: SavePayload) {
   const existingId = trimTo(p.id, 64)
   const existing = existingId
@@ -101,11 +122,10 @@ export async function saveQuiz(db: D1Database, member: Member, p: SavePayload) {
   const questions = Array.isArray(p.questions) ? p.questions : []
   if (status === 'published') {
     if (questions.length === 0) throw new AppError('Cần ít nhất một câu hỏi trước khi xuất bản.')
-    const broken = questions.some((q) => {
-      const options = Array.isArray(q.options) ? q.options : []
-      return !trimTo(q.prompt, 600) || options.length < 2 || options.filter((o) => truthy(o?.is_correct)).length !== 1
-    })
-    if (broken) throw new AppError('Mỗi câu hỏi cần nội dung, ít nhất 2 lựa chọn và đúng 1 đáp án.')
+    for (const [i, q] of questions.entries()) {
+      const problem = publishProblem(q)
+      if (problem) throw new AppError(`Câu ${i + 1}: ${problem}`)
+    }
   }
 
   const id = existing?.id ?? uuid()

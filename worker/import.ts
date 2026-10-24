@@ -9,12 +9,17 @@
 // Columns (header row required, aliases in parentheses):
 //   subject (topic, môn, chủ đề)          required
 //   prompt  (question, câu hỏi)           required
-//   option_a … option_f (option_1…6, a…f) at least two, in order
-//   correct (answer, đáp án)              letter A–F or 1-based number, default A
+//   type (kind, loại câu)                 single (default), true_false (đúng sai), short_answer (trả lời ngắn)
+//   option_a … option_f (option_1…6, a…f) in order: the choices (at least two), the statements (at least
+//                                         one) or the accepted answers (at least one), by type
+//   correct (answer, đáp án)              single: letter A–F or 1-based number, default A
+//                                         true_false: the true statements, e.g. "A,C" (blank = all false)
+//                                         short_answer: ignored, every option is accepted
 //   explanation (giải thích, lời giải)    optional
 //   points (điểm), difficulty (độ khó), title (tên đề),
 //   status (trạng thái), visibility (hiển thị), subject_slug (slug)  optional
 import type { Member } from './env.ts'
+import type { Kind } from './grading.ts'
 import { DIFFICULTIES, STATUSES, VISIBILITIES, freeSlug, replaceQuestions } from './manage.ts'
 import { AppError, NOW, oneOf, slugify, trimTo, uuid } from './sql.ts'
 
@@ -94,9 +99,17 @@ const FIELD_ALIASES: Record<string, string> = {
   status: 'status', trang_thai: 'status',
   visibility: 'visibility', hien_thi: 'visibility',
   slug: 'subjectSlug', subject_slug: 'subjectSlug',
+  type: 'type', kind: 'type', question_type: 'type', loai: 'type', loai_cau: 'type', loai_cau_hoi: 'type', dang: 'type', dang_cau: 'type',
 }
 
-type Field = 'subject' | 'prompt' | 'correct' | 'explanation' | 'points' | 'difficulty' | 'title' | 'status' | 'visibility' | 'subjectSlug'
+// folded `type` cell -> kind; a blank cell is single choice
+const KIND_ALIASES: Record<string, Kind> = {
+  single: 'single', mcq: 'single', multiple_choice: 'single', trac_nghiem: 'single', mot_dap_an: 'single',
+  true_false: 'true_false', truefalse: 'true_false', tf: 'true_false', dung_sai: 'true_false', ds: 'true_false',
+  short_answer: 'short_answer', short: 'short_answer', tra_loi_ngan: 'short_answer', tln: 'short_answer',
+}
+
+type Field = 'subject' | 'prompt' | 'type' | 'correct' | 'explanation' | 'points' | 'difficulty' | 'title' | 'status' | 'visibility' | 'subjectSlug'
 type ColumnMap = Partial<Record<Field, number>> & { options: { at: number; order: number }[] }
 
 // `option_a`/`option_1`/`a` -> 1, `option_b`/`option_2`/`b` -> 2, … `f` -> 6
@@ -128,7 +141,7 @@ function mapColumns(header: string[]): ColumnMap {
 interface Group {
   subject: { name: string; slug?: string }
   quiz: { title?: string; difficulty?: string; status?: string; visibility?: string }
-  questions: { prompt: string; explanation?: string; points?: number; options: { label: string; is_correct?: boolean }[] }[]
+  questions: { kind: Kind; prompt: string; explanation?: string; points?: number; options: { label: string; is_correct?: boolean }[] }[]
 }
 
 function parseCorrect(raw: string): number {
@@ -137,6 +150,15 @@ function parseCorrect(raw: string): number {
   if (/^[a-fA-F]$/.test(value)) return value.toUpperCase().charCodeAt(0) - 65
   const number = Number.parseInt(value, 10)
   return Number.isFinite(number) ? number - 1 : 0
+}
+
+// "A,C", "AC", "1;3", "a c" -> {0, 2}: the statements a true_false row marks true
+function parseTrueSet(raw: string): Set<number> {
+  const out = new Set<number>()
+  for (const token of raw.toUpperCase().match(/[A-F]|\d+/g) ?? []) {
+    out.add(/^[A-F]$/.test(token) ? token.charCodeAt(0) - 65 : Number.parseInt(token, 10) - 1)
+  }
+  return out
 }
 
 function buildGroups(rows: string[][], headerIndex: number, map: ColumnMap) {
@@ -163,21 +185,33 @@ function buildGroups(rows: string[][], headerIndex: number, map: ColumnMap) {
       continue
     }
 
-    const correctIndex = parseCorrect(cell(map.correct))
+    const typeCell = fold(cell(map.type))
+    const kind = typeCell === '' ? 'single' : KIND_ALIASES[typeCell]
+    if (!kind) {
+      skipped.push({ row: lineNumber, reason: `Loại câu "${cell(map.type)}" không hợp lệ (single, true_false hoặc short_answer).` })
+      continue
+    }
+
+    // single: the one key; true_false: every true statement; short_answer: unused (all accepted)
+    const keys = kind === 'true_false' ? parseTrueSet(cell(map.correct)) : new Set([parseCorrect(cell(map.correct))])
     const options: { label: string; is_correct?: boolean }[] = []
     let marked = false
     map.options.forEach((option, position) => {
       const label = (row[option.at] ?? '').trim()
       if (label === '') return
-      const isCorrect = position === correctIndex
+      const isCorrect = kind === 'short_answer' || keys.has(position)
       options.push(isCorrect ? { label, is_correct: true } : { label })
       if (isCorrect) marked = true
     })
-    if (options.length < 2) {
+    if (kind === 'single' && options.length < 2) {
       skipped.push({ row: lineNumber, reason: 'Cần ít nhất 2 lựa chọn không trống.' })
       continue
     }
-    if (!marked) {
+    if (options.length === 0) {
+      skipped.push({ row: lineNumber, reason: kind === 'true_false' ? 'Cần ít nhất 1 mệnh đề không trống.' : 'Cần ít nhất 1 đáp án được chấp nhận.' })
+      continue
+    }
+    if (kind === 'single' && !marked) {
       skipped.push({ row: lineNumber, reason: 'Đáp án đúng trỏ vào một lựa chọn trống hoặc nằm ngoài danh sách.' })
       continue
     }
@@ -202,6 +236,7 @@ function buildGroups(rows: string[][], headerIndex: number, map: ColumnMap) {
       groups.set(key, group)
     }
     group.questions.push({
+      kind,
       prompt,
       ...(cell(map.explanation) ? { explanation: cell(map.explanation) } : {}),
       ...(Number.isFinite(points) && points >= 0 ? { points } : {}),
@@ -286,7 +321,7 @@ export async function importQuestions(db: D1Database, member: Member, body: { cs
   if (map.subject === undefined || map.prompt === undefined) {
     throw new AppError('Tệp thiếu cột bắt buộc. Cần có "subject" (môn/chủ đề) và "prompt" (câu hỏi).')
   }
-  if (map.options.length < 2) throw new AppError('Tệp cần ít nhất hai cột lựa chọn, ví dụ "option_a" và "option_b".')
+  if (map.options.length === 0) throw new AppError('Tệp cần ít nhất một cột lựa chọn, ví dụ "option_a".')
 
   const { groups, skipped, totalRows } = buildGroups(rows, headerIndex, map)
   if (groups.length === 0) {

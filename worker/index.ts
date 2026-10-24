@@ -170,7 +170,8 @@ app.post('/quizzes/:slug/start', async (c) => {
   return c.json(res)
 })
 
-// body: { answers: [{ question_id, option_id, time_ms }], duration_seconds, guest_name?, ticket_id } -> the review
+// body: { answers: [{ question_id, option_id?, marks?: { [option id]: boolean }, text?, time_ms }], duration_seconds,
+//   guest_name?, ticket_id } -> the review (worker/grading.ts reads the field that fits each question's kind)
 app.post('/quizzes/:slug/submit', async (c) => {
   const res = await submitAttempt(c.env.DB, c.get('member'), { ...(await body(c)), slug: c.req.param('slug') })
   track(c.env, 'attempt_submitted', { user: c.get('member').id, detail: c.req.param('slug'), value: res.attempt.accuracy })

@@ -24,6 +24,7 @@ import { Card } from '@/components/ui/card'
 import { Alert, EmptyState, Skeleton } from '@/components/ui/feedback'
 import { Field, Input } from '@/components/ui/field'
 import { ProgressBar } from '@/components/ui/metrics'
+import { ShortAnswerInput, TrueFalseStatement } from '@/features/quiz/answer-inputs'
 import { AnswerTile, optionLetter } from '@/features/quiz/answer-tile'
 import { fetchPlayPayload, startQuizAttempt, submitAttempt } from '@/features/quiz/api'
 import { isOutOfEnergy } from '@/features/energy/api'
@@ -73,7 +74,7 @@ export function QuizPlayPage() {
   const [preparing, setPreparing] = useState(false)
   const [confirmQuit, setConfirmQuit] = useState(false)
 
-  const selectedOptionId = current ? answers[current.id] : undefined
+  const currentAnswer = current ? answers[current.id] : undefined
 
   // ── Countdown → first question ─────────────────────────────────────────
   useEffect(() => {
@@ -125,7 +126,13 @@ export function QuizPlayPage() {
 
       const number = Number.parseInt(event.key, 10)
 
-      if (Number.isInteger(number) && number >= 1 && number <= current.options.length) {
+      // Number keys pick a choice; the other kinds have no single thing to pick.
+      if (
+        current.kind === 'single' &&
+        Number.isInteger(number) &&
+        number >= 1 &&
+        number <= current.options.length
+      ) {
         const option = current.options[number - 1]
         if (option) {
           event.preventDefault()
@@ -490,25 +497,59 @@ export function QuizPlayPage() {
               />
             ) : null}
 
-            <div className="mt-7 space-y-3">
-              {current.options.map((option, optionIndex) => (
-                <AnswerTile
-                  key={option.id}
-                  letter={optionLetter(optionIndex)}
-                  label={option.label}
-                  state={selectedOptionId === option.id ? 'selected' : 'idle'}
+            {current.kind === 'true_false' ? (
+              <>
+                <p className="text-ink-300 mt-6 text-sm">
+                  Đánh dấu từng mệnh đề là <span className="text-ink-50 font-medium">Đúng</span>{' '}
+                  hoặc <span className="text-ink-50 font-medium">Sai</span>. Câu chỉ được tính điểm
+                  khi mọi mệnh đề đều đúng.
+                </p>
+                <div className="mt-4 space-y-3">
+                  {current.options.map((option, optionIndex) => (
+                    <TrueFalseStatement
+                      key={option.id}
+                      letter={optionLetter(optionIndex)}
+                      label={option.label}
+                      value={currentAnswer?.marks?.[option.id]}
+                      disabled={submitting}
+                      onChange={(value) => session.mark(option.id, value)}
+                    />
+                  ))}
+                </div>
+              </>
+            ) : current.kind === 'short_answer' ? (
+              <div className="mt-7">
+                <ShortAnswerInput
+                  value={currentAnswer?.text ?? ''}
+                  onChange={session.type}
+                  onEnter={() => (isLast ? void handleSubmit() : session.next())}
                   disabled={submitting}
-                  onClick={() => session.select(option.id)}
+                  autoFocus
                 />
-              ))}
-            </div>
+              </div>
+            ) : (
+              <>
+                <div className="mt-7 space-y-3">
+                  {current.options.map((option, optionIndex) => (
+                    <AnswerTile
+                      key={option.id}
+                      letter={optionLetter(optionIndex)}
+                      label={option.label}
+                      state={currentAnswer?.option_id === option.id ? 'selected' : 'idle'}
+                      disabled={submitting}
+                      onClick={() => session.select(option.id)}
+                    />
+                  ))}
+                </div>
 
-            <p className="text-ink-500 mt-4 hidden text-xs sm:block">
-              Mẹo: nhấn phím <kbd className="border-ink-600 rounded border px-1">1</kbd>–
-              <kbd className="border-ink-600 rounded border px-1">{current.options.length}</kbd> để
-              chọn, <kbd className="border-ink-600 rounded border px-1">←</kbd>{' '}
-              <kbd className="border-ink-600 rounded border px-1">→</kbd> để chuyển câu.
-            </p>
+                <p className="text-ink-500 mt-4 hidden text-xs sm:block">
+                  Mẹo: nhấn phím <kbd className="border-ink-600 rounded border px-1">1</kbd>–
+                  <kbd className="border-ink-600 rounded border px-1">{current.options.length}</kbd>{' '}
+                  để chọn, <kbd className="border-ink-600 rounded border px-1">←</kbd>{' '}
+                  <kbd className="border-ink-600 rounded border px-1">→</kbd> để chuyển câu.
+                </p>
+              </>
+            )}
           </div>
         </main>
 
@@ -525,7 +566,7 @@ export function QuizPlayPage() {
             </Button>
 
             <div className="text-ink-400 ml-auto hidden text-xs sm:block">
-              {answeredCount}/{questions.length} câu đã chọn
+              {answeredCount}/{questions.length} câu đã trả lời
             </div>
 
             {isLast ? (

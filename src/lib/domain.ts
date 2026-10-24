@@ -17,6 +17,14 @@ export type UserRole = 'user' | 'admin'
 export type QuizDifficulty = 'easy' | 'medium' | 'hard'
 export type QuizVisibility = 'private' | 'unlisted' | 'public'
 export type QuizStatus = 'draft' | 'published' | 'archived'
+/**
+ * What a question's options mean (worker/grading.ts grades them):
+ *  · single — pick one option; exactly one is right
+ *  · true_false — every option is a statement the player marks true or false
+ *  · short_answer — the player types a word or number; the options are the
+ *    accepted answers, so the play payload never carries them
+ */
+export type QuestionKind = 'single' | 'true_false' | 'short_answer'
 
 // ── Raw rows ───────────────────────────────────────────────────────────────
 export interface TopicRow {
@@ -72,6 +80,7 @@ export interface QuestionRow {
   id: string
   quiz_id: string
   position: number
+  kind: string
   prompt: string
   explanation: string | null
   points: number
@@ -107,6 +116,8 @@ export interface AttemptAnswerRow {
   attempt_id: string
   question_id: string
   option_id: string | null
+  /** True/false marks as JSON, or the typed short answer; null for single choice. */
+  response: string | null
   is_correct: boolean
   time_ms: number
 }
@@ -123,6 +134,7 @@ const VISIBILITIES: readonly QuizVisibility[] = ['private', 'unlisted', 'public'
 const STATUSES: readonly QuizStatus[] = ['draft', 'published', 'archived']
 const ACCENTS: readonly TopicAccent[] = ['neon', 'violet', 'magenta', 'spark', 'lime']
 const ROLES: readonly UserRole[] = ['user', 'admin']
+const KINDS: readonly QuestionKind[] = ['single', 'true_false', 'short_answer']
 
 function oneOf<T extends string>(allowed: readonly T[], value: string | null, fallback: T): T {
   return allowed.includes(value as T) ? (value as T) : fallback
@@ -137,6 +149,9 @@ export const asVisibility = (value: string | null): QuizVisibility =>
 export const asStatus = (value: string | null): QuizStatus => oneOf(STATUSES, value, 'draft')
 
 export const asRole = (value: string | null): UserRole => oneOf(ROLES, value, 'user')
+
+export const asQuestionKind = (value: string | null): QuestionKind =>
+  oneOf(KINDS, value, 'single')
 
 export const asAccent = (value: string | null): TopicAccent | null =>
   value && (ACCENTS as readonly string[]).includes(value) ? (value as TopicAccent) : null
@@ -297,6 +312,7 @@ export interface PlayOption {
 export interface PlayQuestion {
   id: string
   position: number
+  kind: QuestionKind
   prompt: string
   points: number
   time_limit_seconds: number | null
@@ -324,9 +340,33 @@ export interface PlayPayload {
   questions: PlayQuestion[]
 }
 
+/**
+ * What the player has given for one question so far. Only the field that fits
+ * the question's kind is filled.
+ */
+export interface PlayerAnswer {
+  option_id?: string
+  /** True/false: option id → marked true. */
+  marks?: Record<string, boolean>
+  /** Short answer: the typed text. */
+  text?: string
+}
+
+/** Whether an answer is complete enough to count as answered. */
+export function isAnswered(question: PlayQuestion, answer: PlayerAnswer | undefined): boolean {
+  if (!answer) return false
+  if (question.kind === 'true_false') {
+    return question.options.every((option) => typeof answer.marks?.[option.id] === 'boolean')
+  }
+  if (question.kind === 'short_answer') return (answer.text ?? '').trim() !== ''
+  return Boolean(answer.option_id)
+}
+
 export interface AnswerSubmission {
   question_id: string
   option_id: string | null
+  marks?: Record<string, boolean>
+  text?: string
   time_ms: number
 }
 
@@ -343,9 +383,15 @@ export interface ReviewItem {
   prompt: string
   explanation: string | null
   points: number
+  kind: QuestionKind
   is_correct: boolean
   chosen_option_id: string | null
+  /** True/false: what the player marked, option id → true. */
+  marks: Record<string, boolean> | null
+  /** Short answer: what the player typed. */
+  text: string | null
   correct_option_id: string | null
+  /** For a short answer, the accepted answers. */
   options: ReviewOption[]
 }
 
@@ -470,6 +516,7 @@ export interface QuizDraftOption {
 }
 
 export interface QuizDraftQuestion {
+  kind: QuestionKind
   prompt: string
   explanation: string
   points: number
@@ -499,19 +546,53 @@ export interface QuizDraft {
   questions: QuizDraftQuestion[]
 }
 
-export function emptyQuestion(): QuizDraftQuestion {
+export function emptyQuestion(kind: QuestionKind = 'single'): QuizDraftQuestion {
   return {
+    kind,
     prompt: '',
     explanation: '',
     points: 1,
     time_limit_seconds: null,
-    options: [
-      { label: '', is_correct: true },
-      { label: '', is_correct: false },
-      { label: '', is_correct: false },
-      { label: '', is_correct: false },
-    ],
+    options:
+      kind === 'short_answer'
+        ? [{ label: '', is_correct: true }]
+        : Array.from({ length: 4 }, (_, index) => ({
+            label: '',
+            is_correct: kind === 'single' && index === 0,
+          })),
   }
+}
+
+/**
+ * The same question as another kind, keeping what still makes sense: the
+ * statements carry over between single and true/false, and only the right
+ * answers become accepted short answers.
+ */
+export function convertQuestion(question: QuizDraftQuestion, kind: QuestionKind): QuizDraftQuestion {
+  if (kind === question.kind) return question
+
+  if (kind === 'short_answer') {
+    const accepted = question.options.filter((option) => option.is_correct && option.label.trim() !== '')
+    return {
+      ...question,
+      kind,
+      options: accepted.length > 0 ? accepted : [{ label: '', is_correct: true }],
+    }
+  }
+
+  let options = question.options
+  if (question.kind === 'short_answer') {
+    // Accepted answers are all "right": start from them, padded to a full set.
+    options = [...options, ...Array.from({ length: Math.max(0, 4 - options.length) }, () => ({ label: '', is_correct: false }))]
+    options = options.map((option, index) => ({ ...option, is_correct: index === 0 }))
+  }
+  if (kind === 'single') {
+    if (options.length < 2) options = [...options, { label: '', is_correct: false }]
+    const keyAt = Math.max(0, options.findIndex((option) => option.is_correct))
+    options = options.map((option, index) => ({ ...option, is_correct: index === keyAt }))
+  }
+
+  return { ...question, kind, options }
 }
 
 export function emptyDraft(topicId: string | null = null): QuizDraft {

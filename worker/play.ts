@@ -6,6 +6,7 @@
 import type { Member } from './env.ts'
 import { spendEnergy } from './energy.ts'
 import { PLAYABLE } from './catalog.ts'
+import { grade, type Given } from './grading.ts'
 import { AppError, NOW, bools, jsonRows, nowIso, toInt, uuid } from './sql.ts'
 
 interface QuizRow {
@@ -28,6 +29,7 @@ const playableQuiz = (db: D1Database, slug: string) =>
 interface QuestionWithOptions {
   id: string
   position: number
+  kind: string
   prompt: string
   explanation: string | null
   points: number
@@ -39,7 +41,7 @@ interface QuestionWithOptions {
 // A quiz's questions with their options (key included: callers decide what leaves the Worker).
 export async function questionsOf(db: D1Database, quizId: string): Promise<QuestionWithOptions[]> {
   const [questions, options] = await db.batch([
-    db.prepare('select id, position, prompt, explanation, points, time_limit_seconds, image_url from questions where quiz_id = ? order by position').bind(quizId),
+    db.prepare('select id, position, kind, prompt, explanation, points, time_limit_seconds, image_url from questions where quiz_id = ? order by position').bind(quizId),
     db.prepare(`select o.id, o.question_id, o.position, o.label, o.is_correct from options o
         join questions qu on qu.id = o.question_id where qu.quiz_id = ? order by o.position`).bind(quizId),
   ])
@@ -75,9 +77,10 @@ export async function playPayload(db: D1Database, slug: string) {
       topic: topic ?? null,
       author: author ?? null,
     },
+    // a short answer's options ARE its key, so none of them leave
     questions: questions.map(({ explanation: _explanation, options, ...q }) => ({
       ...q,
-      options: options.map(({ is_correct: _key, ...o }) => o),
+      options: q.kind === 'short_answer' ? [] : options.map(({ is_correct: _key, ...o }) => o),
     })),
   }
 }
@@ -120,11 +123,16 @@ export async function submitAttempt(db: D1Database, member: Member, input: Submi
   if (questions.length === 0) throw new AppError('Đề thi chưa có câu hỏi nào.')
 
   // the first answer given for each question; unanswered questions are simply wrong
-  const given = new Map<string, { option_id: string | null; time_ms: number }>()
+  const given = new Map<string, Given & { time_ms: number }>()
   for (const a of Array.isArray(input.answers) ? input.answers : []) {
     const qid = String(a?.question_id ?? '')
     if (!qid || given.has(qid)) continue
-    given.set(qid, { option_id: a?.option_id ? String(a.option_id) : null, time_ms: Math.max(toInt(a?.time_ms, 0), 0) })
+    given.set(qid, {
+      option_id: a?.option_id ? String(a.option_id) : null,
+      marks: a?.marks && typeof a.marks === 'object' && !Array.isArray(a.marks) ? a.marks : null,
+      text: typeof a?.text === 'string' ? a.text : null,
+      time_ms: Math.max(toInt(a?.time_ms, 0), 0),
+    })
   }
 
   const attemptId = uuid()
@@ -134,14 +142,12 @@ export async function submitAttempt(db: D1Database, member: Member, input: Submi
   const answers = questions.map((q) => {
     maxScore += q.points
     const g = given.get(q.id)
-    // the option must belong to this question, otherwise it can't be right
-    const chosen = q.options.find((o) => o.id === g?.option_id)
-    const isCorrect = Boolean(chosen?.is_correct)
-    if (isCorrect) {
+    const graded = grade(q.kind, q.options, g)
+    if (graded.is_correct) {
       score += q.points
       correct += 1
     }
-    return { question_id: q.id, option_id: chosen?.id ?? null, is_correct: isCorrect ? 1 : 0, time_ms: g?.time_ms ?? 0 }
+    return { graded, row: { question_id: q.id, option_id: graded.option_id, response: graded.response, is_correct: graded.is_correct ? 1 : 0, time_ms: g?.time_ms ?? 0 } }
   })
 
   const attempt = {
@@ -162,9 +168,9 @@ export async function submitAttempt(db: D1Database, member: Member, input: Submi
     db.prepare(`insert into attempts (id, quiz_id, user_id, guest_name, score, max_score, correct_count, question_count, accuracy, duration_seconds, completed_at)
         values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
       .bind(attempt.id, attempt.quiz_id, attempt.user_id, attempt.guest_name, score, maxScore, correct, questions.length, attempt.accuracy, attempt.duration_seconds, attempt.completed_at),
-    db.prepare(`insert into attempt_answers (attempt_id, question_id, option_id, is_correct, time_ms)
-        select ?1, value ->> 'question_id', value ->> 'option_id', value ->> 'is_correct', value ->> 'time_ms' from json_each(?2)`)
-      .bind(attemptId, jsonRows(answers)),
+    db.prepare(`insert into attempt_answers (attempt_id, question_id, option_id, response, is_correct, time_ms)
+        select ?1, value ->> 'question_id', value ->> 'option_id', value ->> 'response', value ->> 'is_correct', value ->> 'time_ms' from json_each(?2)`)
+      .bind(attemptId, jsonRows(answers.map((a) => a.row))),
     db.prepare('update quizzes set play_count = play_count + 1 where id = ?').bind(quiz.id),
   ])
 
@@ -174,12 +180,15 @@ export async function submitAttempt(db: D1Database, member: Member, input: Submi
     review: questions.map((q, i) => ({
       question_id: q.id,
       position: q.position,
+      kind: q.kind,
       prompt: q.prompt,
       explanation: q.explanation,
       points: q.points,
-      is_correct: Boolean(answers[i]!.is_correct),
-      chosen_option_id: answers[i]!.option_id,
-      correct_option_id: q.options.find((o) => o.is_correct)?.id ?? null,
+      is_correct: answers[i]!.graded.is_correct,
+      chosen_option_id: answers[i]!.graded.option_id,
+      marks: answers[i]!.graded.marks,
+      text: answers[i]!.graded.text,
+      correct_option_id: q.kind === 'single' ? (q.options.find((o) => o.is_correct)?.id ?? null) : null,
       options: q.options,
     })),
   }

@@ -22,7 +22,7 @@ export const VISIBILITY_LABELS: Record<QuizVisibility, string> = {
 
 export const VISIBILITY_DESCRIPTIONS: Record<QuizVisibility, string> = {
   private: 'Chỉ mình bạn thấy trong trang quản lý.',
-  unlisted: 'Không hiện trên trang khám phá, ai có liên kết đều chơi được.',
+  unlisted: 'Chỉ ai có liên kết mới chơi được. Không hiện trên trang khám phá, hồ sơ người chơi, và câu hỏi không vào chế độ Endless.',
   public: 'Hiện trên trang khám phá và bảng xếp hạng.',
 }
 

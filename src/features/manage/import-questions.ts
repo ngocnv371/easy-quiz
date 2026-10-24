@@ -53,10 +53,11 @@ export async function importQuestionsCsv(
 
 /** Header row the edge function understands, for the downloadable template. */
 export const IMPORT_TEMPLATE_HEADER =
-  'subject,prompt,option_a,option_b,option_c,option_d,correct,explanation'
+  'subject,type,prompt,option_a,option_b,option_c,option_d,correct,explanation'
 
 export const IMPORT_TEMPLATE_CSV = `${IMPORT_TEMPLATE_HEADER}
-Toán học,"Kết quả của phép tính 2^5 bằng bao nhiêu?",16,32,64,25,B,"2^5 = 2 × 2 × 2 × 2 × 2 = 32."
-Toán học,"Số nào dưới đây là số nguyên tố?",21,27,29,33,C,"29 chỉ chia hết cho 1 và chính nó."
-Lịch sử,"Cách mạng tháng Tám thành công vào năm nào?",1944,1945,1946,1954,B,"Ngày 19/8/1945, khởi nghĩa giành thắng lợi ở Hà Nội."
+Toán học,single,"Kết quả của phép tính 2^5 bằng bao nhiêu?",16,32,64,25,B,"2^5 = 2 × 2 × 2 × 2 × 2 = 32."
+Toán học,true_false,"Xét các số 21, 27, 29, 33.",21 là số nguyên tố,29 là số nguyên tố,27 chia hết cho 9,33 chia hết cho 2,"B,C","29 chỉ chia hết cho 1 và chính nó; 27 = 3 × 9."
+Toán học,short_answer,"Viết phân số 1/4 dưới dạng số thập phân.",0.25,,,,,"1 : 4 = 0,25."
+Lịch sử,single,"Cách mạng tháng Tám thành công vào năm nào?",1944,1945,1946,1954,B,"Ngày 19/8/1945, khởi nghĩa giành thắng lợi ở Hà Nội."
 `

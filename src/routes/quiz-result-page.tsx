@@ -19,6 +19,7 @@ import { Card } from '@/components/ui/card'
 import { EmptyState, Skeleton } from '@/components/ui/feedback'
 import { ProgressRing } from '@/components/ui/metrics'
 import { Reveal } from '@/components/ui/reveal'
+import { TrueFalseStatement } from '@/features/quiz/answer-inputs'
 import { AnswerTile, optionLetter } from '@/features/quiz/answer-tile'
 import {
   fetchAttempt,
@@ -296,6 +297,8 @@ export function QuizResultPage() {
 
 function ReviewCard({ item }: { item: ReviewItem }) {
   const chosen = item.chosen_option_id
+  const blank =
+    item.kind === 'true_false' ? !item.marks : item.kind === 'short_answer' ? !item.text : !chosen
 
   return (
     <li>
@@ -328,28 +331,62 @@ function ReviewCard({ item }: { item: ReviewItem }) {
               {item.prompt}
             </p>
 
-            <div className="mt-3 space-y-2">
-              {item.options.map((option, index) => {
-                const isChosen = option.id === chosen
-                const state = option.is_correct
-                  ? 'correct'
-                  : isChosen
-                    ? 'wrong'
-                    : 'dim'
-
-                return (
-                  <AnswerTile
+            {item.kind === 'true_false' ? (
+              <div className="mt-3 space-y-2">
+                {item.options.map((option, index) => (
+                  <TrueFalseStatement
                     key={option.id}
                     letter={optionLetter(index)}
                     label={option.label}
-                    state={state}
-                    disabled
+                    value={item.marks?.[option.id]}
+                    truth={option.is_correct}
                   />
-                )
-              })}
-            </div>
+                ))}
+              </div>
+            ) : item.kind === 'short_answer' ? (
+              <dl className="mt-3 space-y-2 text-sm">
+                {item.text ? (
+                  <div
+                    className="answer-tile flex flex-wrap items-baseline gap-x-3 gap-y-1 px-4 py-3"
+                    data-state={item.is_correct ? 'correct' : 'wrong'}
+                  >
+                    <dt className="text-ink-400 text-xs">Bạn trả lời</dt>
+                    <dd className="text-ink-50 font-medium">{item.text}</dd>
+                  </div>
+                ) : null}
+                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-1">
+                  <dt className="text-ink-400 text-xs">
+                    {item.options.length > 1 ? 'Đáp án được chấp nhận' : 'Đáp án'}
+                  </dt>
+                  <dd className="text-correct-300 font-medium">
+                    {item.options.map((option) => option.label).join(' · ')}
+                  </dd>
+                </div>
+              </dl>
+            ) : (
+              <div className="mt-3 space-y-2">
+                {item.options.map((option, index) => {
+                  const isChosen = option.id === chosen
+                  const state = option.is_correct
+                    ? 'correct'
+                    : isChosen
+                      ? 'wrong'
+                      : 'dim'
 
-            {!chosen ? (
+                  return (
+                    <AnswerTile
+                      key={option.id}
+                      letter={optionLetter(index)}
+                      label={option.label}
+                      state={state}
+                      disabled
+                    />
+                  )
+                })}
+              </div>
+            )}
+
+            {blank ? (
               <p className="text-spark-300 mt-3 text-xs">Bạn đã bỏ trống câu này.</p>
             ) : null}
 

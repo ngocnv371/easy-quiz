@@ -1,6 +1,7 @@
 // The public catalogue and the read models built on it: topics, quiz cards, leaderboards, profiles
 // and attempts. Who may see what (the old row-level security, in the queries now):
 //   · a quiz is public when published and public/unlisted; its owner always sees it
+//   · an unlisted quiz is reachable only by its link: never in Explore, Endless or someone's profile
 //   · an attempt is visible to its player, to the quiz's owner, and to anyone when the quiz is public
 //   · questions and options never come out of here: the play payload (play.ts) strips the key
 import { bools } from './sql.ts'
@@ -82,6 +83,9 @@ const ENTRY_SELECT = `select a.id as attempt_id, a.quiz_id, q.slug as quiz_slug,
 
 // attempts `viewer` may see (see the top of this file)
 const VISIBLE = `(${PLAYABLE} or a.user_id = ?1 or q.owner_id = ?1)`
+// the same, minus unlisted quizzes, for lists a stranger browses (a player's history would
+// otherwise hand out the link)
+const VISIBLE_LISTED = `(${LISTED} or a.user_id = ?1 or q.owner_id = ?1)`
 
 const entry = (row: Record<string, unknown>) => bools(row, 'is_guest')
 
@@ -96,7 +100,7 @@ export async function quizLeaderboard(db: D1Database, quizId: string, viewerId: 
 // A player's attempts, newest first (their own history, or a public profile's).
 export async function attemptsOf(db: D1Database, userId: string, viewerId: string | null, limit: number) {
   const { results } = await db
-    .prepare(`${ENTRY_SELECT} where a.user_id = ?2 and ${VISIBLE} order by a.completed_at desc limit ?3`)
+    .prepare(`${ENTRY_SELECT} where a.user_id = ?2 and ${VISIBLE_LISTED} order by a.completed_at desc limit ?3`)
     .bind(viewerId ?? '', userId, Math.min(Math.max(limit, 1), 200))
     .all()
   return results.map(entry)

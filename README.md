@@ -115,7 +115,7 @@ worker/                 the Cloudflare Worker: everything under /api/*
   ai.ts                 AI Assist providers and credits
   email.ts, events.ts   account emails (Resend), analytics (Analytics Engine)
 
-migrations/             D1 schema (0001_auth.sql generated, 0002_app.sql the app's tables)
+migrations/             D1 schema (0001_auth.sql generated, 0002_app.sql the app's tables, 0003+ changes)
 ```
 
 ---
@@ -126,6 +126,17 @@ migrations/             D1 schema (0001_auth.sql generated, 0002_app.sql the app
 
 The obvious design — ship the questions with their `is_correct` flag and grade in the browser —
 makes a leaderboard meaningless, because anyone can read the answer key from the network tab.
+
+It holds for every question kind (`questions.kind`, graded in `worker/grading.ts`):
+
+| Kind | Options are | The player | Right when |
+| --- | --- | --- | --- |
+| `single` | the choices, one `is_correct` | picks one | it is the key |
+| `true_false` | statements, `is_correct` = true | marks each Đúng/Sai | every mark matches |
+| `short_answer` | the accepted answers | types a word or a number | it matches one, ignoring case, accents (`ha noi` = `Hà Nội`) and spacing; numbers by value (`0,5` = `0.5` = `1/2`) |
+
+A short answer's options *are* its key, so the play payload sends none for that kind. Endless
+draws only `single` questions — it is one tap per question.
 
 So the split is:
 
@@ -269,9 +280,10 @@ Columns (case- and accent-insensitive headers; Vietnamese aliases in parentheses
 | Column | Required | Notes |
 | --- | --- | --- |
 | `subject` (môn, chủ đề) | yes | becomes the topic and the quiz |
+| `type` (loại câu) | no | `single` (default), `true_false` (đúng sai) or `short_answer` (trả lời ngắn) |
 | `prompt` (câu hỏi) | yes | |
-| `option_a`…`option_f` (`option_1`…, `a`…`f`) | ≥ 2 | empty ones are dropped |
-| `correct` (đáp án) | no | letter `A`–`F` or 1-based number; defaults to `A` |
+| `option_a`…`option_f` (`option_1`…, `a`…`f`) | ≥ 2 choices, ≥ 1 otherwise | the choices, the statements or the accepted answers; empty ones are dropped |
+| `correct` (đáp án) | no | `single`: letter `A`–`F` or 1-based number, defaults to `A`; `true_false`: the true statements, e.g. `A,C` (blank = all false); `short_answer`: ignored |
 | `explanation` (giải thích) | no | |
 | `points`, `difficulty`, `title`, `status`, `visibility`, `subject_slug` | no | |
 

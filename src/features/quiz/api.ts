@@ -104,6 +104,8 @@ export async function submitAttempt({
       answers: answers.map((answer) => ({
         question_id: answer.question_id,
         option_id: answer.option_id,
+        marks: answer.marks,
+        text: answer.text,
         time_ms: Math.round(answer.time_ms),
       })),
       duration_seconds: Math.round(durationSeconds),

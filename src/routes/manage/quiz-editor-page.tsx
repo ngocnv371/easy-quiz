@@ -6,6 +6,7 @@ import {
   ArrowUp,
   BarChart3,
   Copy,
+  Link2,
   Eye,
   Plus,
   Rocket,
@@ -24,6 +25,7 @@ import { Alert, EmptyState, Skeleton } from '@/components/ui/feedback'
 import { ChoiceTile, Field, Input, Select, Textarea, Toggle } from '@/components/ui/field'
 import { AiAssistPanel } from '@/features/manage/ai-assist-panel'
 import { fetchQuizForEdit, saveQuiz } from '@/features/manage/api'
+import { TruthSwitch } from '@/features/quiz/answer-inputs'
 import { fetchTopics } from '@/features/quiz/api'
 import type { AiQuestion } from '@/features/ai/ai-assist'
 import {
@@ -34,19 +36,61 @@ import {
   VISIBILITY_LABELS,
 } from '@/lib/labels'
 import {
+  convertQuestion,
   emptyDraft,
   emptyQuestion,
+  type QuestionKind,
   type QuizDifficulty,
   type QuizDraft,
   type QuizDraftQuestion,
   type QuizVisibility,
 } from '@/lib/domain'
+import { absoluteUrl } from '@/lib/site'
 import { useAsyncData } from '@/lib/use-async-data'
 import { cn, errorMessage } from '@/lib/utils'
+
+const KIND_CHOICES: { kind: QuestionKind; label: string }[] = [
+  { kind: 'single', label: 'Trắc nghiệm' },
+  { kind: 'true_false', label: 'Đúng / Sai' },
+  { kind: 'short_answer', label: 'Trả lời ngắn' },
+]
+
+/** Fewest options each kind can have: two choices, one statement, one accepted answer. */
+const MIN_OPTIONS: Record<QuestionKind, number> = { single: 2, true_false: 1, short_answer: 1 }
+
+/** What is still missing before a question can be published, or null. Mirrors the Worker's check. */
+function publishProblem(question: QuizDraftQuestion): string | null {
+  const filled = question.options.filter((option) => option.label.trim() !== '')
+
+  if (question.kind === 'true_false') {
+    return filled.length === 0 || filled.length !== question.options.length
+      ? 'mọi mệnh đề cần có nội dung (ít nhất 1 mệnh đề).'
+      : null
+  }
+  if (question.kind === 'short_answer') {
+    return filled.length === 0 ? 'cần ít nhất 1 đáp án được chấp nhận.' : null
+  }
+  return filled.length < 2 ||
+    question.options.filter((option) => option.is_correct && option.label.trim() !== '').length !== 1
+    ? 'cần ít nhất 2 lựa chọn có nội dung và đúng 1 đáp án.'
+    : null
+}
+
+/** The one-line summary under a collapsed question. */
+function questionSummary(question: QuizDraftQuestion): string {
+  const filled = question.options.filter((option) => option.label.trim() !== '').length
+
+  if (question.kind === 'true_false') return `Đúng/Sai · ${filled} mệnh đề`
+  if (question.kind === 'short_answer') {
+    return filled > 0 ? `Trả lời ngắn · ${filled} đáp án chấp nhận` : 'Trả lời ngắn · cần đáp án'
+  }
+  return `${filled} lựa chọn${filled >= 2 ? '' : ' · cần thêm lựa chọn'}`
+}
 
 /** Turns an AI result into an editable draft question. */
 function toDraftQuestion(question: AiQuestion): QuizDraftQuestion {
   return {
+    kind: 'single',
     prompt: question.prompt,
     explanation: question.explanation,
     points: 1,
@@ -74,6 +118,8 @@ export function ManageQuizEditorPage() {
 
   const [draft, setDraft] = useState<QuizDraft | null>(null)
   const [dirty, setDirty] = useState(false)
+  /** Visibility as last saved — what the live link actually does right now. */
+  const [savedVisibility, setSavedVisibility] = useState<QuizVisibility | null>(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showAi, setShowAi] = useState(false)
@@ -92,6 +138,7 @@ export function ManageQuizEditorPage() {
 
     if (existing.data) {
       setDraft(existing.data.draft)
+      setSavedVisibility(existing.data.draft.visibility)
       setDirty(false)
     }
   }, [draft, existing.data, isNew])
@@ -138,6 +185,35 @@ export function ManageQuizEditorPage() {
     [mutate],
   )
 
+  const setStatementTruth = useCallback(
+    (questionIndex: number, optionIndex: number, isTrue: boolean) =>
+      mutate((current) => ({
+        ...current,
+        questions: current.questions.map((question, position) =>
+          position === questionIndex
+            ? {
+                ...question,
+                options: question.options.map((option, index) =>
+                  index === optionIndex ? { ...option, is_correct: isTrue } : option,
+                ),
+              }
+            : question,
+        ),
+      })),
+    [mutate],
+  )
+
+  const setQuestionKind = useCallback(
+    (questionIndex: number, kind: QuestionKind) =>
+      mutate((current) => ({
+        ...current,
+        questions: current.questions.map((question, position) =>
+          position === questionIndex ? convertQuestion(question, kind) : question,
+        ),
+      })),
+    [mutate],
+  )
+
   const patchOptionLabel = useCallback(
     (questionIndex: number, optionIndex: number, label: string) =>
       mutate((current) => ({
@@ -162,7 +238,14 @@ export function ManageQuizEditorPage() {
         ...current,
         questions: current.questions.map((question, position) =>
           position === questionIndex
-            ? { ...question, options: [...question.options, { label: '', is_correct: false }] }
+            ? {
+                ...question,
+                // every short answer is an accepted one
+                options: [
+                  ...question.options,
+                  { label: '', is_correct: question.kind === 'short_answer' },
+                ],
+              }
             : question,
         ),
       })),
@@ -177,6 +260,7 @@ export function ManageQuizEditorPage() {
           if (position !== questionIndex) return question
 
           const options = question.options.filter((_, index) => index !== optionIndex)
+          if (question.kind !== 'single') return { ...question, options }
 
           // Never leave a question without a key: promote the first option.
           const hasKey = options.some((option) => option.is_correct)
@@ -193,7 +277,11 @@ export function ManageQuizEditorPage() {
 
   const addQuestion = useCallback(
     () =>
-      mutate((current) => ({ ...current, questions: [...current.questions, emptyQuestion()] })),
+      // A new question takes the previous one's kind: authors tend to write them in runs.
+      mutate((current) => ({
+        ...current,
+        questions: [...current.questions, emptyQuestion(current.questions.at(-1)?.kind)],
+      })),
     [mutate],
   )
 
@@ -276,17 +364,10 @@ export function ManageQuizEditorPage() {
       }
 
       if (status === 'published') {
-        const broken = filled.findIndex(
-          (question) =>
-            question.options.filter((option) => option.label.trim() !== '').length < 2 ||
-            question.options.filter((option) => option.is_correct && option.label.trim() !== '')
-              .length !== 1,
-        )
+        const broken = filled.findIndex((question) => publishProblem(question) !== null)
 
         if (broken >= 0) {
-          setError(
-            `Câu ${broken + 1} chưa hợp lệ: cần ít nhất 2 lựa chọn có nội dung và đúng 1 đáp án.`,
-          )
+          setError(`Câu ${broken + 1} chưa hợp lệ: ${publishProblem(filled[broken]!)}`)
           return
         }
       }
@@ -304,6 +385,7 @@ export function ManageQuizEditorPage() {
         )
 
         setDirty(false)
+        setSavedVisibility(draft.visibility)
 
         // Adopt the saved identity immediately: navigating to the new URL keeps
         // this component mounted, so the local document has to learn its id and
@@ -333,6 +415,15 @@ export function ManageQuizEditorPage() {
     },
     [draft, existing, isNew, navigate, aiTouched],
   )
+
+  const copyLink = useCallback(async (slug: string) => {
+    try {
+      await navigator.clipboard.writeText(absoluteUrl(`/q/${slug}`))
+      toast.success('Đã sao chép liên kết đề thi.')
+    } catch {
+      toast.error('Không sao chép được. Hãy mở đề và sao chép địa chỉ trên trình duyệt.')
+    }
+  }, [])
 
   // ── Guard against losing work ──────────────────────────────────────────
   useEffect(() => {
@@ -419,6 +510,14 @@ export function ManageQuizEditorPage() {
         </div>
 
         <div className="flex flex-wrap gap-3">
+          {/* Only the saved state counts: an unsaved switch to "private" must not hand out a live link. */}
+          {draft.slug && draft.status === 'published' && savedVisibility !== 'private' ? (
+            <Button variant="outline" onClick={() => void copyLink(draft.slug!)}>
+              <Link2 className="size-4" aria-hidden />
+              Sao chép liên kết
+            </Button>
+          ) : null}
+
           {!isNew && draft.id ? (
             <ButtonLink to={`/manage/quizzes/${draft.id}/report`} variant="outline">
               <BarChart3 className="size-4" aria-hidden />
@@ -495,9 +594,7 @@ export function ManageQuizEditorPage() {
           ) : (
             draft.questions.map((question, index) => {
               const isOpen = openIndex === index
-              const optionCount = question.options.filter(
-                (option) => option.label.trim() !== '',
-              ).length
+              const minOptions = MIN_OPTIONS[question.kind]
 
               return (
                 <Card key={index} className="overflow-hidden">
@@ -526,8 +623,7 @@ export function ManageQuizEditorPage() {
                       </p>
 
                       <p className="text-ink-400 mt-1 text-xs">
-                        {optionCount} lựa chọn · {question.points} điểm
-                        {optionCount >= 2 ? '' : ' · cần thêm lựa chọn'}
+                        {questionSummary(question)} · {question.points} điểm
                       </p>
                     </button>
 
@@ -560,6 +656,35 @@ export function ManageQuizEditorPage() {
 
                   {isOpen ? (
                     <div className="border-ink-600/60 space-y-5 border-t p-4">
+                      <div>
+                        <p className="text-ink-200 mb-2 text-xs font-medium tracking-wide">
+                          Dạng câu hỏi
+                        </p>
+                        <div
+                          role="radiogroup"
+                          aria-label={`Dạng câu ${index + 1}`}
+                          className="border-ink-600 bg-ink-900/60 inline-flex flex-wrap rounded-xl border p-1"
+                        >
+                          {KIND_CHOICES.map((choice) => (
+                            <button
+                              key={choice.kind}
+                              type="button"
+                              role="radio"
+                              aria-checked={question.kind === choice.kind}
+                              onClick={() => setQuestionKind(index, choice.kind)}
+                              className={cn(
+                                'rounded-lg px-3 py-1.5 text-sm font-medium transition-colors',
+                                question.kind === choice.kind
+                                  ? 'bg-neon-400 text-ink-950'
+                                  : 'text-ink-300 hover:bg-ink-700/70 hover:text-ink-50',
+                              )}
+                            >
+                              {choice.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
                       <Field label="Nội dung câu hỏi" htmlFor={`prompt-${index}`} required>
                         <Textarea
                           id={`prompt-${index}`}
@@ -574,34 +699,62 @@ export function ManageQuizEditorPage() {
 
                       <div>
                         <p className="text-ink-200 mb-2 text-xs font-medium tracking-wide">
-                          Lựa chọn — chọn nút tròn để đánh dấu đáp án đúng
+                          {question.kind === 'true_false'
+                            ? 'Mệnh đề — chọn Đúng hoặc Sai cho từng mệnh đề. Người chơi phải đánh dấu đúng tất cả mới được điểm.'
+                            : question.kind === 'short_answer'
+                              ? 'Đáp án được chấp nhận — một vài từ hoặc một số. Không phân biệt hoa thường hay dấu (“ha noi” = “Hà Nội”); số được so theo giá trị (0,5 = 0.5 = 1/2).'
+                              : 'Lựa chọn — chọn nút tròn để đánh dấu đáp án đúng'}
                         </p>
 
                         <div className="space-y-2">
                           {question.options.map((option, optionIndex) => (
                             <div key={optionIndex} className="flex items-center gap-2">
-                              <input
-                                type="radio"
-                                name={`correct-${index}`}
-                                checked={option.is_correct}
-                                onChange={() => setCorrectOption(index, optionIndex)}
-                                aria-label={`Đáp án đúng cho câu ${index + 1}`}
-                                className="accent-correct-400 size-4 shrink-0"
-                              />
+                              {question.kind === 'single' ? (
+                                <input
+                                  type="radio"
+                                  name={`correct-${index}`}
+                                  checked={option.is_correct}
+                                  onChange={() => setCorrectOption(index, optionIndex)}
+                                  aria-label={`Đáp án đúng cho câu ${index + 1}`}
+                                  className="accent-correct-400 size-4 shrink-0"
+                                />
+                              ) : null}
 
                               <Input
                                 value={option.label}
                                 onChange={(event) =>
                                   patchOptionLabel(index, optionIndex, event.target.value)
                                 }
-                                placeholder={`Lựa chọn ${optionIndex + 1}`}
-                                className="flex-1"
+                                placeholder={
+                                  question.kind === 'true_false'
+                                    ? `Mệnh đề ${optionIndex + 1}`
+                                    : question.kind === 'short_answer'
+                                      ? optionIndex === 0
+                                        ? 'Ví dụ: Hà Nội, 12 hoặc 3/4'
+                                        : 'Một cách viết khác cũng được chấp nhận'
+                                      : `Lựa chọn ${optionIndex + 1}`
+                                }
+                                className="min-w-0 flex-1"
                               />
 
+                              {question.kind === 'true_false' ? (
+                                <TruthSwitch
+                                  value={option.is_correct}
+                                  label={`Mệnh đề ${optionIndex + 1} của câu ${index + 1}`}
+                                  onChange={(isTrue) =>
+                                    setStatementTruth(index, optionIndex, isTrue)
+                                  }
+                                  size="sm"
+                                  thumbClassName={
+                                    option.is_correct ? 'bg-correct-400' : 'bg-wrong-400'
+                                  }
+                                />
+                              ) : null}
+
                               <IconButton
-                                label={`Xoá lựa chọn ${optionIndex + 1}`}
+                                label={`Xoá dòng ${optionIndex + 1}`}
                                 tone="wrong"
-                                disabled={question.options.length <= 2}
+                                disabled={question.options.length <= minOptions}
                                 onClick={() => removeOption(index, optionIndex)}
                                 icon={Trash2}
                               />
@@ -616,7 +769,11 @@ export function ManageQuizEditorPage() {
                           onClick={() => addOption(index)}
                         >
                           <Plus className="size-3.5" aria-hidden />
-                          Thêm lựa chọn
+                          {question.kind === 'true_false'
+                            ? 'Thêm mệnh đề'
+                            : question.kind === 'short_answer'
+                              ? 'Thêm cách viết được chấp nhận'
+                              : 'Thêm lựa chọn'}
                         </Button>
                       </div>
 

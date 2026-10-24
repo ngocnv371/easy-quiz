@@ -72,6 +72,8 @@ export function QuizDetailPage() {
         }. Chơi ngay trên Easy Quiz — không cần tài khoản.`)
       : undefined,
     path: `/q/${slug}`,
+    // A link-only quiz is shared by hand; search engines must not list it.
+    noIndex: card?.visibility === 'unlisted',
     jsonLd: card
       ? {
           '@context': 'https://schema.org',

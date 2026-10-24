@@ -1,6 +1,7 @@
 import { api, apiOrNull, query } from '@/lib/api'
 import {
   asDifficulty,
+  asQuestionKind,
   asStatus,
   asVisibility,
   toLeaderboardEntry,
@@ -49,6 +50,7 @@ export async function fetchQuizForEdit(quizId: string): Promise<QuizEditDocument
   const { quiz, questions } = doc
 
   const draftQuestions: QuizDraftQuestion[] = questions.map((question) => ({
+    kind: asQuestionKind(question.kind),
     prompt: question.prompt,
     explanation: question.explanation ?? '',
     points: question.points,
@@ -107,6 +109,7 @@ export async function saveQuiz(
       shuffle_options: draft.shuffle_options,
       ai_generated: aiGenerated,
       questions: draft.questions.map((question) => ({
+        kind: question.kind,
         prompt: question.prompt,
         explanation: question.explanation,
         points: question.points,
