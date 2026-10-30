@@ -11,6 +11,7 @@ const LINK_GROUPS = [
       { to: '/endless', label: 'Chế độ vô tận' },
       { to: '/leaderboard', label: 'Bảng xếp hạng' },
       { to: '/register', label: 'Tạo tài khoản' },
+      { to: '/no-ads', label: 'Gỡ quảng cáo' },
     ],
   },
   {

@@ -2,13 +2,12 @@
 //   · a question's "area" is its quiz's topic, so there is no per-question tagging to keep up
 //   · a batch leans toward the player's stronger topics, and the weakest gets a guaranteed slot,
 //     so the stream keeps teaching instead of just flattering
-//   · each answer is graded here, one at a time, costing one energy; the key for that one question
+//   · each answer is graded here, one at a time; the key for that one question
 //     is revealed only after it has been answered
 //   · a run (endless_sessions) keeps the streak the Endless leaderboard ranks by
 //   · only single-choice questions are drawn: the stream is one tap per question, and true/false
 //     and short-answer questions need a check step it doesn't have
 import type { Member } from './env.ts'
-import { spendEnergy } from './energy.ts'
 import { LISTED } from './catalog.ts'
 import { AppError, NOW, uuid } from './sql.ts'
 
@@ -122,9 +121,6 @@ export async function gradeAnswer(db: D1Database, member: Member, questionId: st
   const listed = await db.prepare(`select 1 from quizzes q join questions qu on qu.quiz_id = q.id where qu.id = ? and ${LISTED}`).bind(questionId).first()
   if (!listed) throw new AppError('Câu hỏi này không còn trong kho luyện tập.', 404)
 
-  // pay before the reveal (throws 'out_of_energy')
-  const energy = await spendEnergy(db, member.id, 1, 'endless', question.id)
-
   const options = await db
     .prepare('select id, is_correct from options where question_id = ? order by position')
     .bind(question.id)
@@ -171,7 +167,6 @@ export async function gradeAnswer(db: D1Database, member: Member, questionId: st
     explanation: question.explanation,
     topic,
     progress,
-    energy,
   }
 }
 

@@ -1,4 +1,3 @@
-import { toEnergyError } from '@/features/energy/api'
 import { api } from '@/lib/api'
 import {
   toEndlessLeaderboardEntry,
@@ -52,16 +51,10 @@ export async function gradeEndlessAnswer(
   optionId: string,
   sessionId: string | null = null,
 ): Promise<EndlessGrade> {
-  try {
-    return await api<EndlessGrade>('endless/grade', {
-      method: 'POST',
-      body: { question_id: questionId, option_id: optionId, session_id: sessionId },
-    })
-  } catch (error) {
-    // Out of energy surfaces as `OutOfEnergyError`, so the player can refill
-    // instead of hitting the generic error screen.
-    throw toEnergyError(error)
-  }
+  return api<EndlessGrade>('endless/grade', {
+    method: 'POST',
+    body: { question_id: questionId, option_id: optionId, session_id: sessionId },
+  })
 }
 
 /** The separate Endless leaderboard — ranked by best session streak. */

@@ -140,7 +140,7 @@ export const admins: MiddlewareHandler<AppEnv> = async (c, next) => {
 }
 
 // A guest becomes an account in place: the same user id, so the profile, attempts, Endless runs
-// and energy all stay. The address still has to be confirmed by email before it can sign in
+// and ad-free pass all stay. The address still has to be confirmed by email before it can sign in
 // elsewhere; this session carries on meanwhile. Refused for anyone who isn't a guest, so it can't
 // re-label an account (and it never touches `role`).
 export async function upgradeGuest(

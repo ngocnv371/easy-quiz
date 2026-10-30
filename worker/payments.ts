@@ -1,4 +1,4 @@
-// Energy packs and Plus through PayOS (https://payos.vn/docs/api/).
+// The ad-free pass through PayOS (https://payos.vn/docs/api/).
 //   checkout(member, product)  creates an order (the product's price and grant copied onto it) and
 //                              a PayOS link; guests can't buy, so a purchase always lands on an account
 //   sync(member, orderCode)    the return page asks PayOS directly, so credit arrives even if the
@@ -9,7 +9,6 @@
 // Secrets: PAYOS_CLIENT_ID, PAYOS_API_KEY, PAYOS_CHECKSUM_KEY. Locally, PAYOS_MOCK=1 (and no PayOS
 // keys) skips PayOS: checkout goes straight back to the return page and the order counts as paid.
 import type { Env, Member } from './env.ts'
-import { energyState, touchWallet } from './energy.ts'
 import { AppError, NOW, uuid } from './sql.ts'
 
 const PAYOS = 'https://api-merchant.payos.vn'
@@ -64,60 +63,49 @@ const newOrderCode = () => Date.now() * 10 + Math.floor(Math.random() * 10)
 // Returns the order's status afterwards and whether this call paid it.
 export async function fulfil(db: D1Database, orderCode: number, amountPaid: number, payload: unknown) {
   const token = uuid()
-  const mine = `exists (select 1 from payment_orders where order_code = ?1 and fulfil_token = ?2)`
   const res = await db.batch([
     db.prepare(`update payment_orders set status = 'paid', paid_at = ${NOW}, fulfil_token = ?2, provider_payload = ?4, updated_at = ${NOW}
         where order_code = ?1 and status = 'pending' and amount_vnd <= ?3`).bind(orderCode, token, amountPaid, JSON.stringify(payload ?? null)),
     db.prepare(`update payment_orders set status = 'failed', provider_payload = ?3, updated_at = ${NOW}
         where order_code = ?1 and status = 'pending' and amount_vnd > ?2`).bind(orderCode, amountPaid, JSON.stringify(payload ?? null)),
-    db.prepare(`insert into energy_wallets (user_id) select user_id from payment_orders
-        where order_code = ?1 and fulfil_token = ?2 and user_id is not null on conflict (user_id) do nothing`).bind(orderCode, token),
-    // Plus extends from whichever is later, so renewing early never loses days
-    db.prepare(`update energy_wallets set
-          paid_balance = paid_balance + (select energy from payment_orders where order_code = ?1),
-          plus_until = case when (select plus_days from payment_orders where order_code = ?1) > 0
-            then strftime('%Y-%m-%dT%H:%M:%fZ', max(coalesce(plus_until, ${NOW}), ${NOW}),
-              '+' || (select plus_days from payment_orders where order_code = ?1) || ' days')
-            else plus_until end,
-          updated_at = ${NOW}
-        where user_id = (select user_id from payment_orders where order_code = ?1) and ${mine}`).bind(orderCode, token),
-    db.prepare(`insert into energy_ledger (id, user_id, bucket, delta, balance_after, reason, ref)
-        select ?3, o.user_id, 'paid', o.energy, w.paid_balance, 'purchase', o.order_code from payment_orders o
-        join energy_wallets w on w.user_id = o.user_id where o.order_code = ?1 and o.fulfil_token = ?2 and o.energy > 0`).bind(orderCode, token, uuid()),
-    db.prepare(`insert into energy_ledger (id, user_id, bucket, delta, balance_after, reason, ref)
-        select ?3, o.user_id, 'plus', o.plus_days, 0, 'purchase', o.order_code from payment_orders o
-        where o.order_code = ?1 and o.fulfil_token = ?2 and o.plus_days > 0`).bind(orderCode, token, uuid()),
+    // buying it twice keeps the first date
+    db.prepare(`update profiles set ad_free_at = coalesce(ad_free_at, ${NOW}), updated_at = ${NOW}
+        where id = (select user_id from payment_orders where order_code = ?1 and fulfil_token = ?2 and ad_free = 1)`).bind(orderCode, token),
     db.prepare('select status, user_id, amount_vnd, fulfil_token = ?2 as mine from payment_orders where order_code = ?1').bind(orderCode, token),
   ])
-  const row = res[6]!.results[0] as { status: string; user_id: string | null; amount_vnd: number; mine: number } | undefined
+  const row = res[3]!.results[0] as { status: string; user_id: string | null; amount_vnd: number; mine: number } | undefined
   return { status: row?.status ?? 'unknown', paid: Boolean(row?.mine), userId: row?.user_id ?? null, amount: row?.amount_vnd ?? 0 }
 }
 
+const isAdFree = async (db: D1Database, userId: string) =>
+  Boolean(await db.prepare('select 1 from profiles where id = ? and ad_free_at is not null').bind(userId).first())
+
 export async function listProducts(db: D1Database) {
   const { results } = await db
-    .prepare('select id, kind, name, description, energy, plus_days, price_vnd, sort from store_products where active = 1 order by sort')
+    .prepare('select id, kind, name, description, price_vnd, sort from store_products where active = 1 order by sort')
     .all()
   return results
 }
 
 export async function checkout(env: Env, member: Member, productId: string, origin: string) {
   if (member.isAnonymous || member.isGuest) {
-    throw new AppError('Hãy tạo tài khoản trước khi nạp, để năng lượng đã mua không bị mất.', 403, 'guest')
+    throw new AppError('Hãy tạo tài khoản trước khi mua, để gói đã mua không bị mất.', 403, 'guest')
   }
+  if (await isAdFree(env.DB, member.id)) throw new AppError('Tài khoản của bạn đã gỡ quảng cáo rồi.', 409, 'already_ad_free')
   const product = await env.DB.prepare('select * from store_products where id = ? and active = 1').bind(productId)
-    .first<{ id: string; name: string; energy: number; plus_days: number; price_vnd: number }>()
+    .first<{ id: string; kind: string; name: string; price_vnd: number }>()
   if (!product) throw new AppError('Gói này không còn bán.', 404)
   const mock = isMock(env)
   if (!mock && !configured(env)) throw new AppError('Cổng thanh toán chưa được cấu hình.', 503)
 
   const orderCode = newOrderCode()
-  await env.DB.prepare('insert into payment_orders (order_code, user_id, product_id, amount_vnd, energy, plus_days, provider) values (?, ?, ?, ?, ?, ?, ?)')
-    .bind(orderCode, member.id, product.id, product.price_vnd, product.energy, product.plus_days, mock ? 'mock' : 'payos')
+  await env.DB.prepare('insert into payment_orders (order_code, user_id, product_id, amount_vnd, ad_free, provider) values (?, ?, ?, ?, ?, ?)')
+    .bind(orderCode, member.id, product.id, product.price_vnd, product.kind === 'ad_free' ? 1 : 0, mock ? 'mock' : 'payos')
     .run()
 
   // PayOS sends the buyer back to the site they bought on
-  const returnUrl = `${origin}/energy/return`
-  const cancelUrl = `${origin}/energy/return?cancel=true`
+  const returnUrl = `${origin}/no-ads/return`
+  const cancelUrl = `${origin}/no-ads/return?cancel=true`
   let checkoutUrl = `${returnUrl}?orderCode=${orderCode}&status=PAID&mock=1`
   let paymentLinkId: string | null = null
   if (!mock) {
@@ -146,7 +134,7 @@ export async function checkout(env: Env, member: Member, productId: string, orig
   return { order_code: orderCode, checkout_url: checkoutUrl, price_vnd: product.price_vnd, product_id: product.id }
 }
 
-// The return page's check: { status, energy? }. Safe to call repeatedly.
+// The return page's check: { status, ad_free? }. Safe to call repeatedly.
 export async function sync(env: Env, member: Member, orderCode: number) {
   if (!Number.isSafeInteger(orderCode) || orderCode <= 0) throw new AppError('Mã đơn không hợp lệ.')
   const order = await env.DB.prepare('select order_code, user_id, amount_vnd, status, checkout_url from payment_orders where order_code = ?')
@@ -154,8 +142,8 @@ export async function sync(env: Env, member: Member, orderCode: number) {
     .first<{ order_code: number; user_id: string | null; amount_vnd: number; status: string; checkout_url: string | null }>()
   if (!order || order.user_id !== member.id) throw new AppError('Không tìm thấy đơn hàng.', 404)
 
-  const withEnergy = async (status: string) => ({ status, energy: energyState((await touchWallet(env.DB, member.id)).wallet) })
-  if (order.status !== 'pending') return order.status === 'paid' ? withEnergy('paid') : { status: order.status }
+  const withAdFree = async (status: string) => ({ status, ad_free: await isAdFree(env.DB, member.id) })
+  if (order.status !== 'pending') return order.status === 'paid' ? withAdFree('paid') : { status: order.status }
 
   let result: Awaited<ReturnType<typeof fulfil>> | null = null
   if (isMock(env)) result = await fulfil(env.DB, orderCode, order.amount_vnd, { mock: true })
@@ -171,7 +159,7 @@ export async function sync(env: Env, member: Member, orderCode: number) {
       return { status }
     } else return { status: 'pending', checkout_url: order.checkout_url }
   }
-  return { ...(result.status === 'paid' ? await withEnergy('paid') : { status: result.status }), paid_now: result.paid, amount: result.amount }
+  return { ...(result.status === 'paid' ? await withAdFree('paid') : { status: result.status }), paid_now: result.paid, amount: result.amount }
 }
 
 // PayOS's callback. Its "confirm webhook" test sends a sample payment for an order we don't have:

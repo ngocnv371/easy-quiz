@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import {
   ArrowRight,
   CheckCircle2,
@@ -19,6 +19,8 @@ import { Card } from '@/components/ui/card'
 import { EmptyState, Skeleton } from '@/components/ui/feedback'
 import { ProgressRing } from '@/components/ui/metrics'
 import { Reveal } from '@/components/ui/reveal'
+import { AdBreak } from '@/features/ads/ad-break'
+import { useShowAds } from '@/features/ads/adsense'
 import { TrueFalseStatement } from '@/features/quiz/answer-inputs'
 import { AnswerTile, optionLetter } from '@/features/quiz/answer-tile'
 import {
@@ -108,6 +110,20 @@ export function QuizResultPage() {
     } catch {
       toast.error('Trình duyệt không cho phép sao chép. Hãy copy thủ công nhé.')
     }
+  }
+
+  // Straight from submitting, the ad break comes first. Continuing clears the
+  // flag, so a reload or a shared link goes straight to the result.
+  const location = useLocation()
+  const navigate = useNavigate()
+  const showAds = useShowAds()
+  if (showAds && (location.state as { adBreak?: boolean } | null)?.adBreak) {
+    return (
+      <AdBreak
+        continueLabel="Xem kết quả"
+        onContinue={() => navigate(location.pathname, { replace: true, state: null })}
+      />
+    )
   }
 
   if (attemptQuery.loading) {

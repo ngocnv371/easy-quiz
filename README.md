@@ -108,8 +108,7 @@ worker/                 the Cloudflare Worker: everything under /api/*
   catalog.ts            topics, quiz cards, leaderboards, profiles
   play.ts               play payload (no key), paid start, server-side grading
   endless.ts            Endless batches, grading, streaks, leaderboard
-  energy.ts             energy wallets, daily allowance, spending
-  payments.ts           PayOS checkout, return check, webhook
+  payments.ts           the ad-free pass: PayOS checkout, return check, webhook
   manage.ts             admin quizzes, the editor's save, reports
   import.ts             CSV bulk import
   ai.ts                 AI Assist providers and credits
@@ -159,7 +158,7 @@ row with a profile, so a guest's score can appear on the leaderboard straight aw
 
 "Lưu kết quả của bạn" then converts that account **in place** (`POST /api/me/upgrade`): the same
 user id gets an email, a password and a confirmation email, so the profile and every attempt,
-Endless run and energy balance already recorded survive. Signing up afresh instead would silently
+Endless run and ad-free pass already recorded survive. Signing up afresh instead would silently
 start the player from zero. The upgrade also clears the profile's `is_guest` and deliberately
 leaves `role` alone, so a guest can never promote itself to admin.
 
@@ -293,31 +292,35 @@ database default.
 The dialog has a **Tải tệp mẫu** button that writes the same template shown in
 `src/features/manage/import-questions.ts`.
 
-### Energy and Plus
+### Ads and the ad-free pass
 
-Practice is metered: **every answered question costs one energy.** It is all enforced in the
-Worker (`worker/energy.ts`); the client only displays the balance.
+Playing is **free and unlimited**. What pays for it is an **ad break after every finished
+session**, and a **one-time purchase that removes it for good**.
 
-- **Free daily allowance:** 30 for guests, 60 for accounts. It refills at midnight Vietnam time,
-  does not carry over, and is spent before purchased energy. A guest who signs up gets the
-  difference straight away. Tune both numbers in `dailyAllowance()`.
-- **Purchased energy** never expires. **Plus** (`energy_wallets.plus_until`) makes everything
-  free while it lasts; admins are never charged either.
-- **Where it is charged:**
-  - **Endless** charges in the grading route, after the question is known to be gradable.
-  - **A normal quiz** is graded in one batch, so `POST /api/quizzes/:slug/start` charges its
-    question count up front. It returns a one-time ticket that submitting redeems.
-- **Out of energy:** a refused charge is HTTP 402 with `code: 'out_of_energy'` and the balance as
-  `energy`. The client turns that into `OutOfEnergyError` and opens the refill dialog.
-- **Writes:** D1 can't hold a transaction open, so a spend is one guarded update (it only applies
-  if the balance is still what was read, and retries otherwise), with its `energy_ledger` row in
-  the same batch. Top up an account by hand with SQL on `energy_wallets.paid_balance`.
+- **Where the break shows** (`src/features/ads/ad-break.tsx`):
+  - **A quiz:** submitting navigates to the result page with `state.adBreak`; the break comes
+    first, and continuing clears the flag, so a reload or a shared result link skips it.
+  - **Endless:** pressing stop after at least one answer shows the break, then the summary.
+  - Never while a question is on screen.
+- **The ad:** a full-screen stage (not a dialog) with one labelled AdSense display unit and a
+  continue button that unlocks after 5 seconds. AdSense is configured at build time with
+  `VITE_ADSENSE_CLIENT` (`ca-pub-…`) and `VITE_ADSENSE_SLOT`; the script loads on the first break
+  only. Without them, or with the script blocked, the unit is a house ad for the pass. Production
+  also needs `public/ads.txt` with the publisher line AdSense gives you.
+- **Who sees it:** everyone, guests included, except an account with `profiles.ad_free_at` set,
+  and admins. `/api/me` reports that as `profile.ad_free`; `useShowAds()` reads it.
+- **The pass** costs 49.000đ once and is sold on `/no-ads`. Grant it by hand with SQL on
+  `profiles.ad_free_at`.
 
-**Payments (PayOS).** The catalogue is the `store_products` table: two energy packs and Plus
-(change prices there, no deploy needed).
+Energy (the per-answer meter, packs and Plus) was retired in `migrations/0004_ad_free.sql`.
+`energy_wallets`, `energy_ledger` and the old products stay in the database as a record, unused.
 
-- `POST /api/payments/checkout` creates a `payment_orders` row, snapshotting the price, plus a
-  PayOS link. Guests are refused, so a purchase always lands on a durable account.
+**Payments (PayOS).** The catalogue is the `store_products` table: today just `ad_free` (change the
+price there, no deploy needed).
+
+- `POST /api/payments/checkout` creates a `payment_orders` row, snapshotting the price and what it
+  buys, plus a PayOS link. Guests are refused (the pass must land on a durable account), and so is
+  an account that is already ad-free.
 - `POST /api/payments/sync` is the return page's check with PayOS.
 - `POST /api/payments/webhook` is PayOS's callback, trusted by the HMAC signature over `data`.
 - **Fulfilment:** both paths end in `fulfil()` (`worker/payments.ts`): one batch that credits an
@@ -472,7 +475,7 @@ First time:
    [Facebook sharing debugger](https://developers.facebook.com/tools/debug/).
 
 Logs and traces are on (`observability` in `wrangler.jsonc`): Workers → easy-quiz → Observability.
-App events (signups, quiz starts and submits, Endless answers, out-of-energy, checkouts, payments,
+App events (signups, quiz starts and submits, Endless answers, checkouts, payments,
 errors) go to the `easy_quiz_events` Analytics Engine dataset; see `worker/events.ts` for the columns.
 
 **Remotion licensing** — Remotion is free for individuals and small teams, but **companies need a
@@ -490,9 +493,8 @@ Called out honestly rather than hidden:
 - **Sign-up creates an ordinary user.** Admin is not self-serve; promote an account with
   `npm run admin:promote`. Put the console behind real approval before opening it
   up publicly.
-- **Guests can reset their free energy** by clearing site data, since each new anonymous session
-  is a fresh wallet. Accounts get double the allowance to make signing up the better deal;
-  a captcha on anonymous sign-ins would close the gap.
+- **Ad blockers skip the ad, not the break.** A blocked AdSense script falls back to the house
+  ad, so the pause stays but no revenue comes from it.
 - **Submitting an attempt has no rate limit** (only Better Auth's own routes are rate-limited). A determined player could flood the leaderboard.
 - **No image upload.** `questions.image_url` exists and renders, but nothing writes to it yet.
 - **The result review lives in `sessionStorage`.** Opening a result link in a fresh tab shows the

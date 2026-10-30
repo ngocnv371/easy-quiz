@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import type { EndlessGrade, EndlessQuestion, EndlessTopicProgress } from '@/lib/domain'
-import { isOutOfEnergy } from '@/features/energy/api'
-import { useEnergy } from '@/features/energy/energy-context'
 import { errorMessage } from '@/lib/utils'
 
 import {
@@ -89,7 +87,6 @@ export function useEndlessSession(
   /** When set, the stream only draws from this subject. */
   topicId: string | null = null,
 ): EndlessSession {
-  const { update: updateEnergy, showOutOfEnergy } = useEnergy()
   const [phase, setPhase] = useState<EndlessPhase>('waiting')
   const [queue, setQueue] = useState<EndlessQuestion[]>([])
   const [selected, setSelected] = useState<string | null>(null)
@@ -198,7 +195,6 @@ export function useEndlessSession(
 
     gradeEndlessAnswer(question.id, optionId, sessionIdRef.current)
       .then((grade) => {
-        updateEnergy(grade.energy)
         setFeedback(grade)
         setStats((previous) => {
           const streak = grade.is_correct ? previous.streak + 1 : 0
@@ -215,19 +211,10 @@ export function useEndlessSession(
         }
       })
       .catch((gradeError) => {
-        // Nothing was graded or charged: put the question back as it was and
-        // offer a refill. Picking an answer again simply retries.
-        if (isOutOfEnergy(gradeError)) {
-          setSelected(null)
-          setPhase('playing')
-          showOutOfEnergy(gradeError.energy)
-          return
-        }
-
         setError(errorMessage(gradeError))
         setPhase('error')
       })
-  }, [updateEnergy, showOutOfEnergy])
+  }, [])
 
   /** Move on to the buffered question. Safe to call before the timer fires. */
   const advance = useCallback(() => {

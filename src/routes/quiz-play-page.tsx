@@ -11,7 +11,6 @@ import {
   Timer,
   UserRound,
   X,
-  Zap,
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -27,9 +26,6 @@ import { ProgressBar } from '@/components/ui/metrics'
 import { ShortAnswerInput, TrueFalseStatement } from '@/features/quiz/answer-inputs'
 import { AnswerTile, optionLetter } from '@/features/quiz/answer-tile'
 import { fetchPlayPayload, startQuizAttempt, submitAttempt } from '@/features/quiz/api'
-import { isOutOfEnergy } from '@/features/energy/api'
-import { useEnergy } from '@/features/energy/energy-context'
-import { OutOfEnergyDialog } from '@/features/energy/out-of-energy-dialog'
 import { stashResult } from '@/features/quiz/result-store'
 import { COUNTDOWN_MS, usePlaySession } from '@/features/quiz/use-play-session'
 import { useAuth } from '@/features/auth/auth-context'
@@ -42,8 +38,7 @@ export function QuizPlayPage() {
   const { slug = '' } = useParams()
   const navigate = useNavigate()
   const { user, status, signInAsGuest, displayName } = useAuth()
-  const { energy, update: updateEnergy, showOutOfEnergy } = useEnergy()
-  /** The paid start this run will be submitted against. */
+  /** The start this run will be submitted against. */
   const ticketRef = useRef<string | null>(null)
 
   const query = useAsyncData(
@@ -100,7 +95,7 @@ export function QuizPlayPage() {
       })
 
       stashResult(result)
-      navigate(`/q/${payload.quiz.slug}/result/${result.attempt.id}`, { replace: true })
+      navigate(`/q/${payload.quiz.slug}/result/${result.attempt.id}`, { replace: true, state: { adBreak: true } })
     } catch (error) {
       const message = errorMessage(error)
       session.fail(message)
@@ -198,10 +193,8 @@ export function QuizPlayPage() {
     try {
       const ticket = await startQuizAttempt(payload.quiz.slug)
       ticketRef.current = ticket.ticket_id
-      updateEnergy(ticket.energy)
     } catch (error) {
-      if (isOutOfEnergy(error)) showOutOfEnergy(error.energy)
-      else toast.error(errorMessage(error))
+      toast.error(errorMessage(error))
       return
     } finally {
       setPreparing(false)
@@ -325,17 +318,6 @@ export function QuizPlayPage() {
                 <CheckCircle2 className="text-correct-400 mt-0.5 size-4 shrink-0" aria-hidden />
                 Sau khi nộp, bạn xem lại từng câu kèm lời giải.
               </li>
-              <li className="flex gap-2.5" data-cy="quiz-energy-cost">
-                <Zap className="text-spark-300 mt-0.5 size-4 shrink-0" aria-hidden />
-                <span>
-                  {energy?.unlimited
-                    ? 'Bạn đang dùng Easy Quiz Plus — làm bài không tốn năng lượng.'
-                    : `Đề này dùng ${payload.questions.length} năng lượng (1 mỗi câu), trừ khi bắt đầu.`}
-                  {energy && !energy.unlimited ? (
-                    <span className="text-ink-400"> Bạn đang có {energy.total}.</span>
-                  ) : null}
-                </span>
-              </li>
             </ul>
 
             {!user ? (
@@ -397,7 +379,6 @@ export function QuizPlayPage() {
             </div>
           </Card>
         </div>
-        <OutOfEnergyDialog />
       </PlayShell>
     )
   }

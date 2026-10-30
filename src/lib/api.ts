@@ -8,9 +8,9 @@
 
 export class ApiError extends Error {
   readonly status: number
-  /** Machine-readable reason, e.g. `out_of_energy`, `insufficient_credits`. */
+  /** Machine-readable reason, e.g. `already_ad_free`, `insufficient_credits`. */
   readonly code: string | null
-  /** The rest of the reply (e.g. `energy` with an out-of-energy refusal). */
+  /** The rest of the reply, alongside `error` and `code`. */
   readonly body: Record<string, unknown>
 
   constructor(message: string, status: number, body: Record<string, unknown>) {

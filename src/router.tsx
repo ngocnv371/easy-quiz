@@ -74,11 +74,11 @@ const quizPlayPage = () =>
 const endlessPage = () =>
   import('@/routes/endless-page').then((module) => ({ Component: module.EndlessPage }))
 
-const energyPage = () =>
-  import('@/routes/energy-page').then((module) => ({ Component: module.EnergyPage }))
+const noAdsPage = () =>
+  import('@/routes/no-ads-page').then((module) => ({ Component: module.NoAdsPage }))
 
-const energyReturnPage = () =>
-  import('@/routes/energy-return-page').then((module) => ({ Component: module.EnergyReturnPage }))
+const noAdsReturnPage = () =>
+  import('@/routes/no-ads-return-page').then((module) => ({ Component: module.NoAdsReturnPage }))
 
 const notFoundPage = () =>
   import('@/routes/not-found-page').then((module) => ({ Component: module.NotFoundPage }))
@@ -122,8 +122,10 @@ export const router = createBrowserRouter([
       { path: 'q/:slug', lazy: quizDetailPage },
       { path: 'leaderboard', lazy: leaderboardPage },
       { path: 'u/:username', lazy: profilePage },
-      { path: 'energy', lazy: energyPage },
-      { path: 'energy/return', lazy: energyReturnPage },
+      { path: 'no-ads', lazy: noAdsPage },
+      { path: 'no-ads/return', lazy: noAdsReturnPage },
+      // the old energy shop
+      { path: 'energy/*', element: <Navigate to="/no-ads" replace /> },
       {
         path: 'progress',
         element: (

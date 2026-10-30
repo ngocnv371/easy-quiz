@@ -42,8 +42,8 @@ import { fetchTopics } from '@/features/quiz/api'
 import { TopicScopePicker } from '@/features/quiz/topic-scope-picker'
 import { useEndlessSession } from '@/features/quiz/use-endless-session'
 import { useAuth } from '@/features/auth/auth-context'
-import { EnergyMeter } from '@/features/energy/energy-meter'
-import { OutOfEnergyDialog } from '@/features/energy/out-of-energy-dialog'
+import { AdBreak } from '@/features/ads/ad-break'
+import { useShowAds } from '@/features/ads/adsense'
 import { formatClock, formatPercent } from '@/lib/format'
 import { usePageMeta } from '@/lib/seo'
 import { useAsyncData } from '@/lib/use-async-data'
@@ -256,6 +256,14 @@ function EndlessPlayer({
     restart,
   } = session
 
+  // A run that answered something ends on an ad break, unless the player is ad-free.
+  const showAds = useShowAds()
+  const [adPending, setAdPending] = useState(false)
+  const onStop = () => {
+    setAdPending(showAds && stats.answered > 0)
+    stop()
+  }
+
   const grading = phase === 'grading'
   const accuracy = stats.answered === 0 ? 0 : (stats.correct / stats.answered) * 100
   const areas = sortByStrength(progress)
@@ -379,7 +387,7 @@ function EndlessPlayer({
             {/* Clock and stop float just under the bar, well away from the answers. */}
             <button
               type="button"
-              onClick={stop}
+              onClick={onStop}
               data-cy="endless-stop"
               aria-label={`Dừng phiên luyện tập (${formatClock(seconds)})`}
               className="border-ink-600/70 bg-ink-900/90 hover:border-ink-500 hover:bg-ink-800 text-ink-100 absolute top-full right-4 mt-3 inline-flex items-center gap-2.5 rounded-full border py-2 pr-4 pl-3.5 text-sm font-medium shadow-lg shadow-black/40 backdrop-blur transition-colors sm:right-5"
@@ -537,8 +545,6 @@ function EndlessPlayer({
             />
 
             <div className="ml-auto flex shrink-0 items-center gap-1.5">
-              <EnergyMeter dataCy="endless-energy" />
-
               <Link
                 to="/leaderboard?board=endless"
                 data-cy="endless-highscore"
@@ -561,8 +567,10 @@ function EndlessPlayer({
         </footer>
       </div>
 
-      {/* ── Stop summary ─────────────────────────────────────────────── */}
-      {phase === 'stopped' ? (
+      {/* ── Ad break, then the stop summary ──────────────────────────── */}
+      {phase === 'stopped' && adPending ? (
+        <AdBreak continueLabel="Xem tổng kết" onContinue={() => setAdPending(false)} />
+      ) : phase === 'stopped' ? (
         <StopSummary
           stats={stats}
           areas={areas}
@@ -591,8 +599,6 @@ function EndlessPlayer({
           </Card>
         </div>
       ) : null}
-
-      <OutOfEnergyDialog />
 
       {/* ── Subject scope ────────────────────────────────────────────── */}
       <Modal

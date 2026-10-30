@@ -7,6 +7,9 @@
 interface ImportMetaEnv {
   readonly VITE_SITE_URL?: string
   readonly VITE_BRAND_URL?: string
+  /** AdSense publisher id (`ca-pub-…`) and the ad break's unit (src/features/ads/adsense.ts). */
+  readonly VITE_ADSENSE_CLIENT?: string
+  readonly VITE_ADSENSE_SLOT?: string
 }
 
 interface ImportMeta {

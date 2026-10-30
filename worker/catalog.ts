@@ -155,6 +155,10 @@ export async function profileByUsername(db: D1Database, username: string) {
 }
 
 export async function ownProfile(db: D1Database, userId: string) {
-  const row = await db.prepare(`select ${PROFILE_COLUMNS}, ai_credits from profiles where id = ?`).bind(userId).first()
-  return row ? bools(row, 'is_guest') : null
+  // ad_free: bought the ad-free pass, or an admin (who never sees ads)
+  const row = await db
+    .prepare(`select ${PROFILE_COLUMNS}, ai_credits, (ad_free_at is not null or role = 'admin') as ad_free from profiles where id = ?`)
+    .bind(userId)
+    .first()
+  return row ? bools(row, 'is_guest', 'ad_free') : null
 }

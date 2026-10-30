@@ -1,4 +1,3 @@
-import { toEnergyError, type EnergyState } from '@/features/energy/api'
 import { api, apiOrNull, query } from '@/lib/api'
 import {
   toGlobalLeaderboardEntry,
@@ -65,21 +64,12 @@ export async function fetchPlayPayload(slug: string): Promise<PlayPayload | null
 
 export interface QuizTicket {
   ticket_id: string
-  /** Energy charged for this start — one per question. */
-  cost: number
-  energy: EnergyState
+  question_count: number
 }
 
-/**
- * Pays for a run up front and returns the ticket `submitAttempt()` redeems.
- * Throws `OutOfEnergyError` when the quiz costs more than the player has.
- */
+/** Opens a run and returns the ticket `submitAttempt()` redeems. */
 export async function startQuizAttempt(slug: string): Promise<QuizTicket> {
-  try {
-    return await api<QuizTicket>(`quizzes/${encodeURIComponent(slug)}/start`, { method: 'POST' })
-  } catch (error) {
-    throw toEnergyError(error)
-  }
+  return api<QuizTicket>(`quizzes/${encodeURIComponent(slug)}/start`, { method: 'POST' })
 }
 
 export interface SubmitAttemptInput {

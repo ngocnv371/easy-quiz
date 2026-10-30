@@ -7,7 +7,7 @@ export const nowIso = () => new Date().toISOString()
 export const uuid = () => crypto.randomUUID()
 
 // A refusal the page shows as is: `message` is written for a person (Vietnamese), `code` is for
-// the page's logic (e.g. 'out_of_energy'), `extra` goes into the JSON reply alongside them.
+// the page's logic (e.g. 'already_ad_free'), `extra` goes into the JSON reply alongside them.
 export class AppError extends Error {
   readonly status: number
   readonly code?: string

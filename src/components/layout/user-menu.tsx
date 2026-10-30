@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ChevronDown, LayoutDashboard, LineChart, LogOut, Sparkles, User } from 'lucide-react'
+import { BadgeCheck, ChevronDown, LayoutDashboard, LineChart, LogOut, Sparkles, User } from 'lucide-react'
 
 import { useAuth } from '@/features/auth/auth-context'
 import { cn } from '@/lib/utils'
@@ -132,6 +132,12 @@ export function UserMenu({
           <MenuLink to="/account" icon={User} onClick={() => setOpen(false)}>
             Tài khoản
           </MenuLink>
+
+          {profile?.ad_free ? null : (
+            <MenuLink to="/no-ads" icon={BadgeCheck} onClick={() => setOpen(false)}>
+              Gỡ quảng cáo
+            </MenuLink>
+          )}
 
           {isAdmin ? (
             <MenuLink to="/manage" icon={LayoutDashboard} onClick={() => setOpen(false)}>

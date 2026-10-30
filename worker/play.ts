@@ -1,10 +1,9 @@
 // Playing a quiz, exam-style. The answer key never reaches the browser:
 //   playPayload()   the quiz and its questions WITHOUT is_correct
-//   startQuiz()     charges the quiz's question count in energy, returns a one-time ticket
+//   startQuiz()     returns a one-time ticket for this run
 //   submitAttempt() redeems the ticket, grades on the server, stores the attempt, returns the review
 // Attempts are only ever written here, which is what keeps a posted score trustworthy.
 import type { Member } from './env.ts'
-import { spendEnergy } from './energy.ts'
 import { PLAYABLE } from './catalog.ts'
 import { grade, type Given } from './grading.ts'
 import { AppError, NOW, bools, jsonRows, nowIso, toInt, uuid } from './sql.ts'
@@ -91,10 +90,10 @@ export async function startQuiz(db: D1Database, member: Member, slug: string) {
   const count = (await db.prepare('select count(*) as n from questions where quiz_id = ?').bind(quiz.id).first<number>('n')) ?? 0
   if (count === 0) throw new AppError('Đề thi chưa có câu hỏi nào.')
 
-  const energy = await spendEnergy(db, member.id, count, 'quiz', quiz.id)
+  // cost is left over from metered play: always 0 now
   const ticket = uuid()
-  await db.prepare('insert into quiz_play_tickets (id, user_id, quiz_id, cost) values (?, ?, ?, ?)').bind(ticket, member.id, quiz.id, count).run()
-  return { ticket_id: ticket, cost: count, energy }
+  await db.prepare('insert into quiz_play_tickets (id, user_id, quiz_id, cost) values (?, ?, ?, 0)').bind(ticket, member.id, quiz.id).run()
+  return { ticket_id: ticket, question_count: count }
 }
 
 interface SubmitInput {
@@ -109,7 +108,7 @@ export async function submitAttempt(db: D1Database, member: Member, input: Submi
   const quiz = await playableQuiz(db, String(input.slug ?? ''))
   if (!quiz) throw new AppError('Không tìm thấy đề thi này.', 404)
 
-  // Redeem the paid start: one guarded update, so a ticket backs exactly one attempt even if
+  // Redeem the start: one guarded update, so a ticket backs exactly one attempt even if
   // submit is retried in parallel.
   const since = new Date(Date.now() - 864e5).toISOString()
   const redeemed = await db

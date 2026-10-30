@@ -11,7 +11,6 @@ import {
   profileByUsername, quizCardBySlug, quizLeaderboard,
 } from './catalog.ts'
 import { endlessLeaderboard, gradeAnswer, nextBatch, startSession } from './endless.ts'
-import { myEnergy } from './energy.ts'
 import type { AppEnv } from './env.ts'
 import { track } from './events.ts'
 import { importQuestions } from './import.ts'
@@ -24,7 +23,6 @@ const app = new Hono<AppEnv>().basePath('/api')
 
 app.onError((err, c) => {
   if (err instanceof AppError) {
-    if (err.code === 'out_of_energy') track(c.env, 'out_of_energy', { user: c.get('member')?.id })
     return c.json({ error: err.message, code: err.code, ...err.extra }, err.status as 400)
   }
   console.error(c.req.method, c.req.path, err)
@@ -103,8 +101,6 @@ app.patch('/me/profile', async (c) => {
 // body: { email, password, displayName, organization? } -> { needsEmailConfirmation }
 app.post('/me/upgrade', async (c) => c.json(await upgradeGuest(c, await body(c))))
 
-app.get('/me/energy', async (c) => c.json(await myEnergy(c.env.DB, c.get('member').id)))
-
 // ------------------------------------------------------------------ catalogue (anyone)
 
 app.get('/topics', async (c) => c.json(await listTopics(c.env.DB)))
@@ -163,10 +159,10 @@ app.get('/profiles/:username', async (c) => {
 app.use('/quizzes/:slug/start', members)
 app.use('/quizzes/:slug/submit', members)
 
-// -> { ticket_id, cost, energy }, or 402 out_of_energy
+// -> { ticket_id, question_count }
 app.post('/quizzes/:slug/start', async (c) => {
   const res = await startQuiz(c.env.DB, c.get('member'), c.req.param('slug'))
-  track(c.env, 'quiz_started', { user: c.get('member').id, detail: c.req.param('slug'), value: res.cost })
+  track(c.env, 'quiz_started', { user: c.get('member').id, detail: c.req.param('slug'), value: res.question_count })
   return c.json(res)
 })
 
@@ -191,7 +187,7 @@ app.use('/endless/grade', members)
 // body: { topic_id? } -> { id }
 app.post('/endless/sessions', async (c) => c.json({ id: await startSession(c.env.DB, c.get('member'), trimTo((await body(c)).topic_id, 64)) }))
 
-// body: { question_id, option_id, session_id? } -> the reveal, or 402 out_of_energy
+// body: { question_id, option_id, session_id? } -> the reveal
 app.post('/endless/grade', async (c) => {
   const b = await body(c)
   const res = await gradeAnswer(c.env.DB, c.get('member'), String(b.question_id ?? ''), String(b.option_id ?? ''), trimTo(b.session_id, 64))
@@ -213,11 +209,11 @@ app.post('/payments/checkout', async (c) => {
   return c.json({ order_code: res.order_code, checkout_url: res.checkout_url })
 })
 
-// body: { order_code } -> { status, energy? }
+// body: { order_code } -> { status, ad_free? }
 app.post('/payments/sync', async (c) => {
   const res = await sync(c.env, c.get('member'), Number((await body(c)).order_code))
   if ('paid_now' in res && res.paid_now) track(c.env, 'order_paid', { user: c.get('member').id, detail: 'return', value: res.amount })
-  return c.json({ status: res.status, energy: 'energy' in res ? res.energy : undefined })
+  return c.json({ status: res.status, ad_free: 'ad_free' in res ? res.ad_free : undefined })
 })
 
 // PayOS calls this (no session: it is signed with the checksum key)
