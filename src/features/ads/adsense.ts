@@ -1,16 +1,18 @@
 import { useAuth } from '@/features/auth/auth-context'
 
 /**
- * Google AdSense, configured at build time:
+ * Google AdSense: the publisher id (`ca-pub-…`) and the ad break's display
+ * unit. Both are public (they sit in the page's HTML), so production builds
+ * carry them here rather than in the git-ignored `.env.production`, which the
+ * build on Cloudflare never sees. VITE_ADSENSE_CLIENT / VITE_ADSENSE_SLOT
+ * override them.
  *
- *   VITE_ADSENSE_CLIENT  the publisher id, `ca-pub-…`
- *   VITE_ADSENSE_SLOT    the display ad unit shown in the ad break
- *
- * Without both (local dev, a preview build) the ad break shows a house ad for
- * the ad-free pass instead, so the flow is the same everywhere.
+ * `npm run dev` has neither, so the ad break shows a house ad for the ad-free
+ * pass instead and the flow is the same everywhere. public/ads.txt must name
+ * the same publisher.
  */
-export const ADSENSE_CLIENT = import.meta.env.VITE_ADSENSE_CLIENT ?? ''
-export const ADSENSE_SLOT = import.meta.env.VITE_ADSENSE_SLOT ?? ''
+export const ADSENSE_CLIENT = import.meta.env.VITE_ADSENSE_CLIENT ?? (import.meta.env.PROD ? 'ca-pub-3599233318321564' : '')
+export const ADSENSE_SLOT = import.meta.env.VITE_ADSENSE_SLOT ?? (import.meta.env.PROD ? '3350981167' : '')
 export const adsenseConfigured = ADSENSE_CLIENT !== '' && ADSENSE_SLOT !== ''
 
 declare global {

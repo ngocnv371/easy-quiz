@@ -303,10 +303,11 @@ session**, and a **one-time purchase that removes it for good**.
   - **Endless:** pressing stop after at least one answer shows the break, then the summary.
   - Never while a question is on screen.
 - **The ad:** a full-screen stage (not a dialog) with one labelled AdSense display unit and a
-  continue button that unlocks after 5 seconds. AdSense is configured at build time with
-  `VITE_ADSENSE_CLIENT` (`ca-pub-…`) and `VITE_ADSENSE_SLOT`; the script loads on the first break
-  only. Without them, or with the script blocked, the unit is a house ad for the pass. Production
-  also needs `public/ads.txt` with the publisher line AdSense gives you.
+  continue button that unlocks after 5 seconds. The publisher id and ad unit are in
+  `src/features/ads/adsense.ts` (production builds only; `VITE_ADSENSE_CLIENT` and
+  `VITE_ADSENSE_SLOT` override them), and `public/ads.txt` names the same publisher. The script
+  loads on the first break only. In `npm run dev`, or with the script blocked, the unit is a house
+  ad for the pass.
 - **Who sees it:** everyone, guests included, except an account with `profiles.ad_free_at` set,
   and admins. `/api/me` reports that as `profile.ad_free`; `useShowAds()` reads it.
 - **The pass** costs 49.000đ once and is sold on `/no-ads`. Grant it by hand with SQL on
