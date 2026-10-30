@@ -88,6 +88,11 @@ const manageDashboardPage = () =>
     Component: module.ManageDashboardPage,
   }))
 
+const manageStatsPage = () =>
+  import('@/routes/manage/stats-page').then((module) => ({
+    Component: module.ManageStatsPage,
+  }))
+
 const manageQuizListPage = () =>
   import('@/routes/manage/quiz-list-page').then((module) => ({
     Component: module.ManageQuizListPage,
@@ -185,6 +190,7 @@ export const router = createBrowserRouter([
     ),
     children: [
       { index: true, lazy: manageDashboardPage },
+      { path: 'stats', lazy: manageStatsPage },
       { path: 'quizzes', lazy: manageQuizListPage },
       { path: 'quizzes/new', lazy: manageQuizEditorPage },
       { path: 'quizzes/:quizId', lazy: manageQuizEditorPage },

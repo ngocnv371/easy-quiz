@@ -229,3 +229,81 @@ export async function fetchQuizReport(quizId: string): Promise<QuizReportDocumen
     wrongAnswers: buildWrongAnswerIndex({ attempts, answers, profiles }),
   }
 }
+
+// ── Site-wide stats (worker/admin.ts) ───────────────────────────────────────
+// Seeded leaderboard players are already left out by the Worker.
+
+export interface SiteTotals {
+  players: number
+  accounts: number
+  new_7d: number
+  active_7d: number
+  attempts: number
+  attempts_7d: number
+  endless_answers: number
+  endless_answers_7d: number
+  ad_free: number
+  orders_paid: number
+  orders_pending: number
+  revenue_vnd: number
+  revenue_7d_vnd: number
+}
+
+/** One Vietnam day, oldest first. */
+export interface SiteDay {
+  day: string
+  new_players: number
+  active_players: number
+  attempts: number
+  endless_answers: number
+}
+
+export async function fetchSiteOverview(): Promise<{ totals: SiteTotals; daily: SiteDay[] }> {
+  return api('manage/overview')
+}
+
+export interface SiteUser {
+  id: string
+  username: string
+  display_name: string
+  avatar_emoji: string
+  role: string
+  is_guest: boolean
+  /** Null for a guest. */
+  email: string | null
+  created_at: string
+  ad_free_at: string | null
+  attempts: number
+  endless_runs: number
+  endless_answers: number
+  last_active: string | null
+}
+
+export type SiteUserSort = 'recent' | 'most' | 'new'
+
+export async function fetchSiteUsers(search: string, sort: SiteUserSort, limit = 50): Promise<SiteUser[]> {
+  return api(`manage/users${query({ search, sort, limit })}`)
+}
+
+export type SiteOrderStatus = 'pending' | 'paid' | 'cancelled' | 'expired' | 'failed'
+
+export interface SiteOrder {
+  order_code: number
+  product_id: string
+  product_name: string
+  amount_vnd: number
+  status: SiteOrderStatus
+  provider: string
+  created_at: string
+  paid_at: string | null
+  /** Null once the buyer's account is deleted; the order is kept. */
+  user_id: string | null
+  display_name: string | null
+  username: string | null
+  avatar_emoji: string | null
+  email: string | null
+}
+
+export async function fetchSiteOrders(status: SiteOrderStatus | '', limit = 50): Promise<SiteOrder[]> {
+  return api(`manage/orders${query({ status, limit })}`)
+}

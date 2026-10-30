@@ -110,6 +110,7 @@ worker/                 the Cloudflare Worker: everything under /api/*
   endless.ts            Endless batches, grading, streaks, leaderboard
   payments.ts           the ad-free pass: PayOS checkout, return check, webhook
   manage.ts             admin quizzes, the editor's save, reports
+  admin.ts              site-wide stats for /manage/stats: players, usage, orders
   import.ts             CSV bulk import
   ai.ts                 AI Assist providers and credits
   email.ts, events.ts   account emails (Resend), analytics (Analytics Engine)

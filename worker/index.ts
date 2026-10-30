@@ -4,6 +4,7 @@
 // Errors reply { error, code?, ... } with a fitting status; `error` is written for a person.
 import { Hono, type Context } from 'hono'
 
+import { adminOrders, adminOverview, adminUsers } from './admin.ts'
 import { generateQuestions } from './ai.ts'
 import { admins, authFor, memberOf, members, upgradeGuest } from './auth.ts'
 import {
@@ -258,7 +259,12 @@ app.get('/manage/quizzes/:id/report', async (c) => {
   return report ? c.json(report) : c.json({ error: 'Không tìm thấy đề thi.' }, 404)
 })
 
-app.get('/manage/attempts', async (c) => c.json(await attemptsForOwner(c.env.DB, c.get('member').id, limitOf(c, 25))))
+// the whole site, for the stats page
+app.get('/manage/overview', async (c) => c.json(await adminOverview(c.env.DB)))
+app.get('/manage/users', async (c) => c.json(await adminUsers(c.env.DB, c.req.query())))
+app.get('/manage/orders', async (c) => c.json(await adminOrders(c.env.DB, c.req.query())))
+
+app.get('/manage/attempts',async (c) => c.json(await attemptsForOwner(c.env.DB, c.get('member').id, limitOf(c, 25))))
 
 // body: { csv, filename? } -> { subjects, quizzes, questions, total_rows, skipped, skipped_total, filename }
 app.post('/manage/import', async (c) => {

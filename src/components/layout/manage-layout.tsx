@@ -1,5 +1,5 @@
 import { NavLink, Outlet, Link } from 'react-router-dom'
-import { BarChart3, LayoutList, PlusCircle, Sparkles, ArrowLeft } from 'lucide-react'
+import { Activity, BarChart3, LayoutList, PlusCircle, Sparkles, ArrowLeft } from 'lucide-react'
 
 import { EasyQuizLogo } from '@/components/brand/logo'
 import { useAuth } from '@/features/auth/auth-context'
@@ -10,6 +10,7 @@ const LINKS = [
   { to: '/manage', label: 'Tổng quan', icon: BarChart3, end: true },
   { to: '/manage/quizzes', label: 'Đề thi của tôi', icon: LayoutList, end: false },
   { to: '/manage/quizzes/new', label: 'Tạo đề mới', icon: PlusCircle, end: true },
+  { to: '/manage/stats', label: 'Thống kê', icon: Activity, end: true },
 ] as const
 
 /** Shell for the admin console: persistent sidebar, routed workspace. */
