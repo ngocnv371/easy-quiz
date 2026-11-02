@@ -28,6 +28,12 @@ export interface EndlessStats {
 
 const EMPTY_STATS: EndlessStats = { answered: 0, correct: 0, streak: 0, bestStreak: 0 }
 
+/** One graded answer, kept so the stop summary can walk back through them. */
+export interface EndlessAnswered {
+  question: EndlessQuestion
+  grade: EndlessGrade
+}
+
 /** Pull the next batch once the buffer is this short. */
 const PREFETCH_AT = 3
 
@@ -46,6 +52,8 @@ export interface EndlessSession {
   selected: string | null
   feedback: EndlessGrade | null
   stats: EndlessStats
+  /** Every graded answer this session, oldest first. */
+  history: EndlessAnswered[]
   progress: EndlessTopicProgress[]
   error: string | null
   /** Wall-clock seconds spent in this session. */
@@ -92,6 +100,7 @@ export function useEndlessSession(
   const [selected, setSelected] = useState<string | null>(null)
   const [feedback, setFeedback] = useState<EndlessGrade | null>(null)
   const [stats, setStats] = useState<EndlessStats>(EMPTY_STATS)
+  const [history, setHistory] = useState<EndlessAnswered[]>([])
   const [progress, setProgress] = useState<EndlessTopicProgress[]>([])
   const [error, setError] = useState<string | null>(null)
   const [seconds, setSeconds] = useState(0)
@@ -196,6 +205,7 @@ export function useEndlessSession(
     gradeEndlessAnswer(question.id, optionId, sessionIdRef.current)
       .then((grade) => {
         setFeedback(grade)
+        setHistory((previous) => [...previous, { question, grade }])
         setStats((previous) => {
           const streak = grade.is_correct ? previous.streak + 1 : 0
           return {
@@ -254,6 +264,7 @@ export function useEndlessSession(
     setSelected(null)
     setFeedback(null)
     setStats(EMPTY_STATS)
+    setHistory([])
     setSeconds(0)
     setShown(0)
     await begin()
@@ -267,6 +278,7 @@ export function useEndlessSession(
     selected,
     feedback,
     stats,
+    history,
     progress,
     error,
     seconds,

@@ -40,7 +40,7 @@ import {
 } from '@/features/quiz/endless-progress'
 import { fetchTopics } from '@/features/quiz/api'
 import { TopicScopePicker } from '@/features/quiz/topic-scope-picker'
-import { useEndlessSession } from '@/features/quiz/use-endless-session'
+import { useEndlessSession, type EndlessAnswered } from '@/features/quiz/use-endless-session'
 import { useAuth } from '@/features/auth/auth-context'
 import { AdBreak } from '@/features/ads/ad-break'
 import { useShowAds } from '@/features/ads/adsense'
@@ -246,6 +246,7 @@ function EndlessPlayer({
     selected,
     feedback,
     stats,
+    history,
     progress,
     error,
     seconds,
@@ -573,6 +574,7 @@ function EndlessPlayer({
       ) : phase === 'stopped' ? (
         <StopSummary
           stats={stats}
+          history={history}
           areas={areas}
           seconds={seconds}
           onRestart={() => void restart()}
@@ -743,11 +745,13 @@ function StatPill({
 
 function StopSummary({
   stats,
+  history,
   areas,
   seconds,
   onRestart,
 }: {
   stats: { answered: number; correct: number; bestStreak: number }
+  history: EndlessAnswered[]
   areas: EndlessTopicProgress[]
   seconds: number
   onRestart: () => void
@@ -755,61 +759,71 @@ function StopSummary({
   const accuracy = stats.answered === 0 ? 0 : (stats.correct / stats.answered) * 100
 
   return (
-    <div className="bg-ink-950/85 fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-5 backdrop-blur">
-      <Card data-cy="endless-summary" className="animate-pop my-auto w-full max-w-lg p-6">
-        <div className="flex items-center gap-3">
-          <span className="border-neon-400/40 bg-neon-400/10 text-neon-300 flex size-11 items-center justify-center rounded-2xl border">
-            <Sparkles className="size-5" aria-hidden />
-          </span>
-          <div>
-            <h2 className="font-display text-ink-50 text-lg font-semibold">Phiên luyện tập</h2>
-            <p className="text-ink-400 text-sm">Bạn đã dừng sau {formatClock(seconds)}.</p>
+    <div className="bg-ink-950/85 fixed inset-0 z-50 flex items-center justify-center p-3 backdrop-blur sm:p-5">
+      {/* Fits the screen: the header, stats and buttons stay put and only the middle scrolls. */}
+      <Card
+        data-cy="endless-summary"
+        className={cn('animate-pop flex max-h-full w-full flex-col', history.length > 0 ? 'max-w-2xl' : 'max-w-lg')}
+      >
+        <div className="shrink-0 px-5 pt-5 sm:px-6 sm:pt-6">
+          <div className="flex items-center gap-3">
+            <span className="border-neon-400/40 bg-neon-400/10 text-neon-300 flex size-11 items-center justify-center rounded-2xl border">
+              <Sparkles className="size-5" aria-hidden />
+            </span>
+            <div>
+              <h2 className="font-display text-ink-50 text-lg font-semibold">Phiên luyện tập</h2>
+              <p className="text-ink-400 text-sm">Bạn đã dừng sau {formatClock(seconds)}.</p>
+            </div>
           </div>
+
+          <dl className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <SummaryStat label="Đã làm" value={stats.answered} />
+            <SummaryStat label="Đúng" value={stats.correct} tone="correct" />
+            <SummaryStat label="Chính xác" value={formatPercent(accuracy)} />
+            <SummaryStat label="Chuỗi dài nhất" value={stats.bestStreak} tone="spark" />
+          </dl>
         </div>
 
-        <dl className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <SummaryStat label="Đã làm" value={stats.answered} />
-          <SummaryStat label="Đúng" value={stats.correct} tone="correct" />
-          <SummaryStat label="Chính xác" value={formatPercent(accuracy)} />
-          <SummaryStat label="Chuỗi dài nhất" value={stats.bestStreak} tone="spark" />
-        </dl>
-
-        {areas.length > 0 ? (
-          <div className="border-ink-600/60 mt-6 border-t pt-5">
-            <p className="text-ink-400 text-[0.7rem] font-medium tracking-[0.16em] uppercase">
-              Hồ sơ năng lực
-            </p>
-            <ul className="mt-3 space-y-3">
-              {areas.map((area) => {
-                const strength = areaStrength(area.accuracy, area.answered)
-                return (
-                  <li key={area.topic_id} className="flex items-center gap-3">
-                    <span aria-hidden>{area.emoji}</span>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-baseline justify-between gap-2">
-                        <span className="text-ink-100 truncate text-sm">{area.name}</span>
-                        <span className="text-ink-400 shrink-0 font-mono text-xs tabular-nums">
-                          {area.correct}/{area.answered}
-                        </span>
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-1 sm:px-6" data-cy="endless-summary-scroll">
+          {areas.length > 0 ? (
+            <div className="border-ink-600/60 mt-6 border-t pt-5">
+              <p className="text-ink-400 text-[0.7rem] font-medium tracking-[0.16em] uppercase">
+                Hồ sơ năng lực
+              </p>
+              <ul className="mt-3 space-y-3">
+                {areas.map((area) => {
+                  const strength = areaStrength(area.accuracy, area.answered)
+                  return (
+                    <li key={area.topic_id} className="flex items-center gap-3">
+                      <span aria-hidden>{area.emoji}</span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-baseline justify-between gap-2">
+                          <span className="text-ink-100 truncate text-sm">{area.name}</span>
+                          <span className="text-ink-400 shrink-0 font-mono text-xs tabular-nums">
+                            {area.correct}/{area.answered}
+                          </span>
+                        </div>
+                        <div className="bg-ink-800 mt-1.5 h-1.5 overflow-hidden rounded-full">
+                          <div
+                            className={cn('h-full rounded-full', STRENGTH_BAR[strength])}
+                            style={{ width: `${Math.max(area.accuracy, 3)}%` }}
+                          />
+                        </div>
                       </div>
-                      <div className="bg-ink-800 mt-1.5 h-1.5 overflow-hidden rounded-full">
-                        <div
-                          className={cn('h-full rounded-full', STRENGTH_BAR[strength])}
-                          style={{ width: `${Math.max(area.accuracy, 3)}%` }}
-                        />
-                      </div>
-                    </div>
-                    <span className={cn('shrink-0 text-xs font-medium', STRENGTH_CHIP[strength], 'rounded-full border px-2 py-0.5')}>
-                      {AREA_LABELS[strength]}
-                    </span>
-                  </li>
-                )
-              })}
-            </ul>
-          </div>
-        ) : null}
+                      <span className={cn('shrink-0 text-xs font-medium', STRENGTH_CHIP[strength], 'rounded-full border px-2 py-0.5')}>
+                        {AREA_LABELS[strength]}
+                      </span>
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          ) : null}
 
-        <div className="mt-7 flex flex-wrap gap-3">
+          {history.length > 0 ? <AnswerReview history={history} /> : null}
+        </div>
+
+        <div className="border-ink-600/60 flex shrink-0 flex-wrap gap-3 border-t px-5 py-4 sm:px-6">
           <Button onClick={onRestart}>
             <RotateCcw className="size-4" aria-hidden />
             Chơi tiếp
@@ -823,6 +837,98 @@ function StopSummary({
           </ButtonLink>
         </div>
       </Card>
+    </div>
+  )
+}
+
+/**
+ * Every answer of the session, newest first, the way the quiz result reviews
+ * them: the pick, the right option and the explanation. "Câu sai" narrows it
+ * to the misses, which is usually what is worth rereading.
+ */
+function AnswerReview({ history }: { history: EndlessAnswered[] }) {
+  const missed = history.filter((item) => !item.grade.is_correct).length
+  const [onlyMissed, setOnlyMissed] = useState(false)
+  const items = history
+    .map((item, index) => ({ ...item, number: index + 1 }))
+    .filter((item) => !onlyMissed || !item.grade.is_correct)
+    .reverse()
+
+  return (
+    <div className="border-ink-600/60 mt-6 border-t" data-cy="endless-review">
+      <div className="bg-ink-900/95 sticky top-0 z-10 -mx-5 flex flex-wrap items-center justify-between gap-2 px-5 py-3 backdrop-blur sm:-mx-6 sm:px-6">
+        <p className="text-ink-400 text-[0.7rem] font-medium tracking-[0.16em] uppercase">Xem lại câu trả lời</p>
+        <div className="flex gap-1.5" role="group" aria-label="Lọc câu trả lời">
+          {[
+            { value: false, label: `Tất cả (${history.length})` },
+            { value: true, label: `Câu sai (${missed})` },
+          ].map((filter) => (
+            <button
+              key={filter.label}
+              type="button"
+              aria-pressed={onlyMissed === filter.value}
+              onClick={() => setOnlyMissed(filter.value)}
+              className={cn(
+                'rounded-full border px-3 py-1 text-xs font-medium transition-colors',
+                onlyMissed === filter.value
+                  ? 'border-neon-400/50 bg-neon-400/10 text-neon-300'
+                  : 'border-ink-600/70 text-ink-300 hover:text-ink-50',
+              )}
+            >
+              {filter.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {items.length === 0 ? (
+        <p className="text-ink-300 mt-2 pb-4 text-sm">Không có câu nào sai. Tuyệt vời!</p>
+      ) : (
+        <ol className="mt-2 space-y-5 pb-4">
+          {items.map(({ question, grade, number }) => (
+            <li key={`${question.id}-${number}`} className="flex gap-3">
+              <span
+                className={cn(
+                  'mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg',
+                  grade.is_correct ? 'bg-correct-500/15 text-correct-300' : 'bg-wrong-500/15 text-wrong-300',
+                )}
+                aria-label={grade.is_correct ? 'Đúng' : 'Sai'}
+              >
+                {grade.is_correct ? <CheckCircle2 className="size-4" aria-hidden /> : <XCircle className="size-4" aria-hidden />}
+              </span>
+
+              <div className="min-w-0 flex-1">
+                <p className="text-ink-50 text-sm leading-relaxed font-medium">
+                  <span className="text-ink-400 mr-2 tabular-nums">Câu {number}.</span>
+                  {question.prompt}
+                </p>
+
+                <div className="mt-3 space-y-2">
+                  {question.options.map((option, index) => (
+                    <AnswerTile
+                      key={option.id}
+                      letter={optionLetter(index)}
+                      label={option.label}
+                      state={
+                        option.id === grade.correct_option_id ? 'correct' : option.id === grade.option_id ? 'wrong' : 'dim'
+                      }
+                      disabled
+                      className="py-2.5"
+                    />
+                  ))}
+                </div>
+
+                {grade.explanation ? (
+                  <div className="border-ink-600/60 bg-ink-800/50 mt-3 rounded-xl border p-3.5">
+                    <p className="text-ink-400 text-[0.7rem] font-semibold tracking-[0.16em] uppercase">Lời giải</p>
+                    <p className="text-ink-200 mt-1.5 text-sm leading-relaxed">{grade.explanation}</p>
+                  </div>
+                ) : null}
+              </div>
+            </li>
+          ))}
+        </ol>
+      )}
     </div>
   )
 }
