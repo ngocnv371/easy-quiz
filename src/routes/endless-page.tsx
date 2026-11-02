@@ -269,9 +269,8 @@ function EndlessPlayer({
   const grading = phase === 'grading'
   const accuracy = stats.answered === 0 ? 0 : (stats.correct / stats.answered) * 100
   const areas = sortByStrength(progress)
-  const scopeName = topicSlug
-    ? (topics.find((topic) => topic.slug === topicSlug)?.name ?? null)
-    : null
+  const scopeTopic = topicSlug ? (topics.find((topic) => topic.slug === topicSlug) ?? null) : null
+  const scopeName = scopeTopic?.name ?? null
 
   const reduceMotion = useReducedMotion()
 
@@ -365,16 +364,17 @@ function EndlessPlayer({
 
             {/* The subject label takes whatever room the brand and stats leave. */}
             <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-1.5 sm:gap-2">
+              {/* The subject's name sits under the bar, where a long one has room; this button only changes it. */}
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setScopeOpen(true)}
-                className="min-w-0 gap-1.5 px-2.5 sm:max-w-xs sm:px-3"
+                className="shrink-0 gap-1.5 px-2.5 sm:px-3"
                 data-cy="endless-scope"
-                aria-label={`Môn học: ${scopeName ?? 'tất cả'}`}
+                aria-label={`Đổi chủ đề (đang luyện: ${scopeName ?? 'tất cả môn'})`}
               >
                 <Layers className="size-4 shrink-0" aria-hidden />
-                <span className="min-w-0 truncate">{scopeName ?? 'Tất cả môn'}</span>
+                Đổi chủ đề
               </Button>
 
               <StatPill icon={Flame} tone={stats.streak >= 2 ? 'spark' : 'neutral'} dataCy="endless-streak">
@@ -388,24 +388,45 @@ function EndlessPlayer({
               </StatPill>
             </div>
 
-            {/* Clock and stop float just under the bar, well away from the answers. */}
-            <button
-              type="button"
-              onClick={onStop}
-              data-cy="endless-stop"
-              aria-label={`Dừng phiên luyện tập (${formatClock(seconds)})`}
-              className="border-ink-600/70 bg-ink-900/90 hover:border-ink-500 hover:bg-ink-800 text-ink-100 absolute top-full right-4 mt-3 inline-flex items-center gap-2.5 rounded-full border py-2 pr-4 pl-3.5 text-sm font-medium shadow-lg shadow-black/40 backdrop-blur transition-colors sm:right-5"
-            >
-              <span className="text-ink-300 inline-flex items-center gap-1.5 tabular-nums" data-cy="endless-timer">
-                <Timer className="size-4" aria-hidden />
-                {formatClock(seconds)}
-              </span>
-              <span className="bg-ink-600 h-4 w-px" aria-hidden />
-              <span className="inline-flex items-center gap-1.5">
-                <Pause className="size-4" aria-hidden />
-                Dừng
-              </span>
-            </button>
+            {/* Just under the bar, well away from the answers: what is being practised on the left (a
+                long subject wraps rather than squeezing the bar), the clock and stop on the right. */}
+            <div className="pointer-events-none absolute inset-x-4 top-full mt-3 flex items-start justify-between gap-3 sm:inset-x-5">
+              <button
+                type="button"
+                onClick={() => setScopeOpen(true)}
+                data-cy="endless-scope-name"
+                title="Đổi chủ đề"
+                className="text-ink-200 hover:text-ink-50 pointer-events-auto mt-1 min-w-0 text-left text-sm leading-snug transition-colors"
+              >
+                <span className="text-ink-400 block text-[0.65rem] font-medium tracking-[0.14em] uppercase">Đang luyện</span>
+                <span className="line-clamp-3 font-medium sm:line-clamp-2">
+                  {scopeTopic ? (
+                    <span aria-hidden className="mr-1">
+                      {scopeTopic.emoji}
+                    </span>
+                  ) : null}
+                  {scopeName ?? 'Tất cả môn'}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={onStop}
+                data-cy="endless-stop"
+                aria-label={`Dừng phiên luyện tập (${formatClock(seconds)})`}
+                className="border-ink-600/70 bg-ink-900/90 hover:border-ink-500 hover:bg-ink-800 text-ink-100 pointer-events-auto inline-flex shrink-0 items-center gap-2 rounded-full border py-2 pr-3.5 pl-3 text-sm sm:gap-2.5 sm:pr-4 sm:pl-3.5 font-medium shadow-lg shadow-black/40 backdrop-blur transition-colors"
+              >
+                <span className="text-ink-300 inline-flex items-center gap-1.5 tabular-nums" data-cy="endless-timer">
+                  <Timer className="hidden size-4 sm:block" aria-hidden />
+                  {formatClock(seconds)}
+                </span>
+                <span className="bg-ink-600 h-4 w-px" aria-hidden />
+                <span className="inline-flex items-center gap-1.5">
+                  <Pause className="size-4" aria-hidden />
+                  Dừng
+                </span>
+              </button>
+            </div>
           </div>
         </header>
 
