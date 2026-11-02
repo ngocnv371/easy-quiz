@@ -59,8 +59,8 @@ export function RequireAdmin({ children }: { children: ReactNode }) {
           </Alert>
 
           <div className="flex justify-center gap-3">
-            <ButtonLink to="/explore" variant="outline">
-              Về trang khám phá
+            <ButtonLink to="/endless" variant="outline">
+              Luyện tập
             </ButtonLink>
             <ButtonLink to="/" variant="primary">
               Về trang chủ

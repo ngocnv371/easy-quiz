@@ -10,7 +10,6 @@ import { cn } from '@/lib/utils'
 import { UserMenu } from './user-menu'
 
 const NAV_ITEMS = [
-  { to: '/explore', label: 'Khám phá', icon: null },
   { to: '/endless', label: 'Chế độ vô tận', icon: InfinityIcon },
   { to: '/leaderboard', label: 'Bảng xếp hạng', icon: Trophy },
 ] as const
@@ -110,13 +109,6 @@ export function SiteHeader() {
               Chơi ngay
             </ButtonLink>
 
-            <NavLink
-              to="/explore"
-              className={linkClasses}
-              onClick={() => setMobileOpen(false)}
-            >
-              Khám phá
-            </NavLink>
             <NavLink
               to="/endless"
               className={linkClasses}

@@ -4,22 +4,16 @@ import {
   asQuestionKind,
   asStatus,
   asVisibility,
-  toLeaderboardEntry,
   toQuizCard,
-  type AttemptAnswerRow,
-  type AttemptRow,
-  type LeaderboardEntryRow,
   type QuizCard,
   type QuizCardRow,
   type QuizDraft,
   type QuizDraftQuestion,
   type QuestionRow,
   type OptionRow,
-  type ProfileRow,
   type QuizRow,
   type SaveQuizResult,
 } from '@/lib/domain'
-import { buildQuizReport, buildWrongAnswerIndex, type QuizReport, type WrongAnswerIndex } from './report'
 
 /** Every quiz the signed-in admin owns, drafts included. */
 export async function fetchMyQuizzes(_ownerId: string): Promise<QuizCard[]> {
@@ -139,94 +133,15 @@ export interface AdminStats {
   quizCount: number
   publishedCount: number
   draftCount: number
-  totalPlays: number
-  totalAttempts: number
-  averageAccuracy: number
+  questionCount: number
 }
 
-export function summariseQuizzes(
-  quizzes: QuizCard[],
-  entries: Array<{ accuracy: number }> = [],
-): AdminStats {
-  const published = quizzes.filter((quiz) => quiz.status === 'published')
-
+export function summariseQuizzes(quizzes: QuizCard[]): AdminStats {
   return {
     quizCount: quizzes.length,
-    publishedCount: published.length,
+    publishedCount: quizzes.filter((quiz) => quiz.status === 'published').length,
     draftCount: quizzes.filter((quiz) => quiz.status === 'draft').length,
-    totalPlays: quizzes.reduce((sum, quiz) => sum + quiz.play_count, 0),
-    totalAttempts: quizzes.reduce((sum, quiz) => sum + quiz.attempt_count, 0),
-    averageAccuracy:
-      entries.length === 0
-        ? 0
-        : entries.reduce((sum, entry) => sum + entry.accuracy, 0) / entries.length,
-  }
-}
-
-/** Recent attempts across everything this admin owns. */
-export async function fetchAttemptsForOwner(
-  quizIds: string[],
-  limit = 25,
-): Promise<
-  Array<{
-    attempt_id: string
-    quiz_id: string
-    quiz_title: string
-    display_name: string
-    avatar_emoji: string
-    score: number
-    max_score: number
-    accuracy: number
-    completed_at: string
-  }>
-> {
-  if (quizIds.length === 0) return []
-
-  const rows = await api<LeaderboardEntryRow[]>(`manage/attempts${query({ limit })}`)
-
-  return rows.map(toLeaderboardEntry).map((row) => ({
-    attempt_id: row.attempt_id,
-    quiz_id: row.quiz_id,
-    quiz_title: row.quiz_title,
-    display_name: row.display_name,
-    avatar_emoji: row.avatar_emoji,
-    score: row.score,
-    max_score: row.max_score,
-    accuracy: row.accuracy,
-    completed_at: row.completed_at,
-  }))
-}
-
-export interface QuizReportDocument {
-  card: QuizCard
-  report: QuizReport
-  /** Question id → the players who got it wrong, for the follow-up modal. */
-  wrongAnswers: WrongAnswerIndex
-}
-
-interface ReportResponse {
-  card: QuizCardRow
-  attempts: AttemptRow[]
-  questions: QuestionRow[]
-  answers: AttemptAnswerRow[]
-  profiles: ProfileRow[]
-}
-
-/**
- * Everything the performance report needs for one quiz: the owner's attempts,
- * questions, answers and the players' names, plus the pure aggregation in
- * `buildQuizReport()`. `null` when the quiz is not the caller's.
- */
-export async function fetchQuizReport(quizId: string): Promise<QuizReportDocument | null> {
-  const doc = await apiOrNull<ReportResponse>(`manage/quizzes/${quizId}/report`)
-  if (!doc) return null
-
-  const { attempts, questions, answers, profiles } = doc
-
-  return {
-    card: toQuizCard(doc.card),
-    report: buildQuizReport({ attempts, questions, answers }),
-    wrongAnswers: buildWrongAnswerIndex({ attempts, answers, profiles }),
+    questionCount: quizzes.reduce((sum, quiz) => sum + quiz.question_count, 0),
   }
 }
 
@@ -238,8 +153,8 @@ export interface SiteTotals {
   accounts: number
   new_7d: number
   active_7d: number
-  attempts: number
-  attempts_7d: number
+  runs: number
+  runs_7d: number
   endless_answers: number
   endless_answers_7d: number
   ad_free: number
@@ -254,7 +169,7 @@ export interface SiteDay {
   day: string
   new_players: number
   active_players: number
-  attempts: number
+  runs: number
   endless_answers: number
 }
 
@@ -273,7 +188,6 @@ export interface SiteUser {
   email: string | null
   created_at: string
   ad_free_at: string | null
-  attempts: number
   endless_runs: number
   endless_answers: number
   last_active: string | null

@@ -26,10 +26,6 @@ const ProgressPage = lazy(() =>
   import('@/routes/progress-page').then((module) => ({ default: module.ProgressPage })),
 )
 
-const QuizResultPage = lazy(() =>
-  import('@/routes/quiz-result-page').then((module) => ({ default: module.QuizResultPage })),
-)
-
 /**
  * Shown while a lazily loaded page — or the first chunk of a cold load — is
  * being fetched.
@@ -50,12 +46,6 @@ function PageSuspense({ children }: { children: ReactNode }) {
 const landingPage = () =>
   import('@/routes/landing-page').then((module) => ({ Component: module.LandingPage }))
 
-const explorePage = () =>
-  import('@/routes/explore-page').then((module) => ({ Component: module.ExplorePage }))
-
-const quizDetailPage = () =>
-  import('@/routes/quiz-detail-page').then((module) => ({ Component: module.QuizDetailPage }))
-
 const leaderboardPage = () =>
   import('@/routes/leaderboard-page').then((module) => ({ Component: module.LeaderboardPage }))
 
@@ -67,9 +57,6 @@ const loginPage = () =>
 
 const registerPage = () =>
   import('@/routes/register-page').then((module) => ({ Component: module.RegisterPage }))
-
-const quizPlayPage = () =>
-  import('@/routes/quiz-play-page').then((module) => ({ Component: module.QuizPlayPage }))
 
 const endlessPage = () =>
   import('@/routes/endless-page').then((module) => ({ Component: module.EndlessPage }))
@@ -103,11 +90,6 @@ const manageQuizEditorPage = () =>
     Component: module.ManageQuizEditorPage,
   }))
 
-const manageQuizReportPage = () =>
-  import('@/routes/manage/quiz-report-page').then((module) => ({
-    Component: module.ManageQuizReportPage,
-  }))
-
 /**
  * Shown while the first lazy chunk resolves. React Router asks for this
  * explicitly on a cold load of a route table that uses `lazy`, so it is spread
@@ -123,8 +105,6 @@ export const router = createBrowserRouter([
     ...HYDRATE,
     children: [
       { index: true, lazy: landingPage },
-      { path: 'explore', lazy: explorePage },
-      { path: 'q/:slug', lazy: quizDetailPage },
       { path: 'leaderboard', lazy: leaderboardPage },
       { path: 'u/:username', lazy: profilePage },
       { path: 'no-ads', lazy: noAdsPage },
@@ -161,23 +141,9 @@ export const router = createBrowserRouter([
     ),
   },
 
-  // ── Play, outside the public chrome so nothing competes with the quiz ───
-  { path: '/q/:slug/play', lazy: quizPlayPage, ...HYDRATE },
-
-  // ── Endless — same idea, but no start gate: question one is the landing ──
+  // ── Endless, outside the public chrome so nothing competes with the question ──
   { path: '/endless', lazy: endlessPage, ...HYDRATE },
 
-  {
-    path: '/q/:slug/result/:attemptId',
-    ...HYDRATE,
-    element: (
-      <RequireAuth>
-        <PageSuspense>
-          <QuizResultPage />
-        </PageSuspense>
-      </RequireAuth>
-    ),
-  },
 
   // ── Admin console ───────────────────────────────────────────────────────
   {
@@ -194,7 +160,6 @@ export const router = createBrowserRouter([
       { path: 'quizzes', lazy: manageQuizListPage },
       { path: 'quizzes/new', lazy: manageQuizEditorPage },
       { path: 'quizzes/:quizId', lazy: manageQuizEditorPage },
-      { path: 'quizzes/:quizId/report', lazy: manageQuizReportPage },
     ],
   },
 

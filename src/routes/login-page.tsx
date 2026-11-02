@@ -11,8 +11,8 @@ import { errorMessage } from '@/lib/utils'
 
 /** Only same-origin relative paths are honoured, so `?redirect=` cannot be abused. */
 function safeRedirect(value: string | null): string {
-  if (!value) return '/explore'
-  if (!value.startsWith('/') || value.startsWith('//')) return '/explore'
+  if (!value) return '/endless'
+  if (!value.startsWith('/') || value.startsWith('//')) return '/endless'
   return value
 }
 
@@ -130,7 +130,7 @@ export function LoginPage() {
           <span className="bg-ink-600/60 h-px flex-1" />
         </div>
 
-        <ButtonLink to="/explore" variant="outline" size="lg" className="mt-5 w-full">
+        <ButtonLink to="/endless" variant="outline" size="lg" className="mt-5 w-full">
           Chơi thử không cần tài khoản
         </ButtonLink>
       </div>

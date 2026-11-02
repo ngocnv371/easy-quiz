@@ -3,13 +3,14 @@
 > Mở lên chơi ngay, dừng tùy thích.
 
 An instant-play quiz platform from **AiTechX**: open it and the first question is already on
-screen — no waiting screen, no account required — and you stop whenever you like. Answers are
-graded instantly, the next question leans on your strongest topics, and a running streak keeps
-the leaderboard meaningful; admins author quizzes — optionally with AI Assist, which turns a
-one-line brief into a ready-to-edit question set.
+screen — no waiting screen, no account required — and you stop whenever you like. There is one way
+to play, **Endless**: answers are graded instantly, the next question leans on your strongest
+topics, and a running streak and per-topic counts keep the leaderboards meaningful. Admins author
+the question banks as quizzes — optionally with AI Assist, which turns a one-line brief into a
+ready-to-edit question set — and every published public quiz feeds Endless.
 
-The landing page and the quiz player are animated with [Remotion](https://remotion.dev),
-rendered live in the browser via `@remotion/player`.
+The landing page and Endless are animated with [Remotion](https://remotion.dev), rendered live in
+the browser via `@remotion/player`.
 
 ---
 
@@ -73,10 +74,10 @@ Quizzes are not seeded. Use **Nhập câu hỏi** (the CSV bulk import) in the c
 import every CSV in `samples/` through the same API (the 35 sample banks are ~7,500 questions).
 
 So the leaderboards don't open empty, `npm run seed:leaderboard` adds 40 made-up players (`--players
-<n>` for more) with profiles, attempts on the published public quizzes and Endless runs, and bumps
-the quizzes' play counts to match. Their user ids start with `seed-` and they have no password, so
-nobody can sign in as one. Running it again replaces them, and `npm run seed:leaderboard -- --clean`
-removes them and their plays. Add `--remote` to either for the real database. Import quizzes first.
+<n>` for more) with profiles and Endless runs over the topics that have published public questions.
+Their user ids start with `seed-` and they have no password, so nobody can sign in as one. Running it
+again replaces them, and `npm run seed:leaderboard -- --clean` removes them and their plays. Add
+`--remote` to either for the real database. Import quizzes first.
 
 To look at the data: `npx wrangler d1 execute DB --local --command "select …"`.
 
@@ -90,7 +91,7 @@ src/
     manage/             the admin console
   features/
     auth/               session context (Better Auth client), guards, auth chrome
-    quiz/               catalogue, play engine, result cache
+    quiz/               Endless: session, answer inputs, topic picker, progress
     manage/             admin data access, AI Assist panel
     ai/                 AI Assist client
   components/
@@ -105,11 +106,11 @@ src/
 worker/                 the Cloudflare Worker: everything under /api/*
   index.ts              the routes (Hono)
   auth.ts               Better Auth (email + password, anonymous guests), guest upgrade
-  catalog.ts            topics, quiz cards, leaderboards, profiles
-  play.ts               play payload (no key), paid start, server-side grading
-  endless.ts            Endless batches, grading, streaks, leaderboard
+  catalog.ts            topics, profiles, the shared quiz card query
+  endless.ts            Endless batches, grading, streaks, the leaderboards, a player's record
+  grading.ts            what each question kind means and when an answer is right
   payments.ts           the ad-free pass: PayOS checkout, return check, webhook
-  manage.ts             admin quizzes, the editor's save, reports
+  manage.ts             admin quizzes and the editor's save
   admin.ts              site-wide stats for /manage/stats: players, usage, orders
   import.ts             CSV bulk import
   ai.ts                 AI Assist providers and credits
@@ -135,22 +136,25 @@ It holds for every question kind (`questions.kind`, graded in `worker/grading.ts
 | `true_false` | statements, `is_correct` = true | marks each Đúng/Sai | every mark matches |
 | `short_answer` | the accepted answers | types a word or a number | it matches one, ignoring case, accents (`ha noi` = `Hà Nội`) and spacing; numbers by value (`0,5` = `0.5` = `1/2`) |
 
-A short answer's options *are* its key, so the play payload sends none for that kind. Endless
-draws only `single` questions — it is one tap per question.
+A short answer's options *are* its key, so a batch sends none for that kind, and a true/false
+question's statements go without their truth.
 
 So the split is:
 
-| Route                                | Who calls it       | What it does                                                    |
-| ------------------------------------ | ------------------ | --------------------------------------------------------------- |
-| `GET /api/quizzes/:slug/play`        | anyone             | returns the quiz **with `is_correct` stripped out**              |
-| `POST /api/quizzes/:slug/submit`     | any signed-in user | grades **on the server**, stores the attempt, returns the review |
-| `POST /api/manage/quizzes`           | admins             | replaces a quiz's questions and options in one batch            |
+| Route                          | Who calls it       | What it does                                                         |
+| ------------------------------ | ------------------ | -------------------------------------------------------------------- |
+| `POST /api/endless/batch`      | anyone             | the next questions, **without their key**                             |
+| `POST /api/endless/grade`      | any signed-in user | grades one answer **on the server**, then reveals that question's key |
+| `POST /api/manage/quizzes`     | admins             | replaces a quiz's questions and options in one batch                 |
 
 D1 has no row-level security, so the Worker is the only door: every query lives in `worker/`,
-scoped to the caller, and the answer key only leaves through grading. `attempts` are written
-only by the submit route — which is what makes a posted score trustworthy. The per-question
-review (`attempt_answers`) names the correct option, so it is only returned to the player (at
-submit time) and to the quiz's owner (the report).
+scoped to the caller, and the answer key only leaves through grading — after the answer. The
+streak and per-topic counts are written only by the grading route, which is what makes the
+leaderboards trustworthy.
+
+There used to be a second way to play, quizzes taken exam-style one at a time. It was removed;
+its `attempts`, `attempt_answers` and `quiz_play_tickets` tables are no longer written, and stay as
+a record.
 
 ### Guest play
 
@@ -158,8 +162,8 @@ submit time) and to the quiz's owner (the report).
 row with a profile, so a guest's score can appear on the leaderboard straight away.
 
 "Lưu kết quả của bạn" then converts that account **in place** (`POST /api/me/upgrade`): the same
-user id gets an email, a password and a confirmation email, so the profile and every attempt,
-Endless run and ad-free pass already recorded survive. Signing up afresh instead would silently
+user id gets an email, a password and a confirmation email, so the profile and every Endless
+run, topic count and ad-free pass already recorded survive. Signing up afresh instead would silently
 start the player from zero. The upgrade also clears the profile's `is_guest` and deliberately
 leaves `role` alone, so a guest can never promote itself to admin.
 
@@ -168,13 +172,9 @@ way they redirect a real account — those two pages are exactly where a guest n
 says plainly that signing in would replace the guest session, and links to the upgrade instead.
 (The guest's rows are kept when they sign in elsewhere, so their leaderboard places stay.)
 
-Play is **exam-style** — no per-question feedback while answering, then a full review with
-explanations once the attempt is graded. That keeps the answer key secret *and* gives the result
-screen something worth celebrating.
-
 ### Endless mode
 
-`/endless` is the opposite of an exam: no start gate, no finish line. As soon as a player has an
+`/endless` is the only way to play: no start gate, no finish line. As soon as a player has an
 identity — an anonymous guest is fine — the first question is on screen, and every answer brings
 the next. "Dừng" ends the session with a summary at any point.
 
@@ -190,13 +190,22 @@ the next. "Dừng" ends the session with a summary at any point.
   from a selector in the top bar, and the choice lives in the URL so it survives a refresh and can
   be shared. The slug resolves against the live topic list, so a stale link falls back to all
   subjects. The batch route takes a `topic_id`; none keeps the whole catalogue in play.
+- **Every question kind** plays: a single-choice question is one tap (or a number key); a
+  true/false question has a Đúng/Sai switch per statement and a "Kiểm tra" button; a short-answer
+  question has a text box (Enter checks). The round and stop summaries review each kind the way
+  its key reads.
 - Each answer is graded on its own (`POST /api/endless/grade`), which reveals the key for that one
   question and folds the result into `endless_progress` — one row per player and topic. The answer
   key still never reaches the browser.
-- Endless has its **own leaderboard** — the "Vô tận" tab on `/leaderboard` — ranked by the best
-  correct-answer streak in a single run (`GET /api/leaderboard/endless`). A run is opened with
-  `POST /api/endless/sessions`, and every graded answer advances its streak inside the grading
-  route, so the score is server-earned rather than client-claimed.
+- **Two leaderboards** on `/leaderboard`, both server-earned: "Chuỗi vô tận" ranks the best
+  correct-answer streak in a single run (`GET /api/leaderboard/endless`), and "Theo chủ đề" ranks
+  correct answers in one topic, or across every topic (`GET /api/leaderboard/topics?topic=`). A run
+  is opened with `POST /api/endless/sessions`, and every graded answer advances its streak inside
+  the grading route.
+- **`/progress`** and public profiles read a player's record (`GET /api/me/endless`,
+  `GET /api/profiles/:username/endless`): totals, best streak, and every topic with its counts.
+  `/progress` suggests the weakest topics (at least 5 answers, under 45%) to practise, each one tap
+  from Endless on that topic.
 - The next batch is **weighted** toward a player's stronger topics, while the weakest topic is
   guaranteed a slot in every batch, so the stream leans into strengths without abandoning the
   areas still being learned. The weighting lives in the Worker (`worker/endless.ts`), not the client.
@@ -304,8 +313,6 @@ Playing is **free and unlimited**. What pays for it is an **ad break after every
 session**, and a **one-time purchase that removes it for good**.
 
 - **Where the break shows** (`src/features/ads/ad-break.tsx`):
-  - **A quiz:** submitting navigates to the result page with `state.adBreak`; the break comes
-    first, and continuing clears the flag, so a reload or a shared result link skips it.
   - **Endless:** after every second finished round (`ADS_EVERY_ROUNDS` in `endless-page.tsx`),
     and when the run stops with anything answered since the last break.
   - Never while a question is on screen.
@@ -340,14 +347,14 @@ every order is treated as paid on return. In the PayOS dashboard, set the webhoo
 
 ### Remotion
 
-Four compositions in `src/remotion/`, each played in-page through `@remotion/player`:
+Four compositions in `src/remotion/`; two are played in-page through `@remotion/player`:
 
 | Composition            | Where                      | Length        |
 | ---------------------- | -------------------------- | ------------- |
 | `EasyQuizLandingHero`  | landing page hero          | 12 s, loops   |
-| `EasyQuizCountdown`    | the 3-2-1 before a quiz    | 3 s + sting   |
-| `EasyQuizResultReveal` | result page                | 7 s           |
 | `EasyQuizQuestionReveal` | the "CÂU N" beat before each Endless question | 22 frames |
+| `EasyQuizCountdown`    | not shown (was the 3-2-1 before a quiz) | 3 s + sting |
+| `EasyQuizResultReveal` | not shown (was the quiz result page) | 7 s |
 
 They obey Remotion's rules, which are stricter than they look: **every** animated value derives
 from `useCurrentFrame()`, with no CSS transitions and no Tailwind animation classes, because
@@ -431,7 +438,7 @@ The app is a client-rendered SPA, so the document head is assembled in two layer
   what a crawler that does not execute JavaScript sees.
 - **`src/lib/seo.ts`** (`usePageMeta`) rewrites those tags on every navigation: per-page title and
   description, a canonical URL, and `noindex` on the surfaces that should stay out of the index
-  (account, admin console, a result sheet, 404). A quiz page also emits `Quiz` structured data.
+  (account, admin console, progress, 404).
 
 Every URL derives from `VITE_SITE_URL`; `src/lib/site.ts` holds the host and `absoluteUrl()` builds
 full URLs. `.env.production` points it at `https://easyquiz.aitechx.vn`, and `site.ts` falls back to
@@ -441,8 +448,8 @@ Three files are served straight from `public/`:
 
 | File           | Purpose                                                                     |
 | -------------- | --------------------------------------------------------------------------- |
-| `robots.txt`   | Opens the public site; disallows `/manage`, `/account`, play and result URLs |
-| `sitemap.xml`  | Static routes — regenerate with `npm run sitemap:gen` to add the quizzes      |
+| `robots.txt`   | Opens the public site, Endless included; disallows `/manage` and `/account`  |
+| `sitemap.xml`  | The pages plus Endless on each topic — regenerate with `npm run sitemap:gen` |
 | `og-image.png` | 1200×630 share card. Edit `scripts/og-image.html`, then `npm run og:image`    |
 
 The Worker's assets fall back to `index.html` for client-side routing
@@ -495,19 +502,18 @@ paid license**. That is what the console notice refers to; see <https://remotion
 
 Called out honestly rather than hidden:
 
-- **Editing a quiz deletes and re-inserts its questions**, so per-question review detail for
-  *past* attempts no longer resolves. Aggregate scores in `attempts` are preserved.
+- **Editing a quiz deletes and re-inserts its questions.** Endless only keeps counts per topic, so
+  nothing a player has earned is lost, but a question id seen in a run before the edit is new again.
 - **No password reset yet.** Better Auth supports it; the page has no "forgot password" flow.
 - **Sign-up creates an ordinary user.** Admin is not self-serve; promote an account with
   `npm run admin:promote`. Put the console behind real approval before opening it
   up publicly.
 - **Ad blockers skip the ad, not the break.** A blocked AdSense script falls back to the house
   ad, so the pause stays but no revenue comes from it.
-- **Submitting an attempt has no rate limit** (only Better Auth's own routes are rate-limited). A determined player could flood the leaderboard.
+- **Grading an Endless answer has no rate limit** (only Better Auth's own routes are rate-limited). A determined player could script answers to climb the topic boards.
 - **No image upload.** `questions.image_url` exists and renders, but nothing writes to it yet.
-- **The result review lives in `sessionStorage`.** Opening a result link in a fresh tab shows the
-  summary without the per-question review — the correct trade-off, since the review names the
-  answer key.
+- **The answer review lives only in the open page.** The round and stop summaries review the
+  answers kept in memory; the server keeps counts, not individual answers, so a reload loses it.
 - **Upgrading a guest keeps its auto-generated username** (e.g. `player_1a2b3`). The display name
   is what every screen and the leaderboard actually show, so this is cosmetic — but deriving a
   username from the new email would be a small, worthwhile follow-up.

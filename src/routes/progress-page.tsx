@@ -1,50 +1,27 @@
 import { useMemo } from 'react'
-import { Link } from 'react-router-dom'
-import {
-  LineChart,
-  Minus,
-  RotateCcw,
-  Sparkles,
-  Target,
-  TrendingDown,
-  TrendingUp,
-  Trophy,
-} from 'lucide-react'
+import { Infinity as InfinityIcon, LineChart, Sparkles, Target, Trophy } from 'lucide-react'
 
 import { AuroraBackground } from '@/components/brand/aurora-background'
-import { Badge, type BadgeTone } from '@/components/ui/badge'
+import { Badge } from '@/components/ui/badge'
 import { ButtonLink } from '@/components/ui/button'
 import { Card, Stat } from '@/components/ui/card'
 import { Alert, EmptyState, Skeleton } from '@/components/ui/feedback'
-import { Reveal } from '@/components/ui/reveal'
 import { useAuth } from '@/features/auth/auth-context'
-import { fetchMyAttempts } from '@/features/quiz/api'
-import {
-  buildProgressReport,
-  MASTERY_LABELS,
-  MASTERED_ACCURACY,
-  NEEDS_PRACTICE_ACCURACY,
-  type MasteryLevel,
-  type QuizProgress,
-} from '@/features/quiz/progress'
+import { fetchMyEndlessStats } from '@/features/quiz/endless-api'
+import { MIN_ANSWERED, STEADY_ACCURACY, areaStrength, sortByStrength } from '@/features/quiz/endless-progress'
+import { TopicProgressList } from '@/features/quiz/topic-progress-list'
 import { formatCompact, formatPercent, formatRelative } from '@/lib/format'
+import type { EndlessTopicProgress } from '@/lib/domain'
 import { usePageMeta } from '@/lib/seo'
 import { useAsyncData } from '@/lib/use-async-data'
-import { cn } from '@/lib/utils'
 
-const MASTERY_TONES: Record<MasteryLevel, BadgeTone> = {
-  mastered: 'correct',
-  developing: 'neon',
-  'needs-practice': 'wrong',
-}
+/** How many topics "Nên luyện thêm" suggests. */
+const SUGGESTIONS = 3
 
 /**
- * The player's own progress screen: how they are doing overall, which topics
- * are strong or shaky, and — the point of the page — the handful of quizzes
- * most worth retrying, each with a reason.
- *
- * Everything is pivoted from the attempts the leaderboard already exposes, so
- * there is no new query and no migration to keep in step.
+ * The player's own progress, all from Endless: how much they have answered and
+ * how well, the few topics most worth practising (each one tap from Endless on
+ * that topic), and every topic they have touched.
  */
 export function ProgressPage() {
   const { user, isGuest, displayName } = useAuth()
@@ -52,26 +29,29 @@ export function ProgressPage() {
   // Personal and signed-in only — keep it out of the index.
   usePageMeta({
     title: 'Tiến độ học tập',
-    description:
-      'Điểm số, độ chính xác theo đề và chủ đề, cùng gợi ý những đề thi bạn nên luyện lại.',
+    description: 'Số câu đã làm, độ chính xác theo từng chủ đề và gợi ý chủ đề nên luyện thêm.',
     path: '/progress',
     noIndex: true,
   })
 
-  const attempts = useAsyncData(
-    `progress:attempts:${user?.id ?? 'none'}`,
-    () => fetchMyAttempts(user!.id, 100),
-    Boolean(user?.id),
-  )
+  const stats = useAsyncData(`progress:endless:${user?.id ?? 'none'}`, fetchMyEndlessStats, Boolean(user?.id))
+  const topics = useMemo(() => sortByStrength(stats.data?.topics ?? []), [stats.data])
 
-  const report = useMemo(() => buildProgressReport(attempts.data ?? []), [attempts.data])
+  // Weakest first, among topics with enough answers to judge and below "improving".
+  const suggestions = useMemo(
+    () =>
+      topics
+        .filter((topic) => topic.answered >= MIN_ANSWERED && topic.accuracy < STEADY_ACCURACY)
+        .sort((a, b) => a.accuracy - b.accuracy || b.answered - a.answered)
+        .slice(0, SUGGESTIONS),
+    [topics],
+  )
 
   return (
     <div className="relative">
       <AuroraBackground />
 
       <div className="container-page relative py-14">
-        {/* ── Header ───────────────────────────────────────────────── */}
         <div className="max-w-2xl">
           <Badge tone="neon" icon={LineChart}>
             Tiến độ học tập
@@ -83,33 +63,29 @@ export function ProgressPage() {
           </h1>
 
           <p className="text-ink-300 mt-3 text-base leading-relaxed">
-            Mọi lượt chơi đều được tổng hợp theo đề và theo chủ đề. Nơi nào còn yếu, Easy Quiz
-            gợi ý đúng đề bạn nên thử lại.
+            Mọi câu trả lời ở chế độ vô tận đều được tổng hợp theo chủ đề. Chủ đề nào còn yếu,
+            Easy Quiz gợi ý để bạn luyện thêm.
           </p>
         </div>
 
         <div className="mt-10">
-          {attempts.loading ? (
+          {stats.loading ? (
             <ProgressSkeleton />
-          ) : attempts.error ? (
+          ) : stats.error ? (
+            <EmptyState icon={LineChart} title="Không tải được tiến độ" description={stats.error} />
+          ) : !stats.data || stats.data.answered === 0 ? (
             <EmptyState
-              icon={LineChart}
-              title="Không tải được tiến độ"
-              description={attempts.error}
-            />
-          ) : report.totalAttempts === 0 ? (
-            <EmptyState
-              icon={Trophy}
-              title="Chưa có lượt chơi nào"
-              description="Hoàn thành một đề thi đầu tiên và trang này sẽ bắt đầu theo dõi điểm số, độ chính xác và gợi ý ôn tập cho bạn."
-              action={<ButtonLink to="/explore">Khám phá đề thi</ButtonLink>}
+              icon={InfinityIcon}
+              title="Chưa có câu trả lời nào"
+              description="Luyện vài câu ở chế độ vô tận và trang này sẽ bắt đầu theo dõi độ chính xác của bạn theo từng chủ đề."
+              action={<ButtonLink to="/endless">Bắt đầu luyện tập</ButtonLink>}
             />
           ) : (
-            <div className="space-y-8">
+            <div className="space-y-8" data-cy="progress">
               {isGuest ? (
                 <Alert tone="warning" icon={Sparkles} title="Bạn đang chơi với tư cách khách">
-                  Tiến độ được giữ trên thiết bị này. Tạo tài khoản chính thức để đăng nhập lại
-                  ở nơi khác mà không mất thành tích.
+                  Tiến độ được giữ trên thiết bị này. Tạo tài khoản chính thức để đăng nhập lại ở
+                  nơi khác mà không mất thành tích.
                   <div className="mt-3">
                     <ButtonLink to="/register" size="sm" variant="spark">
                       Tạo tài khoản
@@ -118,39 +94,51 @@ export function ProgressPage() {
                 </Alert>
               ) : null}
 
-              <OverviewCard
-                totalScore={report.totalScore}
-                averageAccuracy={report.averageAccuracy}
-                bestAccuracy={report.bestAccuracy}
-                totalAttempts={report.totalAttempts}
-                quizzesPlayed={report.quizzesPlayed}
-                masteredCount={report.masteredCount}
-                needsPracticeCount={report.needsPracticeCount}
-                lastPlayedAt={report.lastPlayedAt}
-              />
+              <Card className="p-6 sm:p-7">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <h2 className="text-ink-50 text-sm font-semibold">Tổng quan</h2>
+                  {stats.data.last_played_at ? (
+                    <span className="text-ink-400 text-xs">Lần luyện gần nhất {formatRelative(stats.data.last_played_at)}</span>
+                  ) : null}
+                </div>
+                <dl className="mt-6 grid grid-cols-2 gap-6 sm:grid-cols-4">
+                  <Stat label="Câu đã làm" value={formatCompact(stats.data.answered)} hint={`${formatCompact(stats.data.correct)} câu đúng`} />
+                  <Stat label="Chính xác" value={formatPercent(stats.data.accuracy)} />
+                  <Stat label="Chuỗi dài nhất" value={stats.data.best_streak} hint="trong một lượt chơi" />
+                  <Stat label="Lượt chơi" value={formatCompact(stats.data.runs)} hint={`${topics.length} chủ đề`} />
+                </dl>
+              </Card>
 
-              {report.suggestions.length > 0 ? (
-                <SuggestionSection
-                  suggestions={report.suggestions}
-                />
+              {suggestions.length > 0 ? (
+                <section aria-labelledby="suggest-heading">
+                  <h2 id="suggest-heading" className="font-display text-ink-50 text-lg font-semibold tracking-tight">
+                    Nên luyện thêm
+                  </h2>
+                  <p className="text-ink-400 mt-1 text-sm">
+                    Những chủ đề bạn đúng chưa tới {formatPercent(STEADY_ACCURACY)} — luyện riêng từng chủ đề là cách lên tay nhanh nhất.
+                  </p>
+                  <Card className="mt-4 p-5 sm:p-6">
+                    <TopicProgressList areas={suggestions} action={(topic) => <PracticeLink topic={topic} />} />
+                  </Card>
+                </section>
               ) : (
                 <Alert tone="success" icon={Trophy} title="Bạn đang làm rất tốt">
-                  Mọi đề bạn từng chơi đều đã đạt mức thành thạo (từ{' '}
-                  {formatPercent(MASTERED_ACCURACY)} trở lên). Thử sức với một đề mới để mở
-                  rộng kiến thức nhé.
-                  <div className="mt-3">
-                    <ButtonLink to="/explore" size="sm" variant="spark">
-                      Tìm đề mới
-                    </ButtonLink>
-                  </div>
+                  Chưa có chủ đề nào dưới {formatPercent(STEADY_ACCURACY)} trong số những chủ đề đã làm từ{' '}
+                  {MIN_ANSWERED} câu trở lên. Tiếp tục luyện để mở rộng thêm chủ đề mới nhé.
                 </Alert>
               )}
 
-              <QuizBreakdown quizzes={report.quizzes} />
-
-              {report.topics.length > 0 ? (
-                <TopicSection topics={report.topics} />
-              ) : null}
+              <section aria-labelledby="topics-heading">
+                <h2 id="topics-heading" className="font-display text-ink-50 text-lg font-semibold tracking-tight">
+                  Theo chủ đề
+                </h2>
+                <p className="text-ink-400 mt-1 text-sm">
+                  Số câu đúng trên số câu đã trả lời, tính từ trước đến nay. Cần ít nhất {MIN_ANSWERED} câu để xếp loại.
+                </p>
+                <Card className="mt-4 p-5 sm:p-6">
+                  <TopicProgressList areas={topics} action={(topic) => <PracticeLink topic={topic} />} />
+                </Card>
+              </section>
             </div>
           )}
         </div>
@@ -159,342 +147,39 @@ export function ProgressPage() {
   )
 }
 
-// ── Overview ───────────────────────────────────────────────────────────────
-function OverviewCard({
-  totalScore,
-  averageAccuracy,
-  bestAccuracy,
-  totalAttempts,
-  quizzesPlayed,
-  masteredCount,
-  needsPracticeCount,
-  lastPlayedAt,
-}: {
-  totalScore: number
-  averageAccuracy: number
-  bestAccuracy: number
-  totalAttempts: number
-  quizzesPlayed: number
-  masteredCount: number
-  needsPracticeCount: number
-  lastPlayedAt: string | null
-}) {
+/** Endless, scoped to one topic. */
+function PracticeLink({ topic }: { topic: EndlessTopicProgress }) {
+  const weak = areaStrength(topic.accuracy, topic.answered) === 'new' && topic.answered >= MIN_ANSWERED
   return (
-    <Card className="p-6 sm:p-7">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-ink-50 text-sm font-semibold">Tổng quan</h2>
-        {lastPlayedAt ? (
-          <p className="text-ink-400 text-xs">Lượt chơi gần nhất {formatRelative(lastPlayedAt)}</p>
-        ) : null}
-      </div>
-
-      <dl className="mt-6 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
-        <Stat
-          label="Tổng điểm"
-          value={formatCompact(totalScore)}
-          hint={`${totalAttempts} lượt chơi`}
-        />
-        <Stat
-          label="Độ chính xác TB"
-          value={formatPercent(averageAccuracy)}
-          hint={`cao nhất ${formatPercent(bestAccuracy)}`}
-        />
-        <Stat
-          label="Đề đã làm"
-          value={quizzesPlayed}
-          hint={`${masteredCount} đã thành thạo`}
-        />
-        <Stat
-          label="Cần luyện thêm"
-          value={needsPracticeCount}
-          hint={
-            needsPracticeCount === 0
-              ? 'không có đề nào dưới 50%'
-              : `dưới ${formatPercent(NEEDS_PRACTICE_ACCURACY)}`
-          }
-        />
-      </dl>
-    </Card>
-  )
-}
-
-// ── Retry suggestions ──────────────────────────────────────────────────────
-function SuggestionSection({
-  suggestions,
-}: {
-  suggestions: ReturnType<typeof buildProgressReport>['suggestions']
-}) {
-  return (
-    <section aria-labelledby="retry-heading">
-      <div className="flex items-center gap-2">
-        <RotateCcw className="text-spark-300 size-4" aria-hidden />
-        <h2 id="retry-heading" className="font-display text-ink-50 text-lg font-semibold tracking-tight">
-          Nên luyện lại
-        </h2>
-      </div>
-      <p className="text-ink-400 mt-1.5 text-sm">
-        Dựa trên độ chính xác, đà tiến bộ và thời gian lâu chưa luyện.
-      </p>
-
-      <div className="mt-5 grid gap-4 md:grid-cols-2">
-        {suggestions.map((suggestion, index) => (
-          <Reveal key={suggestion.quiz.quizId} delay={index * 0.06}>
-            <Card className="flex h-full flex-col p-5">
-              <div className="flex items-start gap-3">
-                <span
-                  className="border-ink-600 bg-ink-800/70 flex size-11 shrink-0 items-center justify-center rounded-xl border text-xl"
-                  aria-hidden
-                >
-                  {suggestion.quiz.coverEmoji}
-                </span>
-
-                <div className="min-w-0 flex-1">
-                  <Link
-                    to={`/q/${suggestion.quiz.slug}`}
-                    className="text-ink-50 hover:text-neon-300 block truncate text-sm font-semibold transition-colors"
-                  >
-                    {suggestion.quiz.title}
-                  </Link>
-                  <p className="text-ink-400 mt-0.5 text-xs">
-                    {suggestion.quiz.topicName ?? 'Không có chủ đề'} ·{' '}
-                    {suggestion.quiz.attemptCount} lượt
-                  </p>
-                </div>
-
-                <Badge tone={MASTERY_TONES[suggestion.quiz.mastery]}>
-                  {MASTERY_LABELS[suggestion.quiz.mastery]}
-                </Badge>
-              </div>
-
-              <p className="text-ink-300 mt-4 text-sm leading-relaxed">{suggestion.reason}</p>
-
-              <div className="mt-4 flex items-center gap-4">
-                <div className="flex-1">
-                  <AccuracyBar value={suggestion.quiz.bestAccuracy} />
-                  <p className="text-ink-400 mt-1.5 text-xs">
-                    Cao nhất {formatPercent(suggestion.quiz.bestAccuracy)} · Gần nhất{' '}
-                    {formatPercent(suggestion.quiz.latestAccuracy)}
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-auto pt-5">
-                <ButtonLink to={`/q/${suggestion.quiz.slug}/play`} size="sm" variant="spark">
-                  <RotateCcw className="size-4" aria-hidden />
-                  Luyện lại ngay
-                </ButtonLink>
-              </div>
-            </Card>
-          </Reveal>
-        ))}
-      </div>
-    </section>
-  )
-}
-
-// ── Per-quiz breakdown ─────────────────────────────────────────────────────
-function QuizBreakdown({ quizzes }: { quizzes: QuizProgress[] }) {
-  return (
-    <section aria-labelledby="breakdown-heading">
-      <div className="flex items-center gap-2">
-        <Target className="text-neon-300 size-4" aria-hidden />
-        <h2
-          id="breakdown-heading"
-          className="font-display text-ink-50 text-lg font-semibold tracking-tight"
-        >
-          Theo đề thi
-        </h2>
-      </div>
-      <p className="text-ink-400 mt-1.5 text-sm">Yếu nhất ở trên cùng.</p>
-
-      <Card className="mt-5 overflow-hidden">
-        <ul className="divide-ink-600/60 divide-y">
-          {quizzes.map((quiz) => (
-            <li key={quiz.quizId} className="flex flex-wrap items-center gap-4 px-5 py-4">
-              <span className="text-xl" aria-hidden>
-                {quiz.coverEmoji}
-              </span>
-
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Link
-                    to={`/q/${quiz.slug}`}
-                    className="text-ink-100 hover:text-neon-300 truncate text-sm font-medium transition-colors"
-                  >
-                    {quiz.title}
-                  </Link>
-                  <Badge tone={MASTERY_TONES[quiz.mastery]}>
-                    {MASTERY_LABELS[quiz.mastery]}
-                  </Badge>
-                </div>
-                <p className="text-ink-400 mt-0.5 text-xs">
-                  {quiz.attemptCount} lượt · gần nhất {formatRelative(quiz.latestAt)}
-                </p>
-              </div>
-
-              <div className="w-36 shrink-0">
-                <AccuracyBar value={quiz.bestAccuracy} />
-              </div>
-
-              <div className="w-28 shrink-0 text-right">
-                <p className="text-ink-50 text-sm font-semibold tabular-nums">
-                  {formatPercent(quiz.bestAccuracy)}
-                </p>
-                <TrendChip trend={quiz.trend} />
-              </div>
-
-              <ButtonLink
-                to={`/q/${quiz.slug}/play`}
-                size="sm"
-                variant="ghost"
-                className="shrink-0"
-                aria-label={`Luyện lại ${quiz.title}`}
-              >
-                <RotateCcw className="size-4" aria-hidden />
-              </ButtonLink>
-            </li>
-          ))}
-        </ul>
-      </Card>
-    </section>
-  )
-}
-
-// ── Topic performance ──────────────────────────────────────────────────────
-function TopicSection({
-  topics,
-}: {
-  topics: ReturnType<typeof buildProgressReport>['topics']
-}) {
-  const strongest = topics[0]
-  const weakest = topics.length > 1 ? topics[topics.length - 1] : null
-
-  return (
-    <section aria-labelledby="topics-heading">
-      <div className="flex items-center gap-2">
-        <Trophy className="text-violet-glow-300 size-4" aria-hidden />
-        <h2
-          id="topics-heading"
-          className="font-display text-ink-50 text-lg font-semibold tracking-tight"
-        >
-          Theo chủ đề
-        </h2>
-      </div>
-      <p className="text-ink-400 mt-1.5 text-sm">
-        Độ chính xác trung bình của bạn trên từng chủ đề.
-      </p>
-
-      <div className="mt-5 grid gap-4 sm:grid-cols-2">
-        {strongest ? (
-          <Card className="border-correct-400/30 p-5">
-            <p className="text-correct-300 inline-flex items-center gap-2 text-sm font-semibold">
-              <TrendingUp className="size-4" aria-hidden />
-              Mạnh nhất
-            </p>
-            <p className="font-display text-ink-50 mt-2 text-lg font-semibold">
-              {strongest.name}
-            </p>
-            <p className="text-ink-300 mt-1 text-sm">
-              {formatPercent(strongest.averageAccuracy)} chính xác · {strongest.quizCount} đề
-            </p>
-          </Card>
-        ) : null}
-
-        {weakest ? (
-          <Card className="border-wrong-400/30 p-5">
-            <p className="text-wrong-300 inline-flex items-center gap-2 text-sm font-semibold">
-              <TrendingDown className="size-4" aria-hidden />
-              Cần chú ý
-            </p>
-            <p className="font-display text-ink-50 mt-2 text-lg font-semibold">
-              {weakest.name}
-            </p>
-            <p className="text-ink-300 mt-1 text-sm">
-              {formatPercent(weakest.averageAccuracy)} chính xác · {weakest.quizCount} đề
-            </p>
-            <ButtonLink to="/explore" size="sm" variant="ghost" className="mt-3 px-0">
-              Luyện thêm chủ đề này
-            </ButtonLink>
-          </Card>
-        ) : null}
-      </div>
-    </section>
-  )
-}
-
-// ── Bits ───────────────────────────────────────────────────────────────────
-function AccuracyBar({ value }: { value: number }) {
-  const tone =
-    value >= MASTERED_ACCURACY
-      ? 'bg-correct-400'
-      : value >= NEEDS_PRACTICE_ACCURACY
-        ? 'bg-neon-400'
-        : 'bg-wrong-400'
-
-  return (
-    <div
-      className="bg-ink-800 h-1.5 w-full overflow-hidden rounded-full"
-      role="img"
-      aria-label={`Độ chính xác ${formatPercent(value)}`}
+    <ButtonLink
+      to={`/endless?topic=${encodeURIComponent(topic.slug)}`}
+      size="sm"
+      variant={weak ? 'primary' : 'outline'}
+      aria-label={`Luyện chủ đề ${topic.name}`}
+      className="px-3"
     >
-      <div
-        className={cn('h-full rounded-full', tone)}
-        style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
-      />
-    </div>
-  )
-}
-
-function TrendChip({ trend }: { trend: number }) {
-  if (trend > 2) {
-    return (
-      <span className="text-correct-300 mt-0.5 inline-flex items-center gap-1 text-xs">
-        <TrendingUp className="size-3" aria-hidden />+{formatPercent(trend)}
-      </span>
-    )
-  }
-
-  if (trend < -2) {
-    return (
-      <span className="text-wrong-300 mt-0.5 inline-flex items-center gap-1 text-xs">
-        <TrendingDown className="size-3" aria-hidden />
-        {formatPercent(trend)}
-      </span>
-    )
-  }
-
-  return (
-    <span className="text-ink-400 mt-0.5 inline-flex items-center gap-1 text-xs">
-      <Minus className="size-3" aria-hidden />
-      Ổn định
-    </span>
+      <Target className="size-4" aria-hidden />
+      <span className="hidden sm:inline">Luyện</span>
+    </ButtonLink>
   )
 }
 
 function ProgressSkeleton() {
   return (
-    <div className="space-y-8">
-      <Card className="p-6 sm:p-7">
+    <div className="space-y-6">
+      <Card className="p-6">
         <Skeleton className="h-4 w-24" />
         <div className="mt-6 grid grid-cols-2 gap-6 sm:grid-cols-4">
           {Array.from({ length: 4 }, (_, index) => (
-            <div key={index} className="space-y-2">
-              <Skeleton className="h-3 w-20" />
-              <Skeleton className="h-7 w-16" />
-            </div>
+            <Skeleton key={index} className="h-12 w-full" />
           ))}
         </div>
       </Card>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        {Array.from({ length: 2 }, (_, index) => (
-          <Card key={index} className="p-5">
-            <Skeleton className="h-11 w-11 rounded-xl" />
-            <Skeleton className="mt-4 h-4 w-3/4" />
-            <Skeleton className="mt-2 h-3 w-full" />
-          </Card>
+      <Card className="space-y-4 p-6">
+        {Array.from({ length: 5 }, (_, index) => (
+          <Skeleton key={index} className="h-10 w-full" />
         ))}
-      </div>
+      </Card>
     </div>
   )
 }

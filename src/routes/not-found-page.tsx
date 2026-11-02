@@ -1,5 +1,4 @@
-import { Link } from 'react-router-dom'
-import { Compass, Home, Trophy } from 'lucide-react'
+import { Home, Infinity as InfinityIcon, Trophy } from 'lucide-react'
 
 import { AuroraBackground } from '@/components/brand/aurora-background'
 import { ButtonLink } from '@/components/ui/button'
@@ -20,8 +19,8 @@ export function NotFoundPage() {
         </h1>
 
         <p className="text-ink-300 mt-3 text-sm leading-relaxed">
-          Có thể đường dẫn đã đổi, hoặc đề thi bạn đang tìm chưa được xuất bản. Thử lại từ thư
-          viện đề thi nhé.
+          Có thể đường dẫn đã đổi hoặc trang này không còn nữa. Quay lại trang chủ, hoặc vào luyện
+          tập ngay nhé.
         </p>
 
         <div className="mt-8 flex flex-wrap justify-center gap-3">
@@ -29,9 +28,9 @@ export function NotFoundPage() {
             <Home className="size-4" aria-hidden />
             Về trang chủ
           </ButtonLink>
-          <ButtonLink to="/explore" variant="secondary" size="lg">
-            <Compass className="size-4" aria-hidden />
-            Khám phá đề thi
+          <ButtonLink to="/endless" variant="secondary" size="lg">
+            <InfinityIcon className="size-4" aria-hidden />
+            Luyện tập ngay
           </ButtonLink>
           <ButtonLink to="/leaderboard" variant="outline" size="lg">
             <Trophy className="size-4" aria-hidden />
@@ -40,11 +39,8 @@ export function NotFoundPage() {
         </div>
 
         <p className="text-ink-500 mt-8 text-xs">
-          Bạn đang cần liên kết cũ?{' '}
-          <Link to="/explore" className="text-neon-300 hover:underline">
-            Tìm lại trong thư viện
-          </Link>
-          .
+          Bạn đang mở một liên kết đề thi cũ? Easy Quiz giờ chỉ còn chế độ vô tận — mọi câu hỏi
+          đều có ở đó.
         </p>
       </div>
     </div>

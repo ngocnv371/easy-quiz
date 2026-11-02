@@ -38,7 +38,7 @@ export function RegisterPage() {
   // A guest is signed in, but they belong on this page: it is where their
   // scores stop being disposable. Only a real account gets redirected away.
   if (status === 'ready' && user && !isGuest && !needsConfirmation) {
-    return <Navigate to="/explore" replace />
+    return <Navigate to="/endless" replace />
   }
 
   const handleSubmit = async (event: FormEvent) => {
@@ -72,7 +72,7 @@ export function RegisterPage() {
       if (needsEmailConfirmation) {
         setNeedsConfirmation(true)
       } else {
-        navigate('/explore', { replace: true })
+        navigate('/endless', { replace: true })
       }
     } catch (signUpError) {
       setError(errorMessage(signUpError))

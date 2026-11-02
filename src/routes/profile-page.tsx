@@ -1,13 +1,15 @@
 import { Link, useParams } from 'react-router-dom'
-import { Trophy, UserX } from 'lucide-react'
+import { Infinity as InfinityIcon, Trophy, UserX } from 'lucide-react'
 
 import { AuroraBackground } from '@/components/brand/aurora-background'
 import { Badge } from '@/components/ui/badge'
 import { ButtonLink } from '@/components/ui/button'
 import { Card, Stat } from '@/components/ui/card'
 import { EmptyState, Skeleton } from '@/components/ui/feedback'
-import { fetchGlobalLeaderboard, fetchMyAttempts } from '@/features/quiz/api'
-import { formatCompact, formatPercent, formatRelative, medalFor } from '@/lib/format'
+import { fetchEndlessStatsOf } from '@/features/quiz/endless-api'
+import { sortByStrength } from '@/features/quiz/endless-progress'
+import { TopicProgressList } from '@/features/quiz/topic-progress-list'
+import { formatCompact, formatPercent, formatRelative } from '@/lib/format'
 import { ROLE_LABELS } from '@/lib/labels'
 import { asRole, type ProfileRow } from '@/lib/domain'
 import { usePageMeta } from '@/lib/seo'
@@ -18,7 +20,10 @@ async function fetchProfileByUsername(username: string): Promise<ProfileRow | nu
   return apiOrNull<ProfileRow>(`profiles/${encodeURIComponent(username)}`)
 }
 
-/** Public profile at `/u/:username`. */
+/** Topics a profile lists, strongest first. */
+const TOP_TOPICS = 5
+
+/** Public profile at `/u/:username`: who they are, and their Endless record. */
 export function ProfilePage() {
   const { username = '' } = useParams()
 
@@ -28,30 +33,19 @@ export function ProfilePage() {
     username !== '',
   )
 
-  const attempts = useAsyncData(
-    `profile-attempts:${profile.data?.id ?? 'none'}`,
-    () => fetchMyAttempts(profile.data!.id, 12),
+  // Their Endless record: the same counts the boards show.
+  const endless = useAsyncData(
+    `profile-endless:${username}`,
+    () => fetchEndlessStatsOf(username),
     Boolean(profile.data?.id),
   )
-
-  const board = useAsyncData(
-    'profile-board',
-    () => fetchGlobalLeaderboard(100),
-    Boolean(profile.data?.id),
-  )
-
-  const rank = (() => {
-    const index = (board.data ?? []).findIndex((entry) => entry.user_id === profile.data?.id)
-    return index >= 0
-      ? { position: index + 1, total: board.data?.length ?? 0, row: (board.data ?? [])[index]! }
-      : null
-  })()
+  const record = endless.data && endless.data.answered > 0 ? endless.data : null
 
   usePageMeta({
     title: profile.data?.display_name ?? 'Hồ sơ người học',
     description: profile.data
       ? (profile.data.bio ??
-        `Hồ sơ học tập của ${profile.data.display_name} trên Easy Quiz — điểm số, chuỗi ngày học và thứ hạng.`)
+        `Hồ sơ học tập của ${profile.data.display_name} trên Easy Quiz — chuỗi trả lời đúng và những chủ đề thế mạnh.`)
       : undefined,
     path: `/u/${username}`,
     // A username that does not resolve should not be indexed.
@@ -126,55 +120,26 @@ export function ProfilePage() {
               </div>
             </div>
 
-            {rank ? (
+            {record ? (
               <dl className="border-ink-600/60 mt-7 grid grid-cols-2 gap-6 border-t pt-6 sm:grid-cols-4">
+                <Stat label="Chuỗi dài nhất" value={record.best_streak} hint="trong một lượt chơi" />
+                <Stat label="Câu đúng" value={formatCompact(record.correct)} hint={`trên ${formatCompact(record.answered)} câu`} />
+                <Stat label="Chính xác" value={formatPercent(record.accuracy)} />
                 <Stat
-                  label="Tổng điểm"
-                  value={formatCompact(rank.row.total_score)}
-                  hint={`${rank.row.attempt_count} lượt chơi`}
+                  label="Lượt chơi"
+                  value={formatCompact(record.runs)}
+                  hint={record.last_played_at ? formatRelative(record.last_played_at) : undefined}
                 />
-                <Stat
-                  label="Xếp hạng"
-                  value={medalFor(rank.position) || `#${rank.position}`}
-                  hint={`trong ${rank.total} người`}
-                />
-                <Stat label="Đề đã làm" value={rank.row.quiz_count} />
-                <Stat label="Độ chính xác" value={formatPercent(rank.row.avg_accuracy)} />
               </dl>
             ) : null}
           </Card>
 
-          <Card className="overflow-hidden">
-            <div className="border-ink-600/60 border-b px-5 py-4">
-              <h2 className="text-ink-50 text-sm font-semibold">Lượt chơi gần đây</h2>
-            </div>
-
-            {(attempts.data ?? []).length === 0 ? (
-              <p className="text-ink-400 p-5 text-sm">Chưa có lượt chơi nào được ghi lại.</p>
+          <Card className="p-5 sm:p-6">
+            <h2 className="text-ink-50 text-sm font-semibold">Chủ đề thế mạnh</h2>
+            {record ? (
+              <TopicProgressList className="mt-4" areas={sortByStrength(record.topics).slice(0, TOP_TOPICS)} />
             ) : (
-              <ul className="divide-ink-600/60 divide-y">
-                {(attempts.data ?? []).map((entry) => (
-                  <li key={entry.attempt_id} className="flex items-center gap-3 px-5 py-3">
-                    <span aria-hidden>{entry.cover_emoji}</span>
-
-                    <div className="min-w-0 flex-1">
-                      <Link
-                        to={`/q/${entry.quiz_slug}`}
-                        className="text-ink-100 hover:text-neon-300 truncate text-sm transition-colors"
-                      >
-                        {entry.quiz_title}
-                      </Link>
-                      <p className="text-ink-400 text-xs">
-                        {formatRelative(entry.completed_at)} · {formatPercent(entry.accuracy)}
-                      </p>
-                    </div>
-
-                    <span className="text-ink-50 text-sm font-semibold tabular-nums">
-                      {entry.score}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              <p className="text-ink-400 mt-2 text-sm">Chưa luyện câu nào ở chế độ vô tận.</p>
             )}
           </Card>
         </div>
@@ -186,10 +151,11 @@ export function ProfilePage() {
               Thách đấu
             </p>
             <p className="text-ink-300 mt-2 text-sm leading-relaxed">
-              Nghĩ mình làm nhanh hơn {person.display_name}? Chọn một đề và thử xem.
+              Nghĩ mình giữ chuỗi đúng lâu hơn {person.display_name}? Vào chế độ vô tận và thử xem.
             </p>
-            <ButtonLink to="/explore" size="sm" className="mt-4">
-              Khám phá đề thi
+            <ButtonLink to="/endless" size="sm" className="mt-4">
+              <InfinityIcon className="size-4" aria-hidden />
+              Chơi ngay
             </ButtonLink>
           </Card>
         </div>

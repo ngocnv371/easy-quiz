@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
-  BarChart3,
   Eye,
   EyeOff,
   ListChecks,
@@ -16,7 +15,7 @@ import { Button, ButtonLink } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { EmptyState, Skeleton } from '@/components/ui/feedback'
 import { Input, Select } from '@/components/ui/field'
-import { QuizListRow } from '@/features/quiz/quiz-card-tile'
+import { QuizListRow } from '@/features/manage/quiz-list-row'
 import { deleteQuiz, fetchMyQuizzes, updateQuizStatus } from '@/features/manage/api'
 import { ImportQuestionsButton } from '@/features/manage/import-questions-dialog'
 import { useAuth } from '@/features/auth/auth-context'
@@ -204,15 +203,6 @@ export function ManageQuizListPage() {
               quiz={quiz}
               actions={
                 <>
-                  {quiz.status === 'published' ? (
-                    <Link
-                      to={`/q/${quiz.slug}`}
-                      className="border-ink-600 text-ink-200 hover:border-neon-400/60 hover:text-neon-300 inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs transition-colors"
-                    >
-                      Xem
-                    </Link>
-                  ) : null}
-
                   <Button
                     variant="outline"
                     size="sm"
@@ -240,14 +230,6 @@ export function ManageQuizListPage() {
                     Sửa
                   </Link>
 
-                  <Link
-                    to={`/manage/quizzes/${quiz.id}/report`}
-                    className="border-ink-600 text-ink-200 hover:border-neon-400/60 hover:text-neon-300 inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs transition-colors"
-                  >
-                    <BarChart3 className="size-3.5" aria-hidden />
-                    Thống kê
-                  </Link>
-
                   <Button
                     variant="ghost"
                     size="icon"
@@ -267,7 +249,7 @@ export function ManageQuizListPage() {
       {visible.length > 0 ? (
         <p className="text-ink-500 mt-6 text-xs">
           Tổng {visible.length} đề ·{' '}
-          {formatCompact(visible.reduce((sum, quiz) => sum + quiz.attempt_count, 0))} lượt chơi
+          {formatCompact(visible.reduce((sum, quiz) => sum + quiz.question_count, 0))} câu hỏi
         </p>
       ) : null}
     </div>

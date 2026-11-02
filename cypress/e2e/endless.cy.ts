@@ -26,7 +26,21 @@ const S = {
   streak: '[data-cy=endless-streak]',
   accuracy: '[data-cy=endless-accuracy]',
   reveal: '[data-cy=endless-reveal]',
+  adBreak: '[data-cy=ad-break]',
+  adContinue: '[data-cy=ad-break-continue]',
 } as const
+
+/**
+ * A guest sees an ad break when a run stops with anything answered; continue
+ * past it once its button unlocks. Nothing to do for an ad-free player.
+ */
+function continuePastAdBreak() {
+  cy.get('body').then(($body) => {
+    if ($body.find(S.adBreak).length > 0) {
+      cy.get(S.adContinue, { timeout: 10_000 }).should('not.be.disabled').click()
+    }
+  })
+}
 
 /** Waits for the first question — the app fetches a batch behind a skeleton. */
 function waitForFirstQuestion() {
@@ -133,6 +147,7 @@ describe('Endless mode', () => {
     cy.get(S.options).first().click()
     cy.get(S.feedback).should('be.visible')
     cy.get(S.stop).click()
+    continuePastAdBreak()
 
     cy.get(S.summary).should('be.visible')
     cy.get(S.summary).should('contain.text', 'Phiên luyện tập')
@@ -145,6 +160,7 @@ describe('Endless mode', () => {
     cy.get(S.options).first().click()
     cy.get(S.feedback).should('be.visible')
     cy.get(S.stop).click()
+    continuePastAdBreak()
 
     cy.get(S.summary).contains('button', 'Chơi tiếp').click()
 
@@ -161,7 +177,7 @@ describe('Endless mode', () => {
 
       // Registered after the first batch already loaded, so this waits for the
       // *prefetch* rather than the initial fetch.
-      cy.intercept('POST', '**/rest/v1/rpc/get_endless_batch').as('batch')
+      cy.intercept('POST', '**/api/endless/batch').as('batch')
 
       for (let i = 0; i < 8; i += 1) {
         answerFirstOption()

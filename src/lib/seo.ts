@@ -11,7 +11,7 @@ import {
 } from './site'
 
 export interface PageMeta {
-  /** Page name, suffixed with the brand: `Thư viện đề thi | Easy Quiz`. Omit on the home page. */
+  /** Page name, suffixed with the brand: `Bảng xếp hạng | Easy Quiz`. Omit on the home page. */
   title?: string
   /** Meta description. Falls back to the site-wide description. */
   description?: string

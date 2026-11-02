@@ -1,94 +1,56 @@
-import { useMemo } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { Crown, Flame, Infinity as InfinityIcon, Target, Trophy, Users } from 'lucide-react'
+import { CheckCircle2, Flame, Infinity as InfinityIcon, Layers, Trophy, Users } from 'lucide-react'
 
 import { AuroraBackground } from '@/components/brand/aurora-background'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { EmptyState, Skeleton } from '@/components/ui/feedback'
-import { Select } from '@/components/ui/field'
+import { Modal } from '@/components/ui/modal'
 import { Reveal } from '@/components/ui/reveal'
-import {
-  fetchGlobalLeaderboard,
-  fetchQuizCards,
-  fetchQuizLeaderboard,
-} from '@/features/quiz/api'
-import { fetchEndlessLeaderboard } from '@/features/quiz/endless-api'
+import { fetchTopics } from '@/features/quiz/api'
+import { fetchEndlessLeaderboard, fetchTopicLeaderboard } from '@/features/quiz/endless-api'
+import { TopicScopePicker } from '@/features/quiz/topic-scope-picker'
 import { formatCompact, formatPercent, formatRelative, medalFor } from '@/lib/format'
-import type { EndlessLeaderboardEntry, LeaderboardEntry } from '@/lib/domain'
 import { usePageMeta } from '@/lib/seo'
 import { useAsyncData } from '@/lib/use-async-data'
 import { cn } from '@/lib/utils'
 
+/**
+ * Two boards, both earned in Endless and scored by the server:
+ *   · Vô tận (the default): each player's best correct-answer streak in one run
+ *   · Theo chủ đề: correct answers in one topic, or across every topic, all-time
+ * The board and topic live in the URL (`?board=topics&topic=<slug>`), so a
+ * board can be shared.
+ */
 export function LeaderboardPage() {
   const [params, setParams] = useSearchParams()
-  const quizSlug = params.get('quiz')
-  const endlessMode = params.get('board') === 'endless'
+  const topicsMode = params.get('board') === 'topics'
+  const topicSlug = topicsMode ? params.get('topic') : null
+  const [pickerOpen, setPickerOpen] = useState(false)
 
-  const global = useAsyncData(
-    'leaderboard:global',
-    () => fetchGlobalLeaderboard(50),
-    !quizSlug && !endlessMode,
-  )
+  const topics = useAsyncData('leaderboard:topics', fetchTopics, topicsMode)
+  const topic = (topics.data ?? []).find((item) => item.slug === topicSlug) ?? null
 
-  const endless = useAsyncData(
-    'leaderboard:endless',
-    () => fetchEndlessLeaderboard(50),
-    endlessMode,
-  )
-
-  const quizzes = useAsyncData(
-    'leaderboard:quizzes',
-    () => fetchQuizCards({ sort: 'popular', limit: 40 }),
-  )
-
-  const selectedQuiz = useMemo(
-    () => (quizzes.data ?? []).find((quiz) => quiz.slug === quizSlug) ?? null,
-    [quizzes.data, quizSlug],
-  )
-
-  const perQuiz = useAsyncData(
-    `leaderboard:quiz:${selectedQuiz?.id ?? 'none'}`,
-    () => fetchQuizLeaderboard(selectedQuiz!.id, 30),
-    Boolean(selectedQuiz) && !endlessMode,
-  )
+  const streaks = useAsyncData('leaderboard:endless', () => fetchEndlessLeaderboard(50), !topicsMode)
+  const byTopic = useAsyncData(`leaderboard:topic:${topicSlug ?? 'all'}`, () => fetchTopicLeaderboard(topicSlug, 50), topicsMode)
 
   usePageMeta({
-    title: endlessMode
-      ? 'Bảng xếp hạng — Vô tận'
-      : selectedQuiz
-        ? `Bảng xếp hạng — ${selectedQuiz.title}`
-        : 'Bảng xếp hạng',
+    title: topicsMode ? `Bảng xếp hạng — ${topic?.name ?? 'Tất cả chủ đề'}` : 'Bảng xếp hạng',
     description:
-      'Bảng xếp hạng Easy Quiz: điểm số, chuỗi ngày học và thứ hạng của người chơi trên toàn hệ thống và theo từng đề thi.',
+      'Bảng xếp hạng Easy Quiz: chuỗi trả lời đúng dài nhất và số câu đúng theo từng chủ đề ở chế độ vô tận.',
     path: '/leaderboard',
   })
 
-  const patchParam = (mutate: (next: URLSearchParams) => void) => {
-    setParams((previous) => {
-      const next = new URLSearchParams(previous)
-      mutate(next)
+  const show = (board: 'endless' | 'topics', slug: string | null = null) =>
+    setParams(() => {
+      const next = new URLSearchParams()
+      if (board === 'topics') {
+        next.set('board', 'topics')
+        if (slug) next.set('topic', slug)
+      }
       return next
-    })
-  }
-
-  const showGlobal = () =>
-    patchParam((next) => {
-      next.delete('board')
-      next.delete('quiz')
-    })
-
-  const showEndless = () =>
-    patchParam((next) => {
-      next.set('board', 'endless')
-      next.delete('quiz')
-    })
-
-  const showQuiz = (slug: string | null) =>
-    patchParam((next) => {
-      next.delete('board')
-      if (slug) next.set('quiz', slug)
-      else next.delete('quiz')
     })
 
   return (
@@ -103,82 +65,112 @@ export function LeaderboardPage() {
           </Badge>
 
           <h1 className="font-display mt-5 text-3xl font-semibold tracking-tight sm:text-4xl">
-            Ai đang dẫn đầu <span className="text-gradient-spark">tuần này</span>?
+            Ai đang <span className="text-gradient-spark">dẫn đầu</span>?
           </h1>
 
           <p className="text-ink-300 mt-3 text-base leading-relaxed">
-            Mỗi lượt hoàn thành đều được máy chủ chấm điểm và ghi vào bảng. Điểm được cộng dồn
-            theo độ chính xác và độ khó của đề.
+            Mỗi câu trả lời ở chế độ vô tận đều được máy chủ chấm và ghi vào bảng: chuỗi đúng dài
+            nhất trong một lượt chơi, và số câu đúng theo từng chủ đề.
           </p>
         </div>
 
-        {/* ── Mode switch ──────────────────────────────────────────── */}
+        {/* ── Board switch ─────────────────────────────────────────── */}
         <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div
-            className="border-ink-600 bg-ink-800/60 inline-flex rounded-full border p-1"
+            className="border-ink-600 bg-ink-800/60 inline-flex self-start rounded-full border p-1"
             role="tablist"
             aria-label="Kiểu bảng xếp hạng"
           >
-            <ModeTab
-              active={!endlessMode && !quizSlug}
-              onClick={showGlobal}
-              icon={Crown}
-              label="Bảng vàng"
-            />
-            <ModeTab
-              active={!endlessMode && Boolean(quizSlug)}
-              onClick={() => showQuiz(quizzes.data?.[0]?.slug ?? null)}
-              icon={Target}
-              label="Theo đề thi"
-            />
-            <ModeTab
-              active={endlessMode}
-              onClick={showEndless}
-              icon={InfinityIcon}
-              label="Vô tận"
-            />
+            <ModeTab active={!topicsMode} onClick={() => show('endless')} icon={InfinityIcon} label="Chuỗi vô tận" />
+            <ModeTab active={topicsMode} onClick={() => show('topics')} icon={Layers} label="Theo chủ đề" />
           </div>
 
-          {!endlessMode && quizSlug ? (
-            <Select
-              value={quizSlug}
-              onChange={(event) => showQuiz(event.target.value || null)}
-              aria-label="Chọn đề thi"
-              className="sm:w-80"
+          {topicsMode ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPickerOpen(true)}
+              className="min-w-0 justify-start gap-2 self-start sm:max-w-sm"
+              data-cy="leaderboard-topic"
             >
-              {(quizzes.data ?? []).map((quiz) => (
-                <option key={quiz.id} value={quiz.slug}>
-                  {quiz.cover_emoji} {quiz.title}
-                </option>
-              ))}
-            </Select>
+              <Layers className="size-4 shrink-0" aria-hidden />
+              <span className="min-w-0 truncate">
+                {topic ? `${topic.emoji} ${topic.name}` : 'Tất cả chủ đề'}
+              </span>
+              <span className="text-ink-400 shrink-0 text-xs font-normal">· Đổi</span>
+            </Button>
           ) : null}
         </div>
 
         {/* ── Body ─────────────────────────────────────────────────── */}
         <div className="mt-10">
-          {endlessMode ? (
-            <EndlessBoard
-              loading={endless.loading}
-              error={endless.error}
-              entries={endless.data ?? []}
-            />
-          ) : quizSlug ? (
-            <PerQuizBoard
-              loading={perQuiz.loading}
-              error={perQuiz.error}
-              entries={perQuiz.data ?? []}
-              quizTitle={selectedQuiz?.title ?? ''}
+          {topicsMode ? (
+            <Board
+              loading={byTopic.loading}
+              error={byTopic.error}
+              entries={(byTopic.data ?? []).map((entry) => ({
+                ...entry,
+                score: (
+                  <>
+                    <CheckCircle2 className="size-4" aria-hidden />
+                    {formatCompact(entry.correct)}
+                  </>
+                ),
+                podiumNote: `câu đúng · ${formatPercent(entry.accuracy)} chính xác`,
+                rowNote: `${formatCompact(entry.answered)} câu đã làm · ${formatPercent(entry.accuracy)}`,
+              }))}
+              empty={{
+                icon: Layers,
+                title: topic ? `Chưa ai luyện "${topic.name}"` : 'Chưa có ai lên bảng',
+                description: 'Luyện chủ đề này ở chế độ vô tận — mỗi câu đúng đều được tính.',
+              }}
             />
           ) : (
-            <GlobalBoard
-              loading={global.loading}
-              error={global.error}
-              entries={global.data ?? []}
+            <Board
+              loading={streaks.loading}
+              error={streaks.error}
+              entries={(streaks.data ?? []).map((entry) => ({
+                ...entry,
+                score: (
+                  <>
+                    <Flame className="size-4" aria-hidden />
+                    {entry.best_streak}
+                  </>
+                ),
+                podiumNote: `chuỗi dài nhất · ${entry.best_correct} câu đúng`,
+                rowNote: `${entry.session_count} lượt chơi · ${formatRelative(entry.last_played_at)}`,
+              }))}
+              empty={{
+                icon: InfinityIcon,
+                title: 'Chưa có chuỗi nào lên bảng',
+                description: 'Chơi chế độ vô tận và trả lời đúng liên tiếp để ghi tên mình vào bảng này.',
+              }}
             />
           )}
         </div>
       </div>
+
+      <Modal
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        icon={Layers}
+        tone="violet"
+        title="Chọn chủ đề"
+        description="Chọn lớp, môn rồi chủ đề — hoặc xem tất cả chủ đề."
+      >
+        {topics.data ? (
+          <TopicScopePicker
+            topics={topics.data}
+            activeSlug={topicSlug}
+            onSelect={(slug) => {
+              show('topics', slug)
+              setPickerOpen(false)
+            }}
+          />
+        ) : (
+          <Skeleton className="h-40 w-full" />
+        )}
+      </Modal>
     </div>
   )
 }
@@ -191,7 +183,7 @@ function ModeTab({
 }: {
   active: boolean
   onClick: () => void
-  icon: typeof Crown
+  icon: typeof Trophy
   label: string
 }) {
   return (
@@ -211,181 +203,55 @@ function ModeTab({
   )
 }
 
-// ── Global board ───────────────────────────────────────────────────────────
-function GlobalBoard({
-  loading,
-  error,
-  entries,
-}: {
-  loading: boolean
-  error: string | null
-  entries: Awaited<ReturnType<typeof fetchGlobalLeaderboard>>
-}) {
-  if (loading) return <BoardSkeleton />
-  if (error) return <EmptyState icon={Trophy} title="Không tải được bảng xếp hạng" description={error} />
-  if (entries.length === 0) {
-    return (
-      <EmptyState
-        icon={Users}
-        title="Chưa có ai lên bảng"
-        description="Hãy là người đầu tiên. Hoàn thành một đề thi là tên bạn xuất hiện ở đây."
-      />
-    )
-  }
-
-  const podium = entries.slice(0, 3)
-  const rest = entries.slice(3)
-
-  return (
-    <div className="space-y-8">
-      <div className="grid gap-4 sm:grid-cols-3">
-        {podium.map((entry, index) => (
-          <Reveal key={entry.user_id} delay={index * 0.08}>
-            <Card
-              className={cn(
-                'p-5 text-center',
-                index === 0 && 'border-spark-400/40 shadow-glow-spark',
-              )}
-            >
-              <p className="text-3xl" aria-hidden>
-                {medalFor(index + 1)}
-              </p>
-              <p className="mt-2 text-3xl" aria-hidden>
-                {entry.avatar_emoji}
-              </p>
-
-              <p className="font-display text-ink-50 mt-2 truncate text-base font-semibold">
-                {entry.username ? (
-                  <Link to={`/u/${entry.username}`} className="hover:text-neon-300 transition-colors">
-                    {entry.display_name}
-                  </Link>
-                ) : (
-                  entry.display_name
-                )}
-              </p>
-
-              <p className="font-display text-gradient-spark mt-1 text-2xl font-bold tabular-nums">
-                {formatCompact(entry.total_score)}
-              </p>
-
-              <p className="text-ink-400 mt-1 text-xs">
-                {entry.quiz_count} đề · {formatPercent(entry.avg_accuracy)} chính xác
-              </p>
-            </Card>
-          </Reveal>
-        ))}
-      </div>
-
-      {rest.length > 0 ? (
-        <Card className="overflow-hidden">
-          <ul className="divide-ink-600/60 divide-y">
-            {rest.map((entry, index) => (
-              <li
-                key={entry.user_id}
-                className="hover:bg-ink-800/40 flex items-center gap-4 px-5 py-3.5 transition-colors"
-              >
-                <span className="text-ink-400 w-8 text-sm tabular-nums">{index + 4}</span>
-                <span className="text-lg" aria-hidden>
-                  {entry.avatar_emoji}
-                </span>
-
-                <div className="min-w-0 flex-1">
-                  <p className="text-ink-100 truncate text-sm font-medium">
-                    {entry.username ? (
-                      <Link
-                        to={`/u/${entry.username}`}
-                        className="hover:text-neon-300 transition-colors"
-                      >
-                        {entry.display_name}
-                      </Link>
-                    ) : (
-                      entry.display_name
-                    )}
-                  </p>
-                  <p className="text-ink-400 text-xs">
-                    {entry.attempt_count} lượt · {entry.quiz_count} đề
-                  </p>
-                </div>
-
-                <div className="text-right">
-                  <p className="text-ink-50 text-sm font-semibold tabular-nums">
-                    {formatCompact(entry.total_score)}
-                  </p>
-                  <p className="text-ink-400 text-xs tabular-nums">
-                    {formatPercent(entry.avg_accuracy)}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </Card>
-      ) : null}
-    </div>
-  )
+interface BoardEntry {
+  user_id: string
+  username: string
+  display_name: string
+  avatar_emoji: string
+  /** The number the board ranks by, with its icon. */
+  score: ReactNode
+  podiumNote: string
+  rowNote: string
 }
 
-// ── Endless board ──────────────────────────────────────────────────────────
-function EndlessBoard({
+/** A podium for the top three, then a list. Both boards share it; only what they rank by differs. */
+function Board({
   loading,
   error,
   entries,
+  empty,
 }: {
   loading: boolean
   error: string | null
-  entries: EndlessLeaderboardEntry[]
+  entries: BoardEntry[]
+  empty: { icon: typeof Trophy; title: string; description: string }
 }) {
   if (loading) return <BoardSkeleton />
   if (error) return <EmptyState icon={Trophy} title="Không tải được bảng xếp hạng" description={error} />
-
-  if (entries.length === 0) {
-    return (
-      <EmptyState
-        icon={InfinityIcon}
-        title="Chưa có chuỗi nào lên bảng"
-        description="Chơi chế độ vô tận và trả lời đúng liên tiếp để ghi tên mình vào bảng này."
-      />
-    )
-  }
+  if (entries.length === 0) return <EmptyState icon={empty.icon ?? Users} title={empty.title} description={empty.description} />
 
   const podium = entries.slice(0, 3)
   const rest = entries.slice(3)
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8" data-cy="leaderboard-board">
       <div className="grid gap-4 sm:grid-cols-3">
         {podium.map((entry, index) => (
           <Reveal key={entry.user_id} delay={index * 0.08}>
-            <Card
-              className={cn(
-                'p-5 text-center',
-                index === 0 && 'border-spark-400/40 shadow-glow-spark',
-              )}
-            >
+            <Card className={cn('p-5 text-center', index === 0 && 'border-spark-400/40 shadow-glow-spark')}>
               <p className="text-3xl" aria-hidden>
                 {medalFor(index + 1)}
               </p>
               <p className="mt-2 text-3xl" aria-hidden>
                 {entry.avatar_emoji}
               </p>
-
               <p className="font-display text-ink-50 mt-2 truncate text-base font-semibold">
-                {entry.username ? (
-                  <Link to={`/u/${entry.username}`} className="hover:text-neon-300 transition-colors">
-                    {entry.display_name}
-                  </Link>
-                ) : (
-                  entry.display_name
-                )}
+                <PlayerName entry={entry} />
               </p>
-
               <p className="font-display text-gradient-spark mt-1 inline-flex items-center gap-1.5 text-2xl font-bold tabular-nums">
-                <Flame className="size-5" aria-hidden />
-                {entry.best_streak}
+                {entry.score}
               </p>
-
-              <p className="text-ink-400 mt-1 text-xs">
-                chuỗi dài nhất · {entry.best_correct} câu đúng
-              </p>
+              <p className="text-ink-400 mt-1 text-xs">{entry.podiumNote}</p>
             </Card>
           </Reveal>
         ))}
@@ -395,36 +261,19 @@ function EndlessBoard({
         <Card className="overflow-hidden">
           <ul className="divide-ink-600/60 divide-y">
             {rest.map((entry, index) => (
-              <li
-                key={entry.user_id}
-                className="hover:bg-ink-800/40 flex items-center gap-4 px-5 py-3.5 transition-colors"
-              >
+              <li key={entry.user_id} className="hover:bg-ink-800/40 flex items-center gap-4 px-5 py-3.5 transition-colors">
                 <span className="text-ink-400 w-8 text-sm tabular-nums">{index + 4}</span>
                 <span className="text-lg" aria-hidden>
                   {entry.avatar_emoji}
                 </span>
-
                 <div className="min-w-0 flex-1">
                   <p className="text-ink-100 truncate text-sm font-medium">
-                    {entry.username ? (
-                      <Link
-                        to={`/u/${entry.username}`}
-                        className="hover:text-neon-300 transition-colors"
-                      >
-                        {entry.display_name}
-                      </Link>
-                    ) : (
-                      entry.display_name
-                    )}
+                    <PlayerName entry={entry} />
                   </p>
-                  <p className="text-ink-400 text-xs">
-                    {entry.session_count} phiên · {formatRelative(entry.last_played_at)}
-                  </p>
+                  <p className="text-ink-400 text-xs">{entry.rowNote}</p>
                 </div>
-
-                <p className="text-spark-300 inline-flex w-16 items-center justify-end gap-1 text-right text-sm font-semibold tabular-nums">
-                  <Flame className="size-3.5" aria-hidden />
-                  {entry.best_streak}
+                <p className="text-spark-300 inline-flex shrink-0 items-center justify-end gap-1 text-right text-sm font-semibold tabular-nums">
+                  {entry.score}
                 </p>
               </li>
             ))}
@@ -435,84 +284,13 @@ function EndlessBoard({
   )
 }
 
-// ── Per-quiz board ─────────────────────────────────────────────────────────
-function PerQuizBoard({
-  loading,
-  error,
-  entries,
-  quizTitle,
-}: {
-  loading: boolean
-  error: string | null
-  entries: LeaderboardEntry[]
-  quizTitle: string
-}) {
-  if (loading) return <BoardSkeleton />
-  if (error) return <EmptyState icon={Trophy} title="Không tải được bảng xếp hạng" description={error} />
-
-  if (entries.length === 0) {
-    return (
-      <EmptyState
-        icon={Target}
-        title={`Chưa ai hoàn thành "${quizTitle}"`}
-        description="Hãy là người mở màn. Điểm của bạn sẽ là kỷ lục đầu tiên của đề thi này."
-      />
-    )
-  }
-
-  return (
-    <Card className="overflow-hidden">
-      <div className="border-ink-600/60 flex items-center justify-between border-b px-5 py-4">
-        <p className="text-ink-100 font-medium">{quizTitle}</p>
-        <Badge tone="neutral">{entries.length} lượt</Badge>
-      </div>
-
-      <ul className="divide-ink-600/60 divide-y">
-        {entries.map((entry, index) => (
-          <li
-            key={entry.attempt_id}
-            className="hover:bg-ink-800/40 flex items-center gap-4 px-5 py-3.5 transition-colors"
-          >
-            <span className="w-8 text-sm tabular-nums">
-              {medalFor(index + 1) || <span className="text-ink-400">{index + 1}</span>}
-            </span>
-
-            <span className="text-lg" aria-hidden>
-              {entry.avatar_emoji}
-            </span>
-
-            <div className="min-w-0 flex-1">
-              <p className="text-ink-100 truncate text-sm font-medium">
-                {entry.username ? (
-                  <Link to={`/u/${entry.username}`} className="hover:text-neon-300 transition-colors">
-                    {entry.display_name}
-                  </Link>
-                ) : (
-                  entry.display_name
-                )}
-              </p>
-              <p className="text-ink-400 text-xs">
-                {formatRelative(entry.completed_at)}
-                {entry.is_guest ? ' · khách' : ''}
-              </p>
-            </div>
-
-            <div className="hidden text-right sm:block">
-              <p className="text-ink-300 text-xs tabular-nums">
-                {entry.correct_count}/{entry.question_count} câu
-              </p>
-              <p className="text-ink-500 text-xs tabular-nums">
-                {formatPercent(entry.accuracy)}
-              </p>
-            </div>
-
-            <p className="text-spark-300 w-16 text-right text-sm font-semibold tabular-nums">
-              {entry.score}
-            </p>
-          </li>
-        ))}
-      </ul>
-    </Card>
+function PlayerName({ entry }: { entry: Pick<BoardEntry, 'username' | 'display_name'> }) {
+  return entry.username ? (
+    <Link to={`/u/${entry.username}`} className="hover:text-neon-300 transition-colors">
+      {entry.display_name}
+    </Link>
+  ) : (
+    <>{entry.display_name}</>
   )
 }
 

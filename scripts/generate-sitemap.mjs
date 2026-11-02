@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
- * Rewrites `public/sitemap.xml` from the quizzes published on the site.
+ * Rewrites `public/sitemap.xml`: the site's pages, plus Endless scoped to each
+ * topic (`/endless?topic=<slug>`), since playing is Endless only and a topic is
+ * the way into a subject.
  *
- * A quiz catalogue is the whole point of this site and its URLs only exist at
- * runtime, so a hand-written sitemap would always be stale. This asks the
- * site's own API (`/api/quizzes`) — the public list, exactly the quizzes a
- * visitor can reach.
+ * The topics only exist at runtime, so a hand-written sitemap would always be
+ * stale. This asks the site's own API (`/api/topics`) for the active ones.
  *
  * `VITE_SITE_URL` comes from `.env.local` and `.env.production` (production
  * wins, as it does in Vite), so nothing has to be exported by hand. Run it before a
@@ -52,9 +52,9 @@ if (configuredSiteUrl && configuredSiteUrl !== siteUrl) {
 
 // The live site's API by default; SITEMAP_API_URL points it elsewhere (e.g. http://localhost:5173).
 const apiUrl = (pick('SITEMAP_API_URL') || siteUrl).replace(/\/+$/, '')
-const endpoint = `${apiUrl}/api/quizzes?sort=new&limit=1000`
+const endpoint = `${apiUrl}/api/topics`
 
-let quizzes
+let topics
 try {
   const response = await fetch(endpoint, {
     headers: { accept: 'application/json' },
@@ -62,19 +62,20 @@ try {
 
   if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`)
 
-  quizzes = await response.json()
+  topics = await response.json()
 
-  if (!Array.isArray(quizzes)) throw new Error('Phản hồi không phải là danh sách.')
+  if (!Array.isArray(topics)) throw new Error('Phản hồi không phải là danh sách.')
 } catch (error) {
-  console.error('Không truy vấn được danh sách đề thi; giữ nguyên sitemap hiện có.')
+  console.error('Không truy vấn được danh sách chủ đề; giữ nguyên sitemap hiện có.')
   console.error(error instanceof Error ? error.message : error)
   process.exit(1)
 }
 
 const STATIC_ROUTES = [
   { path: '/', changefreq: 'weekly', priority: '1.0' },
-  { path: '/explore', changefreq: 'daily', priority: '0.9' },
+  { path: '/endless', changefreq: 'daily', priority: '0.9' },
   { path: '/leaderboard', changefreq: 'daily', priority: '0.7' },
+  { path: '/no-ads', changefreq: 'monthly', priority: '0.4' },
 ]
 
 const today = new Date().toISOString().slice(0, 10)
@@ -92,11 +93,11 @@ const entries = [
     changefreq: route.changefreq,
     priority: route.priority,
   })),
-  ...quizzes
-    .filter((quiz) => typeof quiz?.slug === 'string' && quiz.slug !== '')
-    .map((quiz) => ({
-      loc: `${siteUrl}/q/${quiz.slug}`,
-      lastmod: quiz.updated_at ? String(quiz.updated_at).slice(0, 10) : today,
+  ...topics
+    .filter((topic) => typeof topic?.slug === 'string' && topic.slug !== '')
+    .map((topic) => ({
+      loc: `${siteUrl}/endless?topic=${encodeURIComponent(topic.slug)}`,
+      lastmod: today,
       changefreq: 'weekly',
       priority: '0.8',
     })),
@@ -117,4 +118,4 @@ const body = entries
 const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`
 
 writeFileSync(target, xml, 'utf8')
-console.log(`Đã ghi ${entries.length} URL vào public/sitemap.xml (${quizzes.length} đề thi).`)
+console.log(`Đã ghi ${entries.length} URL vào public/sitemap.xml (${topics.length} chủ đề).`)

@@ -16,14 +16,14 @@ export const DIFFICULTY_DESCRIPTIONS: Record<QuizDifficulty, string> = {
 
 export const VISIBILITY_LABELS: Record<QuizVisibility, string> = {
   private: 'Riêng tư',
-  unlisted: 'Chia sẻ bằng liên kết',
+  unlisted: 'Không công khai',
   public: 'Công khai',
 }
 
 export const VISIBILITY_DESCRIPTIONS: Record<QuizVisibility, string> = {
-  private: 'Chỉ mình bạn thấy trong trang quản lý.',
-  unlisted: 'Chỉ ai có liên kết mới chơi được. Không hiện trên trang khám phá, hồ sơ người chơi, và câu hỏi không vào chế độ Endless.',
-  public: 'Hiện trên trang khám phá và bảng xếp hạng.',
+  private: 'Chỉ mình bạn thấy trong trang quản lý. Câu hỏi không vào chế độ vô tận.',
+  unlisted: 'Như riêng tư: câu hỏi không vào chế độ vô tận. (Trước đây là chia sẻ bằng liên kết.)',
+  public: 'Câu hỏi được đưa vào chế độ vô tận cho mọi người luyện.',
 }
 
 export const STATUS_LABELS: Record<QuizStatus, string> = {

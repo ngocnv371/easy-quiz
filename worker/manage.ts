@@ -1,9 +1,8 @@
-// The admin console: an admin's own quizzes, the editor's one-shot save, status changes, deletes
-// and the per-quiz report. Every query is scoped to the owner.
+// The admin console: an admin's own quizzes, the editor's one-shot save, status changes and deletes.
+// Every query is scoped to the owner. A published public quiz is where Endless draws questions from.
 import type { Member } from './env.ts'
 import { CARD_SELECT, card } from './catalog.ts'
 import { KINDS } from './grading.ts'
-import { questionsOf } from './play.ts'
 import { AppError, NOW, bools, jsonRows, nowIso, oneOf, slugSuffix, slugify, toInt, trimTo, uuid } from './sql.ts'
 
 export const DIFFICULTIES = ['easy', 'medium', 'hard'] as const
@@ -94,6 +93,34 @@ export async function myQuizzes(db: D1Database, ownerId: string) {
 
 // The editor's document: the quiz row, its card and its questions with options (key included —
 // it's the owner's own quiz).
+interface QuestionWithOptions {
+  id: string
+  position: number
+  kind: string
+  prompt: string
+  explanation: string | null
+  points: number
+  time_limit_seconds: number | null
+  image_url: string | null
+  options: { id: string; position: number; label: string; is_correct: boolean }[]
+}
+
+// A quiz's questions with their options (key included: callers decide what leaves the Worker).
+export async function questionsOf(db: D1Database, quizId: string): Promise<QuestionWithOptions[]> {
+  const [questions, options] = await db.batch([
+    db.prepare('select id, position, kind, prompt, explanation, points, time_limit_seconds, image_url from questions where quiz_id = ? order by position').bind(quizId),
+    db.prepare(`select o.id, o.question_id, o.position, o.label, o.is_correct from options o
+        join questions qu on qu.id = o.question_id where qu.quiz_id = ? order by o.position`).bind(quizId),
+  ])
+  const byQuestion = new Map<string, QuestionWithOptions['options']>()
+  for (const o of options!.results as { id: string; question_id: string; position: number; label: string; is_correct: number }[]) {
+    const list = byQuestion.get(o.question_id) ?? []
+    list.push({ id: o.id, position: o.position, label: o.label, is_correct: Boolean(o.is_correct) })
+    byQuestion.set(o.question_id, list)
+  }
+  return (questions!.results as Omit<QuestionWithOptions, 'options'>[]).map((q) => ({ ...q, options: byQuestion.get(q.id) ?? [] }))
+}
+
 export async function quizForEdit(db: D1Database, ownerId: string, quizId: string) {
   const quiz = await db.prepare('select * from quizzes where id = ? and owner_id = ?').bind(quizId, ownerId).first()
   if (!quiz) return null
@@ -177,25 +204,4 @@ export async function updateQuizStatus(db: D1Database, ownerId: string, quizId: 
 
 export async function deleteQuiz(db: D1Database, ownerId: string, quizId: string) {
   await db.prepare('delete from quizzes where id = ? and owner_id = ?').bind(quizId, ownerId).run()
-}
-
-// What the performance report is built from (buildQuizReport in src/features/manage/report.ts):
-// the quiz's attempts, questions, answers and the players' profiles.
-export async function quizReport(db: D1Database, ownerId: string, quizId: string) {
-  const cardRow = await db.prepare(`${CARD_SELECT} where q.id = ? and q.owner_id = ?`).bind(quizId, ownerId).first()
-  if (!cardRow) return null
-  const [attempts, questions, answers, profiles] = await db.batch([
-    db.prepare('select * from attempts where quiz_id = ?').bind(quizId),
-    db.prepare('select * from questions where quiz_id = ? order by position').bind(quizId),
-    db.prepare('select aa.* from attempt_answers aa join attempts a on a.id = aa.attempt_id where a.quiz_id = ?').bind(quizId),
-    db.prepare(`select id, username, display_name, avatar_emoji, role, is_guest, organization, bio, created_at, updated_at
-        from profiles where id in (select user_id from attempts where quiz_id = ?)`).bind(quizId),
-  ])
-  return {
-    card: card(cardRow),
-    attempts: attempts!.results,
-    questions: questions!.results,
-    answers: answers!.results.map((a) => bools(a as Record<string, unknown>, 'is_correct')),
-    profiles: profiles!.results.map((p) => bools(p as Record<string, unknown>, 'is_guest')),
-  }
 }

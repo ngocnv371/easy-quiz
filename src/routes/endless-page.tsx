@@ -27,19 +27,16 @@ import { Button, ButtonLink, Spinner } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Alert, EmptyState, Skeleton } from '@/components/ui/feedback'
 import { Modal } from '@/components/ui/modal'
+import { ShortAnswerInput, TrueFalseStatement } from '@/features/quiz/answer-inputs'
 import { AnswerTile, optionLetter, type AnswerState } from '@/features/quiz/answer-tile'
+import type { EndlessAnswer } from '@/features/quiz/endless-api'
 import {
   QUESTION_MOTION_RECIPES,
   tokenizePrompt,
 } from '@/features/quiz/question-motion'
-import {
-  AREA_LABELS,
-  MIN_ANSWERED,
-  areaStrength,
-  sortByStrength,
-  type AreaStrength,
-} from '@/features/quiz/endless-progress'
+import { MIN_ANSWERED, sortByStrength } from '@/features/quiz/endless-progress'
 import { fetchTopics } from '@/features/quiz/api'
+import { TopicProgressList } from '@/features/quiz/topic-progress-list'
 import { TopicScopePicker } from '@/features/quiz/topic-scope-picker'
 import { ROUND_SIZE, useEndlessSession, type EndlessAnswered } from '@/features/quiz/use-endless-session'
 import { useAuth } from '@/features/auth/auth-context'
@@ -49,7 +46,7 @@ import { formatClock, formatPercent } from '@/lib/format'
 import { usePageMeta } from '@/lib/seo'
 import { useAsyncData } from '@/lib/use-async-data'
 import { accentColor } from '@/remotion/question-reveal'
-import type { EndlessTopicProgress, TopicRow } from '@/lib/domain'
+import type { EndlessGrade, EndlessQuestion, EndlessTopicProgress, TopicRow } from '@/lib/domain'
 import { cn, errorMessage } from '@/lib/utils'
 
 /**
@@ -62,18 +59,6 @@ import { cn, errorMessage } from '@/lib/utils'
  * learning. "Dừng" at any point ends the session with a summary — nothing is
  * lost, because nothing was a fixed-length attempt to begin with.
  */
-
-const STRENGTH_CHIP: Record<AreaStrength, string> = {
-  strong: 'border-correct-400/40 bg-correct-500/10 text-correct-300',
-  steady: 'border-spark-400/40 bg-spark-400/10 text-spark-300',
-  new: 'border-ink-600 bg-ink-800/70 text-ink-300',
-}
-
-const STRENGTH_BAR: Record<AreaStrength, string> = {
-  strong: 'bg-correct-400',
-  steady: 'bg-spark-400',
-  new: 'bg-ink-500',
-}
 
 /**
  * How long the Remotion intro beat holds before the elements animate in. Slightly
@@ -178,8 +163,8 @@ export function EndlessPage() {
             <Button onClick={() => void signIn()} loading={retrying}>
               Thử lại
             </Button>
-            <ButtonLink to="/explore" variant="outline">
-              Về thư viện
+            <ButtonLink to="/" variant="outline">
+              Về trang chủ
             </ButtonLink>
           </div>
         </div>
@@ -254,7 +239,7 @@ function EndlessPlayer({
     error,
     seconds,
     exhausted,
-    selectOption,
+    answer,
     advance,
     nextRound,
     stop,
@@ -333,21 +318,21 @@ function EndlessPlayer({
         return
       }
 
-      if (phase !== 'playing') return
+      if (phase !== 'playing' || current.kind !== 'single') return
 
       const number = Number.parseInt(event.key, 10)
       if (Number.isInteger(number) && number >= 1 && number <= current.options.length) {
         const option = current.options[number - 1]
         if (option) {
           event.preventDefault()
-          selectOption(option.id)
+          answer({ option_id: option.id })
         }
       }
     }
 
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [current, phase, selectOption, advance])
+  }, [current, phase, answer, advance])
 
   const showSkeleton =
     phase === 'loading' || (!current && phase !== 'stopped' && phase !== 'error' && !exhausted)
@@ -494,11 +479,7 @@ function EndlessPlayer({
                     <Button variant="outline" onClick={() => onScopeChange(null)}>
                       Học tất cả môn
                     </Button>
-                  ) : (
-                    <ButtonLink to="/explore" variant="outline">
-                      Xem thêm đề
-                    </ButtonLink>
-                  )}
+                  ) : null}
                 </div>
               }
             />
@@ -543,46 +524,60 @@ function EndlessPlayer({
                 />
               ) : null}
 
-              <motion.div
-                data-cy="endless-options"
-                className="mt-5 space-y-2.5 sm:mt-7 sm:space-y-3"
-                variants={recipe.choice.container}
-                initial={motionFrom}
-                animate={introReady ? 'visible' : 'hidden'}
-              >
-                {current.options.map((option, optionIndex) => {
-                  const state = answerState(option.id, selected, feedback)
-                  return (
-                    <motion.div
-                      key={option.id}
-                      custom={optionIndex}
-                      variants={recipe.choice.item}
-                    >
-                      <AnswerTile
-                        letter={optionLetter(optionIndex)}
-                        label={option.label}
-                        state={state}
-                        disabled={grading || !!feedback}
-                        onClick={() => selectOption(option.id)}
-                        className={cn(
-                          state === 'correct' && 'animate-ring-correct',
-                          state === 'wrong' && 'animate-ring-wrong',
-                        )}
-                      />
-                    </motion.div>
-                  )
-                })}
-              </motion.div>
+              {current.kind === 'single' ? (
+                <motion.div
+                  data-cy="endless-options"
+                  className="mt-5 space-y-2.5 sm:mt-7 sm:space-y-3"
+                  variants={recipe.choice.container}
+                  initial={motionFrom}
+                  animate={introReady ? 'visible' : 'hidden'}
+                >
+                  {current.options.map((option, optionIndex) => {
+                    const state = answerState(option.id, selected, feedback)
+                    return (
+                      <motion.div
+                        key={option.id}
+                        custom={optionIndex}
+                        variants={recipe.choice.item}
+                      >
+                        <AnswerTile
+                          letter={optionLetter(optionIndex)}
+                          label={option.label}
+                          state={state}
+                          disabled={grading || !!feedback}
+                          onClick={() => answer({ option_id: option.id })}
+                          className={cn(
+                            state === 'correct' && 'animate-ring-correct',
+                            state === 'wrong' && 'animate-ring-wrong',
+                          )}
+                        />
+                      </motion.div>
+                    )
+                  })}
+                </motion.div>
+              ) : (
+                <motion.div
+                  data-cy="endless-options"
+                  className="mt-5 sm:mt-7"
+                  variants={recipe.choice.container}
+                  initial={motionFrom}
+                  animate={introReady ? 'visible' : 'hidden'}
+                >
+                  <motion.div custom={0} variants={recipe.choice.item}>
+                    <CheckedAnswer question={current} feedback={feedback} disabled={grading} onCheck={answer} />
+                  </motion.div>
+                </motion.div>
+              )}
 
               {feedback ? (
                 <FeedbackBanner feedback={feedback} onAdvance={advance} />
-              ) : (
+              ) : current.kind === 'single' ? (
                 <p className="text-ink-500 mt-4 hidden text-xs sm:block">
                   Nhấn phím <kbd className="border-ink-600 rounded border px-1">1</kbd>–
                   <kbd className="border-ink-600 rounded border px-1">{current.options.length}</kbd>{' '}
                   để chọn đáp án.
                 </p>
-              )}
+              ) : null}
             </div>
           )}
         </main>
@@ -601,7 +596,7 @@ function EndlessPlayer({
 
             <div className="ml-auto flex shrink-0 items-center gap-1.5">
               <Link
-                to="/leaderboard?board=endless"
+                to="/leaderboard"
                 data-cy="endless-highscore"
                 className="border-spark-400/40 bg-spark-400/10 text-spark-300 hover:border-spark-400/70 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium whitespace-nowrap tabular-nums transition-colors"
                 title="Chuỗi trả lời đúng dài nhất trong phiên này · Xem bảng xếp hạng"
@@ -706,6 +701,111 @@ function answerState(
   }
 
   return optionId === selected ? 'selected' : 'idle'
+}
+
+/**
+ * True/false and short-answer questions: the player builds an answer, then
+ * checks it. Once graded the same inputs show the key. Mounted per question
+ * (the parent is keyed by its id), so marks and text never leak into the next.
+ */
+function CheckedAnswer({
+  question,
+  feedback,
+  disabled,
+  onCheck,
+}: {
+  question: EndlessQuestion
+  feedback: EndlessGrade | null
+  disabled: boolean
+  onCheck: (answer: EndlessAnswer) => void
+}) {
+  const [marks, setMarks] = useState<Record<string, boolean>>({})
+  const [text, setText] = useState('')
+
+  if (question.kind === 'true_false') {
+    const truth = new Map((feedback?.key ?? []).map((option) => [option.id, option.is_correct]))
+    const complete = question.options.every((option) => typeof marks[option.id] === 'boolean')
+
+    return (
+      <div>
+        <p className="text-ink-400 mb-3 text-xs">Đánh dấu từng mệnh đề là Đúng hay Sai.</p>
+        <div className="space-y-2.5 sm:space-y-3">
+          {question.options.map((option, index) => (
+            <TrueFalseStatement
+              key={option.id}
+              letter={optionLetter(index)}
+              label={option.label}
+              value={marks[option.id]}
+              onChange={(value) => setMarks((previous) => ({ ...previous, [option.id]: value }))}
+              truth={feedback ? truth.get(option.id) : undefined}
+              disabled={disabled}
+            />
+          ))}
+        </div>
+        {feedback ? null : (
+          <Button
+            className="mt-4 w-full sm:w-auto"
+            disabled={!complete || disabled}
+            loading={disabled}
+            onClick={() => onCheck({ marks })}
+            data-cy="endless-check"
+          >
+            Kiểm tra
+          </Button>
+        )}
+      </div>
+    )
+  }
+
+  if (feedback) {
+    return <ShortAnswerResult text={feedback.text} isCorrect={feedback.is_correct} accepted={feedback.key ?? []} />
+  }
+
+  const submit = () => {
+    if (text.trim() && !disabled) onCheck({ text })
+  }
+
+  return (
+    <div>
+      <ShortAnswerInput value={text} onChange={setText} onEnter={submit} disabled={disabled} autoFocus />
+      <Button
+        className="mt-3 w-full sm:w-auto"
+        disabled={!text.trim() || disabled}
+        loading={disabled}
+        onClick={submit}
+        data-cy="endless-check"
+      >
+        Kiểm tra
+      </Button>
+    </div>
+  )
+}
+
+/** A graded short answer: what was typed, marked right or wrong, and what would have counted. */
+function ShortAnswerResult({
+  text,
+  isCorrect,
+  accepted,
+}: {
+  text: string | null
+  isCorrect: boolean
+  accepted: { label: string }[]
+}) {
+  return (
+    <dl className="space-y-2 text-sm">
+      <div
+        className="answer-tile flex flex-wrap items-baseline gap-x-3 gap-y-1 px-4 py-3"
+        data-state={isCorrect ? 'correct' : 'wrong'}
+      >
+        <dt className="text-ink-400 text-xs">Bạn trả lời</dt>
+        <dd className="text-ink-50 font-medium">{text ?? '—'}</dd>
+      </div>
+      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-1">
+        <dt className="text-ink-400 text-xs">{accepted.length > 1 ? 'Đáp án được chấp nhận' : 'Đáp án'}</dt>
+        <dd className="text-correct-300 font-medium">{accepted.map((option) => option.label).join(' · ')}</dd>
+      </div>
+    </dl>
+  )
 }
 
 function FeedbackBanner({
@@ -983,8 +1083,8 @@ function StopSummary({
             <Home className="size-4" aria-hidden />
             <span className="hidden sm:inline">Trang chủ</span>
           </ButtonLink>
-          <ButtonLink to="/explore" variant="ghost" className="px-3 sm:px-4">
-            Thư viện đề
+          <ButtonLink to="/progress" variant="ghost" className="px-3 sm:px-4">
+            Tiến độ
           </ButtonLink>
         </>
       }
@@ -1011,42 +1111,7 @@ function SkillProfile({ areas }: { areas: EndlessTopicProgress[] }) {
         Số câu đúng trên số câu đã trả lời ở chế độ vô tận, tính từ trước đến nay. Cần ít nhất{' '}
         {MIN_ANSWERED} câu để xếp loại.
       </p>
-      <ul className="mt-3 space-y-3">
-        {(showAllAreas ? areas : areas.slice(0, AREAS_SHOWN)).map((area) => {
-          const strength = areaStrength(area.accuracy, area.answered)
-          return (
-            <li key={area.topic_id} className="flex items-start gap-3">
-              <span aria-hidden className="mt-0.5">
-                {area.emoji}
-              </span>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-start justify-between gap-2">
-                  <span className="text-ink-100 line-clamp-2 min-w-0 text-sm leading-snug sm:truncate">{area.name}</span>
-                  <span
-                    className={cn(
-                      'shrink-0 rounded-full border px-2 py-0.5 text-[0.7rem] font-medium whitespace-nowrap sm:text-xs',
-                      STRENGTH_CHIP[strength],
-                    )}
-                  >
-                    {AREA_LABELS[strength]}
-                  </span>
-                </div>
-                <div className="mt-1.5 flex items-center gap-3">
-                  <div className="bg-ink-800 h-1.5 flex-1 overflow-hidden rounded-full">
-                    <div
-                      className={cn('h-full rounded-full', STRENGTH_BAR[strength])}
-                      style={{ width: `${Math.max(area.accuracy, 3)}%` }}
-                    />
-                  </div>
-                  <span className="text-ink-400 shrink-0 text-xs tabular-nums">
-                    Đúng {area.correct}/{area.answered} câu
-                  </span>
-                </div>
-              </div>
-            </li>
-          )
-        })}
-      </ul>
+      <TopicProgressList className="mt-3" areas={showAllAreas ? areas : areas.slice(0, AREAS_SHOWN)} />
       {areas.length > AREAS_SHOWN ? (
         <button
           type="button"
@@ -1130,18 +1195,32 @@ function AnswerReview({ history, title = 'Xem lại câu trả lời' }: { histo
                 </p>
 
                 <div className="mt-3 space-y-2">
-                  {question.options.map((option, index) => (
-                    <AnswerTile
-                      key={option.id}
-                      letter={optionLetter(index)}
-                      label={option.label}
-                      state={
-                        option.id === grade.correct_option_id ? 'correct' : option.id === grade.option_id ? 'wrong' : 'dim'
-                      }
-                      disabled
-                      className="py-2.5"
-                    />
-                  ))}
+                  {grade.kind === 'true_false' ? (
+                    (grade.key ?? []).map((option, index) => (
+                      <TrueFalseStatement
+                        key={option.id}
+                        letter={optionLetter(index)}
+                        label={option.label}
+                        value={grade.marks?.[option.id]}
+                        truth={option.is_correct}
+                      />
+                    ))
+                  ) : grade.kind === 'short_answer' ? (
+                    <ShortAnswerResult text={grade.text} isCorrect={grade.is_correct} accepted={grade.key ?? []} />
+                  ) : (
+                    question.options.map((option, index) => (
+                      <AnswerTile
+                        key={option.id}
+                        letter={optionLetter(index)}
+                        label={option.label}
+                        state={
+                          option.id === grade.correct_option_id ? 'correct' : option.id === grade.option_id ? 'wrong' : 'dim'
+                        }
+                        disabled
+                        className="py-2.5"
+                      />
+                    ))
+                  )}
                 </div>
 
                 {grade.explanation ? (

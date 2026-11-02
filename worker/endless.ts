@@ -4,11 +4,14 @@
 //     so the stream keeps teaching instead of just flattering
 //   · each answer is graded here, one at a time; the key for that one question
 //     is revealed only after it has been answered
-//   · a run (endless_sessions) keeps the streak the Endless leaderboard ranks by
-//   · only single-choice questions are drawn: the stream is one tap per question, and true/false
-//     and short-answer questions need a check step it doesn't have
+//   · every kind is drawn (worker/grading.ts says what each means); what reaches the browser before
+//     the answer is the same as a quiz's play payload: a true/false question's statements without
+//     their truth, a short-answer question with no options at all (they ARE its key)
+//   · a run (endless_sessions) keeps the streak the Endless leaderboard ranks by, and
+//     endless_progress the per-topic counts the topic boards and /progress read
 import type { Member } from './env.ts'
 import { LISTED } from './catalog.ts'
+import { grade, type Given } from './grading.ts'
 import { AppError, NOW, uuid } from './sql.ts'
 
 interface ProgressRow {
@@ -52,7 +55,7 @@ export async function nextBatch(db: D1Database, userId: string | null, limit: nu
     db
       .prepare(`select qu.id, q.topic_id from questions qu join quizzes q on q.id = qu.quiz_id
         where ${LISTED} and (?1 is null or q.topic_id = ?1)
-          and qu.kind = 'single' and qu.id not in (select value from json_each(?2))
+          and qu.id not in (select value from json_each(?2))
           and exists (select 1 from options o where o.question_id = qu.id)`)
       .bind(topicId, JSON.stringify(exclude.slice(0, 2000)))
       .all<{ id: string; topic_id: string | null }>(),
@@ -85,7 +88,7 @@ export async function nextBatch(db: D1Database, userId: string | null, limit: nu
 
   const ids = JSON.stringify([...picked])
   const [questions, options] = await db.batch([
-    db.prepare(`select qu.id, qu.prompt, qu.image_url, qu.points, q.id as quiz_id, q.slug as quiz_slug, q.title as quiz_title,
+    db.prepare(`select qu.id, qu.kind, qu.prompt, qu.image_url, qu.points, q.id as quiz_id, q.slug as quiz_slug, q.title as quiz_title,
         q.cover_emoji, t.id as topic_id, t.slug as topic_slug, t.name as topic_name, t.emoji as topic_emoji, t.accent as topic_accent
       from questions qu join quizzes q on q.id = qu.quiz_id left join topics t on t.id = q.topic_id
       where qu.id in (select value from json_each(?1))`).bind(ids),
@@ -99,35 +102,38 @@ export async function nextBatch(db: D1Database, userId: string | null, limit: nu
   type Row = Record<string, string | number | null>
   const out = (questions!.results as Row[]).map((r) => ({
     id: r.id,
+    kind: r.kind,
     prompt: r.prompt,
     image_url: r.image_url,
     points: r.points,
     quiz: { id: r.quiz_id, slug: r.quiz_slug, title: r.quiz_title, cover_emoji: r.cover_emoji },
     topic: r.topic_id ? { id: r.topic_id, slug: r.topic_slug, name: r.topic_name, emoji: r.topic_emoji, accent: r.topic_accent } : null,
-    options: optionsOf.get(String(r.id)) ?? [],
+    // a short answer's options are its accepted answers, so none of them leave before it is answered
+    options: r.kind === 'short_answer' ? [] : (optionsOf.get(String(r.id)) ?? []),
   }))
   // shuffled, so the guaranteed weak question isn't always first
   out.sort(() => Math.random() - 0.5)
   return { questions: out, progress }
 }
 
-export async function gradeAnswer(db: D1Database, member: Member, questionId: string, optionId: string, sessionId: string | null) {
+// `given` is read the way the question's kind needs it: option_id, marks or text (worker/grading.ts).
+export async function gradeAnswer(db: D1Database, member: Member, questionId: string, given: Given, sessionId: string | null) {
   const question = await db
-    .prepare(`select qu.id, qu.explanation, q.topic_id from questions qu join quizzes q on q.id = qu.quiz_id where qu.id = ?`)
+    .prepare(`select qu.id, qu.kind, qu.explanation, q.topic_id from questions qu join quizzes q on q.id = qu.quiz_id where qu.id = ?`)
     .bind(questionId)
-    .first<{ id: string; explanation: string | null; topic_id: string | null }>()
+    .first<{ id: string; kind: string; explanation: string | null; topic_id: string | null }>()
   if (!question) throw new AppError('Không tìm thấy câu hỏi này.', 404)
   // only questions in the public pool can be graded, so a crafted request can't probe a draft's key
   const listed = await db.prepare(`select 1 from quizzes q join questions qu on qu.quiz_id = q.id where qu.id = ? and ${LISTED}`).bind(questionId).first()
   if (!listed) throw new AppError('Câu hỏi này không còn trong kho luyện tập.', 404)
 
-  const options = await db
-    .prepare('select id, is_correct from options where question_id = ? order by position')
+  const rows = await db
+    .prepare('select id, label, is_correct from options where question_id = ? order by position')
     .bind(question.id)
-    .all<{ id: string; is_correct: number }>()
-  const isCorrect = Boolean(options.results.find((o) => o.id === optionId)?.is_correct)
-  const correctId = options.results.find((o) => o.is_correct)?.id ?? null
-  const right = isCorrect ? 1 : 0
+    .all<{ id: string; label: string; is_correct: number }>()
+  const key = rows.results.map((o) => ({ id: o.id, label: o.label, is_correct: Boolean(o.is_correct) }))
+  const graded = grade(question.kind, key, given)
+  const right = graded.is_correct ? 1 : 0
 
   const statements: D1PreparedStatement[] = []
   if (sessionId) {
@@ -161,9 +167,15 @@ export async function gradeAnswer(db: D1Database, member: Member, questionId: st
 
   return {
     question_id: question.id,
-    option_id: optionId || null,
-    is_correct: isCorrect,
-    correct_option_id: correctId,
+    kind: question.kind,
+    is_correct: graded.is_correct,
+    // what the player gave, as graded
+    option_id: graded.option_id,
+    marks: graded.marks,
+    text: graded.text,
+    correct_option_id: question.kind === 'single' ? (key.find((o) => o.is_correct)?.id ?? null) : null,
+    // the key, now that it has been answered: each statement's truth, or the accepted answers
+    key: question.kind === 'single' ? null : key,
     explanation: question.explanation,
     topic,
     progress,
@@ -182,4 +194,48 @@ export async function endlessLeaderboard(db: D1Database, limit: number) {
     .bind(Math.min(Math.max(limit, 1), 200))
     .all<Record<string, unknown>>()
   return results.map((r) => ({ ...r, is_guest: Boolean(r.is_guest) }))
+}
+
+// Players ranked by correct Endless answers in one topic (its slug), or summed across every topic when
+// there is none; accuracy breaks ties, then whoever got there first.
+export async function topicLeaderboard(db: D1Database, topicSlug: string | null, limit: number) {
+  const { results } = await db
+    .prepare(`select e.user_id, p.username, coalesce(nullif(p.display_name, ''), 'Người chơi ẩn danh') as display_name,
+        coalesce(p.avatar_emoji, '🎓') as avatar_emoji, coalesce(p.is_guest, 0) as is_guest,
+        sum(e.correct) as correct, sum(e.answered) as answered, max(e.updated_at) as last_played_at
+      from endless_progress e left join profiles p on p.id = e.user_id
+      where ?1 is null or e.topic_id = (select id from topics where slug = ?1)
+      group by e.user_id having sum(e.correct) > 0
+      order by correct desc, cast(sum(e.correct) as real) / sum(e.answered) desc, last_played_at asc limit ?2`)
+    .bind(topicSlug, Math.min(Math.max(limit, 1), 200))
+    .all<Record<string, unknown>>()
+  return results.map((r) => ({
+    ...r,
+    is_guest: Boolean(r.is_guest),
+    accuracy: Number(r.answered) > 0 ? Math.round((Number(r.correct) / Number(r.answered)) * 1000) / 10 : 0,
+  }))
+}
+
+// A player's Endless record, for /progress (their own) and their public profile: totals over every run,
+// and every topic they have answered in.
+export async function endlessStats(db: D1Database, userId: string) {
+  const [runs, topics] = await Promise.all([
+    db
+      .prepare(`select count(*) as runs, coalesce(max(best_streak), 0) as best_streak, max(updated_at) as last_played_at
+        from endless_sessions where user_id = ? and answered > 0`)
+      .bind(userId)
+      .first<{ runs: number; best_streak: number; last_played_at: string | null }>(),
+    progressOf(db, userId),
+  ])
+  const answered = topics.reduce((sum, t) => sum + t.answered, 0)
+  const correct = topics.reduce((sum, t) => sum + t.correct, 0)
+  return {
+    runs: runs?.runs ?? 0,
+    best_streak: runs?.best_streak ?? 0,
+    last_played_at: runs?.last_played_at ?? null,
+    answered,
+    correct,
+    accuracy: answered > 0 ? Math.round((correct / answered) * 1000) / 10 : 0,
+    topics,
+  }
 }

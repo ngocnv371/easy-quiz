@@ -11,13 +11,6 @@ import {
   type LandingHeroProps,
 } from '@/remotion/landing-hero'
 import {
-  QUIZ_INTRO_FPS,
-  QUIZ_INTRO_HEIGHT,
-  QUIZ_INTRO_WIDTH,
-  QuizIntro,
-  type QuizIntroProps,
-} from '@/remotion/quiz-countdown'
-import {
   QUESTION_REVEAL_DURATION,
   QUESTION_REVEAL_FPS,
   QUESTION_REVEAL_HEIGHT,
@@ -26,14 +19,6 @@ import {
   questionRevealDefaults,
   type QuestionRevealProps,
 } from '@/remotion/question-reveal'
-import {
-  RESULT_REVEAL_DURATION,
-  RESULT_REVEAL_FPS,
-  RESULT_REVEAL_HEIGHT,
-  RESULT_REVEAL_WIDTH,
-  ResultReveal,
-  type ResultRevealProps,
-} from '@/remotion/result-reveal'
 import { cn } from '@/lib/utils'
 
 /**
@@ -65,75 +50,6 @@ export function LandingHeroVideo({
       autoPlay={!reduceMotion}
       loop
       controls={showControls}
-      clickToPlay={false}
-      doubleClickToFullscreen={false}
-      spaceKeyToPlayOrPause={false}
-      allowFullscreen={false}
-      showVolumeControls={false}
-      initiallyMuted
-      numberOfSharedAudioTags={0}
-      style={PLAYER_STYLE}
-      className={cn(className)}
-    />
-  )
-}
-
-/** The 3-2-1 countdown played between the quiz page and the first question. */
-export function QuizIntroVideo({
-  className,
-  ...props
-}: QuizIntroProps & { className?: string }) {
-  const { seconds, ...rest } = props
-
-  return (
-    <Player
-      component={QuizIntro}
-      inputProps={{ ...rest, seconds }}
-      durationInFrames={seconds * QUIZ_INTRO_FPS + 42}
-      fps={QUIZ_INTRO_FPS}
-      compositionWidth={QUIZ_INTRO_WIDTH}
-      compositionHeight={QUIZ_INTRO_HEIGHT}
-      autoPlay
-      loop={false}
-      controls={false}
-      clickToPlay={false}
-      doubleClickToFullscreen={false}
-      spaceKeyToPlayOrPause={false}
-      allowFullscreen={false}
-      showVolumeControls={false}
-      moveToBeginningWhenEnded={false}
-      initiallyMuted
-      numberOfSharedAudioTags={0}
-      style={PLAYER_STYLE}
-      className={cn(className)}
-    />
-  )
-}
-
-/** The score reveal shown on the result page. */
-export function ResultRevealVideo({
-  className,
-  ...props
-}: ResultRevealProps & { className?: string }) {
-  const reduceMotion = useReducedMotion()
-
-  return (
-    <Player
-      component={ResultReveal}
-      inputProps={props}
-      durationInFrames={RESULT_REVEAL_DURATION}
-      fps={RESULT_REVEAL_FPS}
-      compositionWidth={RESULT_REVEAL_WIDTH}
-      compositionHeight={RESULT_REVEAL_HEIGHT}
-      autoPlay={!reduceMotion}
-      // Jump to the settled frame when motion is reduced, so the score is
-      // simply visible instead of animated.
-      initialFrame={reduceMotion ? RESULT_REVEAL_DURATION - 30 : 0}
-      loop={false}
-      // Hold the final frame: the last frame is the finished score, so ending
-      // there beats snapping back to an empty opening frame.
-      moveToBeginningWhenEnded={false}
-      controls={false}
       clickToPlay={false}
       doubleClickToFullscreen={false}
       spaceKeyToPlayOrPause={false}

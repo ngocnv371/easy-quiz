@@ -32,7 +32,7 @@ import { cn } from '@/lib/utils'
 const METRICS: Array<{ key: Exclude<keyof SiteDay, 'day'>; label: string; tone: ChartTone }> = [
   { key: 'active_players', label: 'Người hoạt động', tone: 'neon' },
   { key: 'new_players', label: 'Người mới', tone: 'violet' },
-  { key: 'attempts', label: 'Lượt làm bài', tone: 'spark' },
+  { key: 'runs', label: 'Lượt chơi', tone: 'spark' },
   { key: 'endless_answers', label: 'Câu vô tận', tone: 'correct' },
 ]
 
@@ -96,14 +96,14 @@ export function ManageStatsPage() {
           icon={Activity}
           tone="correct"
           value={totals && formatCompact(totals.active_7d)}
-          detail="Người đã làm bài hoặc luyện vô tận"
+          detail="Người đã trả lời ít nhất một câu"
         />
         <Stat
-          label="Lượt làm bài · 7 ngày"
+          label="Lượt chơi · 7 ngày"
           icon={ListChecks}
           tone="spark"
-          value={totals && formatCompact(totals.attempts_7d)}
-          detail={totals && `${formatCompact(totals.attempts)} lượt từ trước đến nay`}
+          value={totals && formatCompact(totals.runs_7d)}
+          detail={totals && `${formatCompact(totals.runs)} lượt từ trước đến nay`}
         />
         <Stat
           label="Câu vô tận · 7 ngày"
@@ -203,7 +203,7 @@ export function ManageStatsPage() {
             <thead>
               <tr className="text-ink-400 text-left text-xs">
                 <Th>Người chơi</Th>
-                <Th className="text-right">Lượt làm bài</Th>
+                <Th className="text-right">Lượt chơi</Th>
                 <Th className="text-right">Câu vô tận</Th>
                 <Th>Hoạt động gần nhất</Th>
                 <Th>Tham gia</Th>
@@ -225,7 +225,7 @@ export function ManageStatsPage() {
                       </div>
                     </div>
                   </td>
-                  <Td className="text-right tabular-nums">{formatCompact(user.attempts)}</Td>
+                  <Td className="text-right tabular-nums">{formatCompact(user.endless_runs)}</Td>
                   <Td className="text-right tabular-nums">{formatCompact(user.endless_answers)}</Td>
                   <Td>{user.last_active ? formatRelative(user.last_active) : 'Chưa chơi'}</Td>
                   <Td>{formatDate(user.created_at)}</Td>

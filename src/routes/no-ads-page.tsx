@@ -60,7 +60,7 @@ export function NoAdsPage() {
             Luyện tập miễn phí, <span className="text-gradient">không giới hạn</span>
           </h1>
           <p className="text-ink-300 mt-3 text-base leading-relaxed">
-            Mọi đề thi và chế độ vô tận đều miễn phí. Sau mỗi lượt luyện tập có một quảng cáo
+            Chế độ vô tận miễn phí, không giới hạn số câu. Cứ hai vòng luyện tập có một quảng cáo
             ngắn — trả một lần để gỡ nó vĩnh viễn.
           </p>
         </div>
@@ -123,9 +123,9 @@ export function NoAdsPage() {
           <Card className="p-6 sm:p-7">
             <h2 className="text-ink-50 text-sm font-semibold">Hoạt động thế nào?</h2>
             <ul className="text-ink-300 mt-4 space-y-3 text-sm">
-              <HowItem>Làm bao nhiêu đề, luyện bao nhiêu câu cũng được — không giới hạn.</HowItem>
-              <HowItem>Mỗi khi nộp bài hoặc dừng chế độ vô tận, bạn xem một quảng cáo vài giây.</HowItem>
-              <HowItem>Không có quảng cáo trong lúc đang làm bài.</HowItem>
+              <HowItem>Luyện bao nhiêu câu, bao nhiêu chủ đề cũng được — không giới hạn.</HowItem>
+              <HowItem>Cứ hai vòng (20 câu), và khi bạn dừng luyện tập, có một quảng cáo vài giây.</HowItem>
+              <HowItem>Không có quảng cáo trong lúc đang trả lời câu hỏi.</HowItem>
               <HowItem>
                 Gỡ quảng cáo là trả <strong className="text-ink-100">một lần</strong>, dùng mãi mãi trên
                 tài khoản của bạn — không gia hạn, không phí ẩn.

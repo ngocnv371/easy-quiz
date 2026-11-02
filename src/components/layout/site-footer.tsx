@@ -7,7 +7,6 @@ const LINK_GROUPS = [
   {
     title: 'Học tập',
     links: [
-      { to: '/explore', label: 'Khám phá đề thi' },
       { to: '/endless', label: 'Chế độ vô tận' },
       { to: '/leaderboard', label: 'Bảng xếp hạng' },
       { to: '/register', label: 'Tạo tài khoản' },

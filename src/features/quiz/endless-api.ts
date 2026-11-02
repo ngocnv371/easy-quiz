@@ -1,9 +1,11 @@
-import { api } from '@/lib/api'
+import { api, apiOrNull, query } from '@/lib/api'
 import {
   toEndlessLeaderboardEntry,
   type EndlessBatch,
   type EndlessGrade,
   type EndlessLeaderboardEntry,
+  type EndlessStats,
+  type TopicLeaderboardEntry,
 } from '@/lib/domain'
 
 /**
@@ -46,14 +48,20 @@ export async function fetchEndlessBatch(
   }
 }
 
+/** An answer in the shape its question's kind needs. */
+export type EndlessAnswer =
+  | { option_id: string }
+  | { marks: Record<string, boolean> }
+  | { text: string }
+
 export async function gradeEndlessAnswer(
   questionId: string,
-  optionId: string,
+  answer: EndlessAnswer,
   sessionId: string | null = null,
 ): Promise<EndlessGrade> {
   return api<EndlessGrade>('endless/grade', {
     method: 'POST',
-    body: { question_id: questionId, option_id: optionId, session_id: sessionId },
+    body: { question_id: questionId, ...answer, session_id: sessionId },
   })
 }
 
@@ -63,4 +71,19 @@ export async function fetchEndlessLeaderboard(
 ): Promise<EndlessLeaderboardEntry[]> {
   const rows = await api<EndlessLeaderboardEntry[]>(`leaderboard/endless?limit=${limit}`)
   return rows.map(toEndlessLeaderboardEntry)
+}
+
+/** A topic board: players by correct Endless answers in one topic, or across every topic when it is null. */
+export async function fetchTopicLeaderboard(topicSlug: string | null, limit = 50): Promise<TopicLeaderboardEntry[]> {
+  return api<TopicLeaderboardEntry[]>(`leaderboard/topics${query({ topic: topicSlug, limit })}`)
+}
+
+/** The signed-in player's own Endless record (/progress). */
+export async function fetchMyEndlessStats(): Promise<EndlessStats> {
+  return api<EndlessStats>('me/endless')
+}
+
+/** Anyone's Endless record, for their public profile; null when the username doesn't exist. */
+export async function fetchEndlessStatsOf(username: string): Promise<EndlessStats | null> {
+  return apiOrNull<EndlessStats>(`profiles/${encodeURIComponent(username)}/endless`)
 }

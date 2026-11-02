@@ -15,12 +15,10 @@ import { LandingHeroVideo } from '@/components/remotion/players'
 import { Badge } from '@/components/ui/badge'
 import { ButtonLink } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/feedback'
 import { Marquee } from '@/components/ui/marquee'
 import { Counter } from '@/components/ui/metrics'
 import { Reveal, SectionHeading } from '@/components/ui/reveal'
-import { QuizCardTile } from '@/features/quiz/quiz-card-tile'
-import { fetchQuizCards, fetchTopics } from '@/features/quiz/api'
+import { fetchTopics } from '@/features/quiz/api'
 import { usePageMeta } from '@/lib/seo'
 import { APP_DESCRIPTION, TAGLINE } from '@/lib/site'
 import { useAsyncData } from '@/lib/use-async-data'
@@ -38,7 +36,7 @@ const PILLARS = [
     icon: Trophy,
     title: 'Điểm của bạn được ghi nhận',
     description:
-      'Mỗi lượt hoàn thành đều được máy chủ chấm và đưa lên bảng xếp hạng. Hồ sơ của bạn lớn dần theo từng đề thi đã chinh phục.',
+      'Mỗi câu trả lời đều được máy chủ chấm và đưa lên bảng xếp hạng — theo chuỗi đúng dài nhất và theo từng chủ đề.',
     tone: 'spark' as const,
   },
   {
@@ -92,10 +90,6 @@ export function LandingPage() {
   usePageMeta({ path: '/' })
 
   const topics = useAsyncData('landing:topics', fetchTopics)
-  const popular = useAsyncData(
-    'landing:popular',
-    () => fetchQuizCards({ sort: 'popular', limit: 3 }),
-  )
 
   return (
     <>
@@ -133,8 +127,8 @@ export function LandingPage() {
                     Làm câu hỏi đầu tiên
                     <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
                   </ButtonLink>
-                  <ButtonLink to="/explore" variant="secondary" size="lg">
-                    Khám phá đề thi
+                  <ButtonLink to="/leaderboard" variant="secondary" size="lg">
+                    Bảng xếp hạng
                   </ButtonLink>
                   <ButtonLink to="/register" variant="ghost" size="lg">
                     Tạo tài khoản
@@ -199,7 +193,7 @@ export function LandingPage() {
             {topics.data.map((topic) => (
               <Link
                 key={topic.id}
-                to={`/explore?topic=${topic.slug}`}
+                to={`/endless?topic=${topic.slug}`}
                 className="border-ink-600 bg-ink-800/60 hover:border-neon-400/50 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors"
               >
                 <span aria-hidden>{topic.emoji}</span>
@@ -343,44 +337,6 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ══ Popular quizzes ════════════════════════════════════════════ */}
-      <section className="py-16">
-        <div className="container-page">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <SectionHeading
-              align="left"
-              eyebrow="Đang được chơi nhiều"
-              title="Đề thi nổi bật"
-              titleClassName="text-3xl sm:text-4xl"
-            />
-            <ButtonLink to="/explore" variant="outline" size="sm">
-              Xem tất cả
-            </ButtonLink>
-          </div>
-
-          <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {popular.loading
-              ? Array.from({ length: 3 }, (_, index) => (
-                  <Card key={index} className="p-5">
-                    <Skeleton className="size-11 rounded-xl" />
-                    <Skeleton className="mt-4 h-4 w-3/4" />
-                    <Skeleton className="mt-2 h-3 w-full" />
-                    <Skeleton className="mt-2 h-3 w-2/3" />
-                  </Card>
-                ))
-              : (popular.data ?? []).map((quiz, index) => (
-                  <Reveal key={quiz.id} delay={index * 0.06}>
-                    <QuizCardTile quiz={quiz} />
-                  </Reveal>
-                ))}
-          </div>
-
-          {popular.error ? (
-            <p className="text-wrong-300 mt-6 text-sm">{popular.error}</p>
-          ) : null}
-        </div>
-      </section>
-
       {/* ══ How it works ═══════════════════════════════════════════════ */}
       <section className="py-20">
         <div className="container-page">
@@ -425,8 +381,8 @@ export function LandingPage() {
                 Làm câu hỏi đầu tiên
                 <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
               </ButtonLink>
-              <ButtonLink to="/explore" variant="secondary" size="lg">
-                Khám phá đề thi
+              <ButtonLink to="/leaderboard" variant="secondary" size="lg">
+                Xem bảng xếp hạng
               </ButtonLink>
             </div>
 

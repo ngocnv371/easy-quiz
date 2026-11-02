@@ -4,9 +4,7 @@ import {
   ArrowDown,
   ArrowLeft,
   ArrowUp,
-  BarChart3,
   Copy,
-  Link2,
   Eye,
   Plus,
   Rocket,
@@ -22,7 +20,7 @@ import { Button, ButtonLink } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { EmojiPicker } from '@/components/ui/emoji-picker'
 import { Alert, EmptyState, Skeleton } from '@/components/ui/feedback'
-import { ChoiceTile, Field, Input, Select, Textarea, Toggle } from '@/components/ui/field'
+import { ChoiceTile, Field, Input, Select, Textarea } from '@/components/ui/field'
 import { AiAssistPanel } from '@/features/manage/ai-assist-panel'
 import { fetchQuizForEdit, saveQuiz } from '@/features/manage/api'
 import { TruthSwitch } from '@/features/quiz/answer-inputs'
@@ -45,7 +43,6 @@ import {
   type QuizDraftQuestion,
   type QuizVisibility,
 } from '@/lib/domain'
-import { absoluteUrl } from '@/lib/site'
 import { useAsyncData } from '@/lib/use-async-data'
 import { cn, errorMessage } from '@/lib/utils'
 
@@ -118,8 +115,6 @@ export function ManageQuizEditorPage() {
 
   const [draft, setDraft] = useState<QuizDraft | null>(null)
   const [dirty, setDirty] = useState(false)
-  /** Visibility as last saved — what the live link actually does right now. */
-  const [savedVisibility, setSavedVisibility] = useState<QuizVisibility | null>(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showAi, setShowAi] = useState(false)
@@ -138,7 +133,6 @@ export function ManageQuizEditorPage() {
 
     if (existing.data) {
       setDraft(existing.data.draft)
-      setSavedVisibility(existing.data.draft.visibility)
       setDirty(false)
     }
   }, [draft, existing.data, isNew])
@@ -385,7 +379,6 @@ export function ManageQuizEditorPage() {
         )
 
         setDirty(false)
-        setSavedVisibility(draft.visibility)
 
         // Adopt the saved identity immediately: navigating to the new URL keeps
         // this component mounted, so the local document has to learn its id and
@@ -415,15 +408,6 @@ export function ManageQuizEditorPage() {
     },
     [draft, existing, isNew, navigate, aiTouched],
   )
-
-  const copyLink = useCallback(async (slug: string) => {
-    try {
-      await navigator.clipboard.writeText(absoluteUrl(`/q/${slug}`))
-      toast.success('Đã sao chép liên kết đề thi.')
-    } catch {
-      toast.error('Không sao chép được. Hãy mở đề và sao chép địa chỉ trên trình duyệt.')
-    }
-  }, [])
 
   // ── Guard against losing work ──────────────────────────────────────────
   useEffect(() => {
@@ -510,21 +494,6 @@ export function ManageQuizEditorPage() {
         </div>
 
         <div className="flex flex-wrap gap-3">
-          {/* Only the saved state counts: an unsaved switch to "private" must not hand out a live link. */}
-          {draft.slug && draft.status === 'published' && savedVisibility !== 'private' ? (
-            <Button variant="outline" onClick={() => void copyLink(draft.slug!)}>
-              <Link2 className="size-4" aria-hidden />
-              Sao chép liên kết
-            </Button>
-          ) : null}
-
-          {!isNew && draft.id ? (
-            <ButtonLink to={`/manage/quizzes/${draft.id}/report`} variant="outline">
-              <BarChart3 className="size-4" aria-hidden />
-              Thống kê
-            </ButtonLink>
-          ) : null}
-
           <Button
             variant="outline"
             loading={saving}
@@ -809,26 +778,6 @@ export function ManageQuizEditorPage() {
                           />
                         </Field>
 
-                        <Field
-                          label="Giới hạn thời gian riêng"
-                          htmlFor={`time-${index}`}
-                          hint="Để trống nếu dùng thời gian của cả bài."
-                        >
-                          <Input
-                            id={`time-${index}`}
-                            type="number"
-                            min={0}
-                            value={question.time_limit_seconds ?? ''}
-                            onChange={(event) =>
-                              patchQuestion(index, {
-                                time_limit_seconds:
-                                  event.target.value === ''
-                                    ? null
-                                    : Math.max(0, Number.parseInt(event.target.value, 10) || 0),
-                              })
-                            }
-                          />
-                        </Field>
                       </div>
                     </div>
                   ) : null}
@@ -896,28 +845,6 @@ export function ManageQuizEditorPage() {
                 ))}
               </Select>
             </Field>
-
-            <Field
-              label="Thời gian làm bài"
-              htmlFor="quiz-time"
-              hint="Tính bằng giây. 0 = không giới hạn."
-            >
-              <Input
-                id="quiz-time"
-                type="number"
-                min={0}
-                step={30}
-                value={draft.time_limit_seconds}
-                onChange={(event) =>
-                  patchMeta({
-                    time_limit_seconds: Math.max(
-                      0,
-                      Number.parseInt(event.target.value, 10) || 0,
-                    ),
-                  })
-                }
-              />
-            </Field>
           </Card>
 
           <Card className="space-y-5 p-5">
@@ -942,7 +869,10 @@ export function ManageQuizEditorPage() {
             <h2 className="font-display text-ink-50 text-lg font-semibold">Hiển thị</h2>
 
             <div className="grid gap-3">
-              {(['public', 'unlisted', 'private'] as const).map((value) => (
+              {(draft.visibility === 'unlisted'
+                ? (['public', 'unlisted', 'private'] as const)
+                : (['public', 'private'] as const)
+              ).map((value) => (
                 <ChoiceTile
                   key={value}
                   name="visibility"
@@ -953,24 +883,6 @@ export function ManageQuizEditorPage() {
                   description={VISIBILITY_DESCRIPTIONS[value]}
                 />
               ))}
-            </div>
-
-            <div className="border-ink-600/60 space-y-4 border-t pt-5">
-              <Toggle
-                id="shuffle-questions"
-                checked={draft.shuffle_questions}
-                onChange={(shuffle_questions) => patchMeta({ shuffle_questions })}
-                label="Đảo thứ tự câu hỏi"
-                description="Mỗi người chơi nhận một thứ tự khác nhau."
-              />
-
-              <Toggle
-                id="shuffle-options"
-                checked={draft.shuffle_options}
-                onChange={(shuffle_options) => patchMeta({ shuffle_options })}
-                label="Đảo thứ tự lựa chọn"
-                description="Giảm việc nhìn bài của nhau."
-              />
             </div>
 
             <div className="border-ink-600/60 flex flex-wrap gap-3 border-t pt-5">

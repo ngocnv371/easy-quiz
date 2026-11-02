@@ -8,6 +8,7 @@ import {
   fetchEndlessBatch,
   gradeEndlessAnswer,
   startEndlessSession,
+  type EndlessAnswer,
 } from './endless-api'
 
 export type EndlessPhase =
@@ -50,6 +51,8 @@ const PREFETCH_AT = 3
 const ADVANCE_CORRECT_MS = 850
 /** A miss gets longer, so the explanation has a chance to land. */
 const ADVANCE_WRONG_MS = 2000
+/** Longer still when the key is a set of statements or accepted answers to read. */
+const ADVANCE_WRONG_KEY_MS = 4000
 
 export interface EndlessSession {
   phase: EndlessPhase
@@ -58,6 +61,7 @@ export interface EndlessSession {
   queued: number
   /** How many questions have been shown, including the current one. */
   shown: number
+  /** The option picked, for a single-choice question. */
   selected: string | null
   feedback: EndlessGrade | null
   stats: EndlessStats
@@ -73,7 +77,8 @@ export interface EndlessSession {
   seconds: number
   /** True once the pool has no fresh questions left to offer. */
   exhausted: boolean
-  selectOption: (optionId: string) => void
+  /** Submit the current question's answer, in the shape its kind needs. */
+  answer: (answer: EndlessAnswer) => void
   advance: () => void
   /** From the round summary into the next round. */
   nextRound: () => void
@@ -220,16 +225,16 @@ export function useEndlessSession(
     })
   }, [phase, queue.length, fetchMore])
 
-  const selectOption = useCallback((optionId: string) => {
+  const answer = useCallback((given: EndlessAnswer) => {
     if (phaseRef.current !== 'playing') return
 
     const question = queueRef.current[0]
     if (!question) return
 
-    setSelected(optionId)
+    setSelected('option_id' in given ? given.option_id : null)
     setPhase('grading')
 
-    gradeEndlessAnswer(question.id, optionId, sessionIdRef.current)
+    gradeEndlessAnswer(question.id, given, sessionIdRef.current)
       .then((grade) => {
         setFeedback(grade)
         setHistory((previous) => [...previous, { question, grade }])
@@ -275,7 +280,11 @@ export function useEndlessSession(
   useEffect(() => {
     if (phase !== 'grading' || !feedback) return
 
-    const delay = feedback.is_correct ? ADVANCE_CORRECT_MS : ADVANCE_WRONG_MS
+    const delay = feedback.is_correct
+      ? ADVANCE_CORRECT_MS
+      : feedback.kind === 'single'
+        ? ADVANCE_WRONG_MS
+        : ADVANCE_WRONG_KEY_MS
     const timer = window.setTimeout(advance, delay)
     return () => window.clearTimeout(timer)
   }, [phase, feedback, advance])
@@ -326,7 +335,7 @@ export function useEndlessSession(
     error,
     seconds,
     exhausted,
-    selectOption,
+    answer,
     advance,
     nextRound,
     stop,

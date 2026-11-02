@@ -5,20 +5,22 @@ import {
   CheckCircle2,
   Coins,
   FileEdit,
+  ListChecks,
   PlusCircle,
   Sparkles,
   TrendingUp,
-  Users,
 } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { ButtonLink } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { EmptyState, Skeleton } from '@/components/ui/feedback'
-import { fetchAttemptsForOwner, fetchMyQuizzes, summariseQuizzes } from '@/features/manage/api'
+import { fetchMyQuizzes, fetchSiteOverview, summariseQuizzes } from '@/features/manage/api'
 import { ImportQuestionsButton } from '@/features/manage/import-questions-dialog'
 import { useAuth } from '@/features/auth/auth-context'
-import { formatCompact, formatPercent, formatRelative } from '@/lib/format'
+import { formatCompact } from '@/lib/format'
+import { VISIBILITY_LABELS } from '@/lib/labels'
+import type { QuizVisibility } from '@/lib/domain'
 import { useAsyncData } from '@/lib/use-async-data'
 
 export function ManageDashboardPage() {
@@ -32,14 +34,11 @@ export function ManageDashboardPage() {
   )
 
   const list = useMemo(() => quizzes.data ?? [], [quizzes.data])
-  const quizIds = useMemo(() => list.map((quiz) => quiz.id), [list])
   const stats = useMemo(() => summariseQuizzes(list), [list])
 
-  const attempts = useAsyncData(
-    `manage:attempts:${quizIds.join(',')}`,
-    () => fetchAttemptsForOwner(quizIds, 12),
-    quizIds.length > 0,
-  )
+  // How the questions are being played: the site's last 7 days, from the stats page.
+  const overview = useAsyncData('manage:overview', fetchSiteOverview)
+  const week = overview.data?.totals
 
   return (
     <div className="p-6 lg:p-10">
@@ -61,7 +60,7 @@ export function ManageDashboardPage() {
           </h1>
 
           <p className="text-ink-300 mt-2 max-w-xl text-sm leading-relaxed">
-            Đây là nơi bạn soạn đề, theo dõi lượt chơi và xem người chơi đang làm tốt ở đâu.
+            Đây là nơi bạn soạn đề — mọi câu trong đề công khai đã xuất bản đều vào chế độ vô tận — và theo dõi người chơi luyện tập.
           </p>
         </div>
 
@@ -98,58 +97,42 @@ export function ManageDashboardPage() {
           loading={quizzes.loading}
         />
         <StatCard
-          label="Tổng lượt chơi"
-          value={stats.totalAttempts}
-          icon={Users}
+          label="Tổng số câu hỏi"
+          value={stats.questionCount}
+          icon={ListChecks}
           tone="violet"
           loading={quizzes.loading}
         />
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
-        {/* ── Recent activity ────────────────────────────────────── */}
+        {/* ── The last 7 days ────────────────────────────────────── */}
         <Card className="overflow-hidden">
           <div className="border-ink-600/60 flex items-center justify-between border-b px-5 py-4">
             <h2 className="text-ink-50 inline-flex items-center gap-2 text-sm font-semibold">
               <TrendingUp className="size-4 text-neon-400" aria-hidden />
-              Lượt chơi gần đây
+              Luyện tập 7 ngày qua
             </h2>
+            <Link to="/manage/stats" className="text-neon-300 hover:text-neon-200 text-xs transition-colors">
+              Xem thống kê
+            </Link>
           </div>
 
-          {attempts.loading ? (
+          {overview.loading ? (
             <div className="space-y-3 p-5">
-              {Array.from({ length: 4 }, (_, index) => (
+              {Array.from({ length: 3 }, (_, index) => (
                 <Skeleton key={index} className="h-10 w-full" />
               ))}
             </div>
-          ) : (attempts.data ?? []).length === 0 ? (
-            <p className="text-ink-400 p-5 text-sm leading-relaxed">
-              Chưa có ai làm bài. Xuất bản một đề và chia sẻ liên kết cho người chơi nhé.
-            </p>
+          ) : week ? (
+            <dl className="grid grid-cols-2 gap-5 p-5">
+              <WeekStat label="Người hoạt động" value={week.active_7d} />
+              <WeekStat label="Người mới" value={week.new_7d} />
+              <WeekStat label="Lượt chơi" value={week.runs_7d} />
+              <WeekStat label="Câu đã trả lời" value={week.endless_answers_7d} />
+            </dl>
           ) : (
-            <ul className="divide-ink-600/60 max-h-96 divide-y overflow-y-auto">
-              {(attempts.data ?? []).map((entry) => (
-                <li key={entry.attempt_id} className="flex items-center gap-3 px-5 py-3">
-                  <span aria-hidden>{entry.avatar_emoji}</span>
-
-                  <div className="min-w-0 flex-1">
-                    <p className="text-ink-100 truncate text-sm">{entry.display_name}</p>
-                    <p className="text-ink-400 truncate text-xs">
-                      {entry.quiz_title} · {formatRelative(entry.completed_at)}
-                    </p>
-                  </div>
-
-                  <div className="text-right">
-                    <p className="text-ink-50 text-sm font-semibold tabular-nums">
-                      {entry.score}/{entry.max_score}
-                    </p>
-                    <p className="text-ink-400 text-xs tabular-nums">
-                      {formatPercent(entry.accuracy)}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            <p className="text-ink-400 p-5 text-sm">{overview.error ?? 'Chưa có số liệu.'}</p>
           )}
         </Card>
 
@@ -198,7 +181,7 @@ export function ManageDashboardPage() {
                     <div className="min-w-0 flex-1">
                       <p className="text-ink-100 truncate text-sm font-medium">{quiz.title}</p>
                       <p className="text-ink-400 text-xs">
-                        {quiz.question_count} câu · {formatCompact(quiz.play_count)} lượt chơi
+                        {quiz.question_count} câu · {VISIBILITY_LABELS[quiz.visibility as QuizVisibility] ?? quiz.visibility}
                       </p>
                     </div>
 
@@ -207,20 +190,21 @@ export function ManageDashboardPage() {
                     </Badge>
                   </Link>
 
-                  <Link
-                    to={`/manage/quizzes/${quiz.id}/report`}
-                    aria-label={`Thống kê ${quiz.title}`}
-                    title="Thống kê"
-                    className="text-ink-400 hover:text-neon-300 mr-3 shrink-0 rounded-lg p-2 transition-colors"
-                  >
-                    <BarChart3 className="size-4" aria-hidden />
-                  </Link>
                 </li>
               ))}
             </ul>
           )}
         </Card>
       </div>
+    </div>
+  )
+}
+
+function WeekStat({ label, value }: { label: string; value: number }) {
+  return (
+    <div>
+      <dt className="text-ink-400 text-xs">{label}</dt>
+      <dd className="font-display text-ink-50 mt-1 text-xl font-semibold tabular-nums">{formatCompact(value)}</dd>
     </div>
   )
 }

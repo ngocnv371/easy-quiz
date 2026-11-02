@@ -10,9 +10,9 @@ import { Card, Stat } from '@/components/ui/card'
 import { EmojiPicker } from '@/components/ui/emoji-picker'
 import { Alert, Skeleton } from '@/components/ui/feedback'
 import { Field, Input, Textarea } from '@/components/ui/field'
-import { fetchMyAttempts, fetchGlobalLeaderboard } from '@/features/quiz/api'
+import { fetchMyEndlessStats } from '@/features/quiz/endless-api'
 import { useAuth } from '@/features/auth/auth-context'
-import { formatCompact, formatPercent, formatRelative, medalFor } from '@/lib/format'
+import { formatCompact, formatPercent, formatRelative } from '@/lib/format'
 import { AVATAR_EMOJIS, ROLE_LABELS } from '@/lib/labels'
 import { usePageMeta } from '@/lib/seo'
 import { useAsyncData } from '@/lib/use-async-data'
@@ -52,23 +52,9 @@ export function AccountPage() {
     setBio(profile.bio ?? '')
   }, [profile])
 
-  const attempts = useAsyncData(
-    `account:attempts:${user?.id ?? 'none'}`,
-    () => fetchMyAttempts(user!.id, 20),
-    Boolean(user?.id),
-  )
-
-  const board = useAsyncData(
-    'account:board',
-    () => fetchGlobalLeaderboard(100),
-    Boolean(user?.id),
-  )
-
-  const myRank = (() => {
-    const list = board.data ?? []
-    const index = list.findIndex((entry) => entry.user_id === user?.id)
-    return index >= 0 ? { position: index + 1, total: list.length, row: list[index]! } : null
-  })()
+  // Their Endless record; /progress has the per-topic detail.
+  const endless = useAsyncData(`account:endless:${user?.id ?? 'none'}`, fetchMyEndlessStats, Boolean(user?.id))
+  const record = endless.data && endless.data.answered > 0 ? endless.data : null
 
   const handleSave = async (event: FormEvent) => {
     event.preventDefault()
@@ -231,28 +217,21 @@ export function AccountPage() {
           <Card className="p-6">
             <h2 className="text-ink-50 text-sm font-semibold">Thành tích</h2>
 
-            {board.loading ? (
+            {endless.loading ? (
               <div className="mt-4 space-y-3">
                 <Skeleton className="h-10 w-full" />
                 <Skeleton className="h-10 w-full" />
               </div>
-            ) : myRank ? (
+            ) : record ? (
               <>
                 <dl className="mt-5 grid grid-cols-2 gap-5">
+                  <Stat label="Chuỗi dài nhất" value={record.best_streak} hint="trong một lượt chơi" />
+                  <Stat label="Câu đúng" value={formatCompact(record.correct)} hint={`trên ${formatCompact(record.answered)} câu`} />
+                  <Stat label="Độ chính xác" value={formatPercent(record.accuracy)} />
                   <Stat
-                    label="Tổng điểm"
-                    value={formatCompact(myRank.row.total_score)}
-                    hint={`${myRank.row.attempt_count} lượt chơi`}
-                  />
-                  <Stat
-                    label="Xếp hạng"
-                    value={medalFor(myRank.position) || `#${myRank.position}`}
-                    hint={`trong ${myRank.total} người`}
-                  />
-                  <Stat label="Đề đã làm" value={myRank.row.quiz_count} />
-                  <Stat
-                    label="Độ chính xác"
-                    value={formatPercent(myRank.row.avg_accuracy)}
+                    label="Lượt chơi"
+                    value={formatCompact(record.runs)}
+                    hint={record.last_played_at ? formatRelative(record.last_played_at) : undefined}
                   />
                 </dl>
 
@@ -276,54 +255,11 @@ export function AccountPage() {
               </>
             ) : (
               <p className="text-ink-400 mt-3 text-sm leading-relaxed">
-                Bạn chưa hoàn thành đề nào. Làm một đề và thành tích sẽ xuất hiện ở đây.
-              </p>
-            )}
-          </Card>
-
-          <Card className="overflow-hidden">
-            <div className="border-ink-600/60 border-b px-5 py-4">
-              <h2 className="text-ink-50 text-sm font-semibold">Lịch sử gần đây</h2>
-            </div>
-
-            {attempts.loading ? (
-              <div className="space-y-3 p-5">
-                {Array.from({ length: 3 }, (_, index) => (
-                  <Skeleton key={index} className="h-10 w-full" />
-                ))}
-              </div>
-            ) : (attempts.data ?? []).length === 0 ? (
-              <p className="text-ink-400 p-5 text-sm">
-                Chưa có lượt chơi nào.{' '}
-                <Link to="/explore" className="text-neon-300 hover:underline">
+                Bạn chưa luyện câu nào.{' '}
+                <Link to="/endless" className="text-neon-300 hover:underline">
                   Bắt đầu ngay
                 </Link>
               </p>
-            ) : (
-              <ul className="divide-ink-600/60 divide-y">
-                {(attempts.data ?? []).map((entry) => (
-                  <li key={entry.attempt_id}>
-                    <Link
-                      to={`/q/${entry.quiz_slug}/result/${entry.attempt_id}`}
-                      className="hover:bg-ink-800/40 flex items-center gap-3 px-5 py-3 transition-colors"
-                    >
-                      <span aria-hidden>{entry.cover_emoji}</span>
-
-                      <div className="min-w-0 flex-1">
-                        <p className="text-ink-100 truncate text-sm">{entry.quiz_title}</p>
-                        <p className="text-ink-400 text-xs">
-                          {formatRelative(entry.completed_at)} ·{' '}
-                          {formatPercent(entry.accuracy)}
-                        </p>
-                      </div>
-
-                      <span className="text-ink-50 text-sm font-semibold tabular-nums">
-                        {entry.score}
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
             )}
           </Card>
         </div>

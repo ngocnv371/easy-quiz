@@ -24,7 +24,7 @@ export const APP_DESCRIPTION =
 /** The title a page gets when it does not set one of its own. */
 export const HOME_TITLE = `${APP_NAME} — ${TAGLINE} | ${BRAND_NAME}`
 
-/** Title of a sub-page, e.g. `Thư viện đề thi | Easy Quiz`. */
+/** Title of a sub-page, e.g. `Bảng xếp hạng | Easy Quiz`. */
 export function pageTitle(title: string): string {
   return `${title} | ${APP_NAME}`
 }

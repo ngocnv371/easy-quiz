@@ -7,17 +7,13 @@ import { Hono, type Context } from 'hono'
 import { adminOrders, adminOverview, adminUsers } from './admin.ts'
 import { generateQuestions } from './ai.ts'
 import { admins, authFor, memberOf, members, upgradeGuest } from './auth.ts'
-import {
-  attemptEntry, attemptsForOwner, attemptsOf, findQuizCards, globalLeaderboard, listTopics, ownProfile, personalBest,
-  profileByUsername, quizCardBySlug, quizLeaderboard,
-} from './catalog.ts'
-import { endlessLeaderboard, gradeAnswer, nextBatch, startSession } from './endless.ts'
+import { listTopics, ownProfile, profileByUsername } from './catalog.ts'
+import { endlessLeaderboard, endlessStats, gradeAnswer, nextBatch, startSession, topicLeaderboard } from './endless.ts'
 import type { AppEnv } from './env.ts'
 import { track } from './events.ts'
 import { importQuestions } from './import.ts'
-import { deleteQuiz, myQuizzes, quizForEdit, quizReport, saveQuiz, updateQuizStatus } from './manage.ts'
+import { deleteQuiz, myQuizzes, quizForEdit, saveQuiz, updateQuizStatus } from './manage.ts'
 import { checkout, listProducts, sync, webhook } from './payments.ts'
-import { playPayload, startQuiz, submitAttempt } from './play.ts'
 import { AppError, NOW, toInt, trimTo } from './sql.ts'
 
 const app = new Hono<AppEnv>().basePath('/api')
@@ -102,78 +98,29 @@ app.patch('/me/profile', async (c) => {
 // body: { email, password, displayName, organization? } -> { needsEmailConfirmation }
 app.post('/me/upgrade', async (c) => c.json(await upgradeGuest(c, await body(c))))
 
+// the player's Endless record: totals and every topic answered in (/progress)
+app.get('/me/endless', async (c) => c.json(await endlessStats(c.env.DB, c.get('member').id)))
+
 // ------------------------------------------------------------------ catalogue (anyone)
 
 app.get('/topics', async (c) => c.json(await listTopics(c.env.DB)))
 
-// ?topic=&topics=a,b&search=&difficulty=&sort=new|popular|alphabetical&limit=
-app.get('/quizzes', async (c) => {
-  const q = c.req.query()
-  return c.json(
-    await findQuizCards(c.env.DB, {
-      topic: q.topic || undefined,
-      topics: q.topics ? q.topics.split(',').filter(Boolean) : undefined,
-      search: q.search,
-      difficulty: q.difficulty || undefined,
-      sort: q.sort,
-      limit: toInt(q.limit, 60),
-    }),
-  )
-})
-
-app.get('/quizzes/:slug', async (c) => {
-  const quiz = await quizCardBySlug(c.env.DB, c.req.param('slug'), await viewerId(c))
-  return quiz ? c.json(quiz) : c.json({ error: 'Không tìm thấy đề thi này.' }, 404)
-})
-
-// the quiz without its answer key; 404 when it isn't playable
-app.get('/quizzes/:slug/play', async (c) => {
-  const payload = await playPayload(c.env.DB, c.req.param('slug'))
-  return payload ? c.json(payload) : c.json({ error: 'Không tìm thấy đề thi này.' }, 404)
-})
-
-app.get('/leaderboard/global', async (c) => c.json(await globalLeaderboard(c.env.DB, limitOf(c, 50))))
 app.get('/leaderboard/endless', async (c) => c.json(await endlessLeaderboard(c.env.DB, limitOf(c, 50))))
-app.get('/leaderboard/quiz/:quizId', async (c) => c.json(await quizLeaderboard(c.env.DB, c.req.param('quizId'), await viewerId(c), limitOf(c, 20))))
-
-// ?user=<id>: a player's attempts, newest first
-app.get('/attempts', async (c) => c.json(await attemptsOf(c.env.DB, c.req.query('user') ?? '', await viewerId(c), limitOf(c, 30))))
-
-// ?quiz=&user=&exclude= -> { best }
-app.get('/attempts/best', async (c) => {
-  const q = c.req.query()
-  return c.json({ best: await personalBest(c.env.DB, q.quiz ?? '', q.user ?? '', q.exclude || null) })
-})
-
-app.get('/attempts/:id', async (c) => {
-  const entry = await attemptEntry(c.env.DB, c.req.param('id'), await viewerId(c))
-  return entry ? c.json(entry) : c.json({ error: 'Không tìm thấy lượt làm bài.' }, 404)
-})
+// ?topic=<slug>: correct Endless answers in that topic; across every topic without it
+app.get('/leaderboard/topics', async (c) => c.json(await topicLeaderboard(c.env.DB, c.req.query('topic') || null, limitOf(c, 50))))
 
 app.get('/profiles/:username', async (c) => {
   const profile = await profileByUsername(c.env.DB, c.req.param('username'))
   return profile ? c.json(profile) : c.json({ error: 'Không tìm thấy người chơi.' }, 404)
 })
 
-// ------------------------------------------------------------------ playing (guests count as members)
-
-app.use('/quizzes/:slug/start', members)
-app.use('/quizzes/:slug/submit', members)
-
-// -> { ticket_id, question_count }
-app.post('/quizzes/:slug/start', async (c) => {
-  const res = await startQuiz(c.env.DB, c.get('member'), c.req.param('slug'))
-  track(c.env, 'quiz_started', { user: c.get('member').id, detail: c.req.param('slug'), value: res.question_count })
-  return c.json(res)
+// the same record, public: the boards already show these counts
+app.get('/profiles/:username/endless', async (c) => {
+  const profile = (await profileByUsername(c.env.DB, c.req.param('username'))) as { id: string } | null
+  return profile ? c.json(await endlessStats(c.env.DB, profile.id)) : c.json({ error: 'Không tìm thấy người chơi.' }, 404)
 })
 
-// body: { answers: [{ question_id, option_id?, marks?: { [option id]: boolean }, text?, time_ms }], duration_seconds,
-//   guest_name?, ticket_id } -> the review (worker/grading.ts reads the field that fits each question's kind)
-app.post('/quizzes/:slug/submit', async (c) => {
-  const res = await submitAttempt(c.env.DB, c.get('member'), { ...(await body(c)), slug: c.req.param('slug') })
-  track(c.env, 'attempt_submitted', { user: c.get('member').id, detail: c.req.param('slug'), value: res.attempt.accuracy })
-  return c.json(res)
-})
+// ------------------------------------------------------------------ Endless, the one way to play (guests count as members)
 
 // body: { limit?, exclude?: [ids], topic_id? } -> { questions, progress }; anyone (progress needs a session)
 app.post('/endless/batch', async (c) => {
@@ -188,10 +135,15 @@ app.use('/endless/grade', members)
 // body: { topic_id? } -> { id }
 app.post('/endless/sessions', async (c) => c.json({ id: await startSession(c.env.DB, c.get('member'), trimTo((await body(c)).topic_id, 64)) }))
 
-// body: { question_id, option_id, session_id? } -> the reveal
+// body: { question_id, option_id? | marks? | text?, session_id? } (the field the question's kind needs) -> the reveal
 app.post('/endless/grade', async (c) => {
   const b = await body(c)
-  const res = await gradeAnswer(c.env.DB, c.get('member'), String(b.question_id ?? ''), String(b.option_id ?? ''), trimTo(b.session_id, 64))
+  const given = {
+    option_id: typeof b.option_id === 'string' ? b.option_id : null,
+    marks: b.marks && typeof b.marks === 'object' && !Array.isArray(b.marks) ? (b.marks as Record<string, boolean>) : null,
+    text: typeof b.text === 'string' ? b.text : null,
+  }
+  const res = await gradeAnswer(c.env.DB, c.get('member'), String(b.question_id ?? ''), given, trimTo(b.session_id, 64))
   track(c.env, 'endless_answer', { user: c.get('member').id, detail: res.is_correct ? 'correct' : 'wrong' })
   return c.json(res)
 })
@@ -254,17 +206,10 @@ app.delete('/manage/quizzes/:id', async (c) => {
   return c.body(null, 204)
 })
 
-app.get('/manage/quizzes/:id/report', async (c) => {
-  const report = await quizReport(c.env.DB, c.get('member').id, c.req.param('id'))
-  return report ? c.json(report) : c.json({ error: 'Không tìm thấy đề thi.' }, 404)
-})
-
 // the whole site, for the stats page
 app.get('/manage/overview', async (c) => c.json(await adminOverview(c.env.DB)))
 app.get('/manage/users', async (c) => c.json(await adminUsers(c.env.DB, c.req.query())))
 app.get('/manage/orders', async (c) => c.json(await adminOrders(c.env.DB, c.req.query())))
-
-app.get('/manage/attempts',async (c) => c.json(await attemptsForOwner(c.env.DB, c.get('member').id, limitOf(c, 25))))
 
 // body: { csv, filename? } -> { subjects, quizzes, questions, total_rows, skipped, skipped_total, filename }
 app.post('/manage/import', async (c) => {

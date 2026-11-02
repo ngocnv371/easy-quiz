@@ -425,6 +425,7 @@ export interface EndlessTopic {
 
 export interface EndlessQuestion {
   id: string
+  kind: QuestionKind
   prompt: string
   image_url: string | null
   points: number
@@ -455,11 +456,25 @@ export interface EndlessBatch {
   progress: EndlessTopicProgress[]
 }
 
+/** One option with its key, once its question has been answered. */
+export interface KeyedOption {
+  id: string
+  label: string
+  is_correct: boolean
+}
+
 export interface EndlessGrade {
   question_id: string
-  option_id: string | null
+  kind: QuestionKind
   is_correct: boolean
+  /** What the player gave, as graded: the option (single), the marks (true/false) or the text (short answer). */
+  option_id: string | null
+  marks: Record<string, boolean> | null
+  text: string | null
+  /** Single choice only. */
   correct_option_id: string | null
+  /** True/false: each statement and its truth. Short answer: the accepted answers. Null for single choice. */
+  key: KeyedOption[] | null
   explanation: string | null
   topic: EndlessTopic | null
   /** Updated progress for this question's topic, or null when it has none. */
@@ -493,6 +508,30 @@ export function toEndlessLeaderboardEntry(row: EndlessLeaderboardEntry): Endless
   }
 }
 
+
+/** A player's Endless record: totals over every run and every topic answered in. */
+export interface EndlessStats {
+  runs: number
+  best_streak: number
+  last_played_at: string | null
+  answered: number
+  correct: number
+  accuracy: number
+  topics: EndlessTopicProgress[]
+}
+
+// One row of a topic board: correct Endless answers in a topic (or every topic), all-time.
+export interface TopicLeaderboardEntry {
+  user_id: string
+  username: string
+  display_name: string
+  avatar_emoji: string
+  is_guest: boolean
+  correct: number
+  answered: number
+  accuracy: number
+  last_played_at: string
+}
 
 // ── Editor document ────────────────────────────────────────────────────────
 export interface QuizDraftOption {
