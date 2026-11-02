@@ -34,6 +34,7 @@ import {
 } from '@/features/quiz/question-motion'
 import {
   AREA_LABELS,
+  MIN_ANSWERED,
   areaStrength,
   sortByStrength,
   type AreaStrength,
@@ -349,7 +350,9 @@ function EndlessPlayer({
         <header className="border-ink-600/50 bg-ink-950/80 sticky top-0 z-20 border-b backdrop-blur-sm">
           <div className="relative mx-auto flex w-full max-w-3xl items-center gap-2 px-4 py-3 sm:px-5 sm:py-3.5">
             <Link to="/" aria-label="Easy Quiz" className="shrink-0">
+              {/* Just the mark on a phone, so the subject keeps its name. */}
               <EasyQuizLogo
+                compact
                 markClassName="size-8"
                 tagline={
                   <span className="inline-flex items-center gap-1">
@@ -361,7 +364,7 @@ function EndlessPlayer({
             </Link>
 
             {/* The subject label takes whatever room the brand and stats leave. */}
-            <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-1.5">
+            <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-1.5 sm:gap-2">
               <Button
                 variant="outline"
                 size="sm"
@@ -743,6 +746,9 @@ function StatPill({
   )
 }
 
+/** Topics the stop summary lists before "Xem tất cả". */
+const AREAS_SHOWN = 3
+
 function StopSummary({
   stats,
   history,
@@ -757,18 +763,24 @@ function StopSummary({
   onRestart: () => void
 }) {
   const accuracy = stats.answered === 0 ? 0 : (stats.correct / stats.answered) * 100
+  // The strongest few are enough to read the profile; the rest would push the review out of reach.
+  const [showAllAreas, setShowAllAreas] = useState(false)
 
   return (
-    <div className="bg-ink-950/85 fixed inset-0 z-50 flex items-center justify-center p-3 backdrop-blur sm:p-5">
-      {/* Fits the screen: the header, stats and buttons stay put and only the middle scrolls. */}
+    <div className="bg-ink-950/85 fixed inset-0 z-50 flex items-center justify-center backdrop-blur sm:p-5">
+      {/* Fits the screen: the header, stats and buttons stay put and only the middle scrolls. A full-screen
+          sheet on a phone, a centred card from sm up. */}
       <Card
         data-cy="endless-summary"
-        className={cn('animate-pop flex max-h-full w-full flex-col', history.length > 0 ? 'max-w-2xl' : 'max-w-lg')}
+        className={cn(
+          'animate-pop flex h-full w-full flex-col rounded-none sm:h-auto sm:max-h-full sm:rounded-2xl',
+          history.length > 0 ? 'sm:max-w-2xl' : 'sm:max-w-lg',
+        )}
       >
-        <div className="shrink-0 px-5 pt-5 sm:px-6 sm:pt-6">
+        <div className="shrink-0 px-4 pt-[max(1rem,env(safe-area-inset-top))] sm:px-6 sm:pt-6">
           <div className="flex items-center gap-3">
-            <span className="border-neon-400/40 bg-neon-400/10 text-neon-300 flex size-11 items-center justify-center rounded-2xl border">
-              <Sparkles className="size-5" aria-hidden />
+            <span className="border-neon-400/40 bg-neon-400/10 text-neon-300 flex size-9 items-center justify-center rounded-xl border sm:size-11 sm:rounded-2xl">
+              <Sparkles className="size-4 sm:size-5" aria-hidden />
             </span>
             <div>
               <h2 className="font-display text-ink-50 text-lg font-semibold">Phiên luyện tập</h2>
@@ -776,7 +788,7 @@ function StopSummary({
             </div>
           </div>
 
-          <dl className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <dl className="mt-4 grid grid-cols-4 gap-2 sm:mt-6 sm:gap-3">
             <SummaryStat label="Đã làm" value={stats.answered} />
             <SummaryStat label="Đúng" value={stats.correct} tone="correct" />
             <SummaryStat label="Chính xác" value={formatPercent(accuracy)} />
@@ -784,55 +796,79 @@ function StopSummary({
           </dl>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-1 sm:px-6" data-cy="endless-summary-scroll">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-1 sm:px-6" data-cy="endless-summary-scroll">
           {areas.length > 0 ? (
-            <div className="border-ink-600/60 mt-6 border-t pt-5">
+            <div className="border-ink-600/60 mt-4 border-t pt-4 sm:mt-6 sm:pt-5">
               <p className="text-ink-400 text-[0.7rem] font-medium tracking-[0.16em] uppercase">
                 Hồ sơ năng lực
               </p>
+              <p className="text-ink-400 mt-1 text-xs">
+                Số câu đúng trên số câu đã trả lời ở chế độ vô tận, tính từ trước đến nay. Cần ít nhất{' '}
+                {MIN_ANSWERED} câu để xếp loại.
+              </p>
               <ul className="mt-3 space-y-3">
-                {areas.map((area) => {
+                {(showAllAreas ? areas : areas.slice(0, AREAS_SHOWN)).map((area) => {
                   const strength = areaStrength(area.accuracy, area.answered)
                   return (
-                    <li key={area.topic_id} className="flex items-center gap-3">
-                      <span aria-hidden>{area.emoji}</span>
+                    <li key={area.topic_id} className="flex items-start gap-3">
+                      <span aria-hidden className="mt-0.5">
+                        {area.emoji}
+                      </span>
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-baseline justify-between gap-2">
-                          <span className="text-ink-100 truncate text-sm">{area.name}</span>
-                          <span className="text-ink-400 shrink-0 font-mono text-xs tabular-nums">
-                            {area.correct}/{area.answered}
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="text-ink-100 line-clamp-2 min-w-0 text-sm leading-snug sm:truncate">{area.name}</span>
+                          <span
+                            className={cn(
+                              'shrink-0 rounded-full border px-2 py-0.5 text-[0.7rem] font-medium whitespace-nowrap sm:text-xs',
+                              STRENGTH_CHIP[strength],
+                            )}
+                          >
+                            {AREA_LABELS[strength]}
                           </span>
                         </div>
-                        <div className="bg-ink-800 mt-1.5 h-1.5 overflow-hidden rounded-full">
-                          <div
-                            className={cn('h-full rounded-full', STRENGTH_BAR[strength])}
-                            style={{ width: `${Math.max(area.accuracy, 3)}%` }}
-                          />
+                        <div className="mt-1.5 flex items-center gap-3">
+                          <div className="bg-ink-800 h-1.5 flex-1 overflow-hidden rounded-full">
+                            <div
+                              className={cn('h-full rounded-full', STRENGTH_BAR[strength])}
+                              style={{ width: `${Math.max(area.accuracy, 3)}%` }}
+                            />
+                          </div>
+                          <span className="text-ink-400 shrink-0 text-xs tabular-nums">
+                            Đúng {area.correct}/{area.answered} câu
+                          </span>
                         </div>
                       </div>
-                      <span className={cn('shrink-0 text-xs font-medium', STRENGTH_CHIP[strength], 'rounded-full border px-2 py-0.5')}>
-                        {AREA_LABELS[strength]}
-                      </span>
                     </li>
                   )
                 })}
               </ul>
+              {areas.length > AREAS_SHOWN ? (
+                <button
+                  type="button"
+                  onClick={() => setShowAllAreas((value) => !value)}
+                  aria-expanded={showAllAreas}
+                  className="text-neon-300 hover:text-neon-200 mt-3 text-xs font-medium"
+                  data-cy="endless-areas-toggle"
+                >
+                  {showAllAreas ? 'Thu gọn' : `Xem tất cả ${areas.length} chủ đề`}
+                </button>
+              ) : null}
             </div>
           ) : null}
 
           {history.length > 0 ? <AnswerReview history={history} /> : null}
         </div>
 
-        <div className="border-ink-600/60 flex shrink-0 flex-wrap gap-3 border-t px-5 py-4 sm:px-6">
-          <Button onClick={onRestart}>
+        <div className="border-ink-600/60 flex shrink-0 items-center gap-2 border-t px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:gap-3 sm:px-6 sm:py-4">
+          <Button onClick={onRestart} className="flex-1 sm:flex-none">
             <RotateCcw className="size-4" aria-hidden />
             Chơi tiếp
           </Button>
-          <ButtonLink to="/" variant="outline">
+          <ButtonLink to="/" variant="outline" aria-label="Trang chủ">
             <Home className="size-4" aria-hidden />
-            Trang chủ
+            <span className="hidden sm:inline">Trang chủ</span>
           </ButtonLink>
-          <ButtonLink to="/explore" variant="ghost">
+          <ButtonLink to="/explore" variant="ghost" className="px-3 sm:px-4">
             Thư viện đề
           </ButtonLink>
         </div>
@@ -856,7 +892,7 @@ function AnswerReview({ history }: { history: EndlessAnswered[] }) {
 
   return (
     <div className="border-ink-600/60 mt-6 border-t" data-cy="endless-review">
-      <div className="bg-ink-900/95 sticky top-0 z-10 -mx-5 flex flex-wrap items-center justify-between gap-2 px-5 py-3 backdrop-blur sm:-mx-6 sm:px-6">
+      <div className="bg-ink-900/95 sticky top-0 z-10 -mx-4 flex flex-wrap items-center justify-between gap-2 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6">
         <p className="text-ink-400 text-[0.7rem] font-medium tracking-[0.16em] uppercase">Xem lại câu trả lời</p>
         <div className="flex gap-1.5" role="group" aria-label="Lọc câu trả lời">
           {[
@@ -889,7 +925,7 @@ function AnswerReview({ history }: { history: EndlessAnswered[] }) {
             <li key={`${question.id}-${number}`} className="flex gap-3">
               <span
                 className={cn(
-                  'mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg',
+                  'mt-0.5 hidden size-7 shrink-0 items-center justify-center rounded-lg sm:flex',
                   grade.is_correct ? 'bg-correct-500/15 text-correct-300' : 'bg-wrong-500/15 text-wrong-300',
                 )}
                 aria-label={grade.is_correct ? 'Đúng' : 'Sai'}
@@ -899,6 +935,11 @@ function AnswerReview({ history }: { history: EndlessAnswered[] }) {
 
               <div className="min-w-0 flex-1">
                 <p className="text-ink-50 text-sm leading-relaxed font-medium">
+                  {grade.is_correct ? (
+                    <CheckCircle2 className="text-correct-300 mr-1.5 -mt-0.5 inline size-4 sm:hidden" aria-hidden />
+                  ) : (
+                    <XCircle className="text-wrong-300 mr-1.5 -mt-0.5 inline size-4 sm:hidden" aria-hidden />
+                  )}
                   <span className="text-ink-400 mr-2 tabular-nums">Câu {number}.</span>
                   {question.prompt}
                 </p>
@@ -949,11 +990,11 @@ function SummaryStat({
   } as const
 
   return (
-    <div className="bg-ink-800/60 rounded-xl border border-ink-600/60 px-3 py-3">
-      <dt className="text-ink-400 text-[0.65rem] font-medium tracking-[0.14em] uppercase">
+    <div className="bg-ink-800/60 flex flex-col justify-between rounded-xl border border-ink-600/60 px-2 py-2 sm:px-3 sm:py-3">
+      <dt className="text-ink-400 text-[0.6rem] leading-tight font-medium tracking-[0.06em] uppercase sm:text-[0.65rem] sm:tracking-[0.14em]">
         {label}
       </dt>
-      <dd className={cn('font-display mt-1 text-xl font-semibold tabular-nums', tones[tone])}>
+      <dd className={cn('font-display mt-1 text-lg font-semibold tabular-nums sm:text-xl', tones[tone])}>
         {value}
       </dd>
     </div>
