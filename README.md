@@ -313,8 +313,10 @@ Playing is **free and unlimited**. What pays for it is an **ad break after every
 session**, and a **one-time purchase that removes it for good**.
 
 - **Where the break shows** (`src/features/ads/ad-break.tsx`):
-  - **Endless:** after every second finished round (`ADS_EVERY_ROUNDS` in `endless-page.tsx`),
-    and when the run stops with anything answered since the last break.
+  - **Endless:** on the way out of a summary, never in front of one. Pressing "Vòng tiếp theo"
+    (next round) or "Chơi tiếp" (play again) plays it once two rounds' worth of answers
+    (`ADS_EVERY_ROUNDS` in `endless-page.tsx`) have come in since the last break, counted across runs
+    so stopping and starting again doesn't skip it. A player who leaves from a summary sees none.
   - Never while a question is on screen.
 - **The ad:** a full-screen stage (not a dialog) with one labelled AdSense display unit and a
   continue button that unlocks after 5 seconds. The publisher id and ad unit are in

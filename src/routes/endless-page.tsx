@@ -246,17 +246,30 @@ function EndlessPlayer({
     restart,
   } = session
 
-  // Ad breaks, unless the player is ad-free: after every second finished round, and when the run
-  // stops with anything answered since the last one. `adShownAt` is how many answers had been
-  // given when the last break was dismissed.
+  // The ad break, unless the player is ad-free, sits in front of carrying on: pressing "Vòng tiếp
+  // theo" or "Chơi tiếp" plays it once two rounds' worth of answers have come in since the last one.
+  // A summary always opens straight away. `adShownAt` is where `history.length` stood at the last
+  // break; a new run shifts it back by the old run's answers, so stopping and starting again doesn't
+  // reset the count.
   const showAds = useShowAds()
   const [adShownAt, setAdShownAt] = useState(0)
-  const sinceAd = history.length - adShownAt
-  const adDue =
-    showAds && ((phase === 'roundEnd' && sinceAd >= ROUND_SIZE * ADS_EVERY_ROUNDS) || (phase === 'stopped' && sinceAd > 0))
+  const [adBefore, setAdBefore] = useState<'nextRound' | 'restart' | null>(null)
+  const adDue = showAds && history.length - adShownAt >= ROUND_SIZE * ADS_EVERY_ROUNDS
   const restartRun = () => {
-    setAdShownAt(0)
+    setAdShownAt((previous) => previous - history.length)
     void restart()
+  }
+  const carryOn = (next: 'nextRound' | 'restart') => {
+    if (adDue) setAdBefore(next)
+    else if (next === 'nextRound') nextRound()
+    else restartRun()
+  }
+  const afterAd = () => {
+    const next = adBefore
+    setAdBefore(null)
+    setAdShownAt(history.length)
+    if (next === 'nextRound') nextRound()
+    else restartRun()
   }
 
   // Where the player is in the round. While a question waits for its answer it is already counted.
@@ -617,19 +630,16 @@ function EndlessPlayer({
         </footer>
       </div>
 
-      {/* ── Ad break, then the stop summary ──────────────────────────── */}
-      {adDue ? (
-        <AdBreak
-          continueLabel={phase === 'roundEnd' ? 'Xem kết quả vòng' : 'Xem tổng kết'}
-          onContinue={() => setAdShownAt(history.length)}
-        />
+      {/* ── Summaries, and the ad break on the way out of one ─────────── */}
+      {adBefore ? (
+        <AdBreak continueLabel={adBefore === 'nextRound' ? 'Vào vòng tiếp theo' : 'Chơi tiếp'} onContinue={afterAd} />
       ) : phase === 'roundEnd' ? (
         <RoundSummary
           round={round}
           answers={history.slice(roundStart)}
           streak={stats.streak}
           bestStreak={stats.bestStreak}
-          onNext={nextRound}
+          onNext={() => carryOn('nextRound')}
           onStop={stop}
         />
       ) : phase === 'stopped' ? (
@@ -639,7 +649,7 @@ function EndlessPlayer({
           unreviewed={history.slice(roundStart)}
           areas={areas}
           seconds={seconds}
-          onRestart={restartRun}
+          onRestart={() => carryOn('restart')}
         />
       ) : null}
 
@@ -913,7 +923,7 @@ function StatPill({
 /** Topics the stop summary lists before "Xem tất cả". */
 const AREAS_SHOWN = 3
 
-/** Ad breaks come after this many finished rounds. */
+/** An ad break is due once this many rounds' worth of answers have come in since the last one. */
 const ADS_EVERY_ROUNDS = 2
 
 /**

@@ -124,7 +124,7 @@ export function NoAdsPage() {
             <h2 className="text-ink-50 text-sm font-semibold">Hoạt động thế nào?</h2>
             <ul className="text-ink-300 mt-4 space-y-3 text-sm">
               <HowItem>Luyện bao nhiêu câu, bao nhiêu chủ đề cũng được — không giới hạn.</HowItem>
-              <HowItem>Cứ hai vòng (20 câu), và khi bạn dừng luyện tập, có một quảng cáo vài giây.</HowItem>
+              <HowItem>Cứ sau hai vòng (20 câu), một quảng cáo vài giây khi bạn bấm chơi tiếp. Xem kết quả thì không cần chờ.</HowItem>
               <HowItem>Không có quảng cáo trong lúc đang trả lời câu hỏi.</HowItem>
               <HowItem>
                 Gỡ quảng cáo là trả <strong className="text-ink-100">một lần</strong>, dùng mãi mãi trên
