@@ -15,6 +15,8 @@ export type EndlessPhase =
   | 'loading'
   | 'playing'
   | 'grading'
+  /** A round's last answer is in: the round summary is up until the player moves on. */
+  | 'roundEnd'
   | 'stopped'
   | 'error'
 
@@ -33,6 +35,13 @@ export interface EndlessAnswered {
   question: EndlessQuestion
   grade: EndlessGrade
 }
+
+/**
+ * Questions per round. The stream itself never ends, but it is played in rounds
+ * so there is always a near goal, a summary of a manageable size, and a
+ * predictable place for the ad break. The streak and the run carry across rounds.
+ */
+export const ROUND_SIZE = 10
 
 /** Pull the next batch once the buffer is this short. */
 const PREFETCH_AT = 3
@@ -54,6 +63,10 @@ export interface EndlessSession {
   stats: EndlessStats
   /** Every graded answer this session, oldest first. */
   history: EndlessAnswered[]
+  /** 1-based number of the round being played (or just finished). */
+  round: number
+  /** Index into `history` where the current round's answers start. */
+  roundStart: number
   progress: EndlessTopicProgress[]
   error: string | null
   /** Wall-clock seconds spent in this session. */
@@ -62,6 +75,8 @@ export interface EndlessSession {
   exhausted: boolean
   selectOption: (optionId: string) => void
   advance: () => void
+  /** From the round summary into the next round. */
+  nextRound: () => void
   stop: () => void
   restart: () => void
 }
@@ -101,6 +116,7 @@ export function useEndlessSession(
   const [feedback, setFeedback] = useState<EndlessGrade | null>(null)
   const [stats, setStats] = useState<EndlessStats>(EMPTY_STATS)
   const [history, setHistory] = useState<EndlessAnswered[]>([])
+  const [roundStart, setRoundStart] = useState(0)
   const [progress, setProgress] = useState<EndlessTopicProgress[]>([])
   const [error, setError] = useState<string | null>(null)
   const [seconds, setSeconds] = useState(0)
@@ -118,6 +134,9 @@ export function useEndlessSession(
   const bootedRef = useRef(false)
   /** The server-side run id this session's answers are attributed to. */
   const sessionIdRef = useRef<string | null>(null)
+  /** Mirrors of `history.length` and `roundStart`, for callbacks that must not re-create. */
+  const answeredRef = useRef(0)
+  const roundStartRef = useRef(0)
 
   useEffect(() => {
     queueRef.current = queue
@@ -126,6 +145,14 @@ export function useEndlessSession(
   useEffect(() => {
     phaseRef.current = phase
   }, [phase])
+
+  useEffect(() => {
+    answeredRef.current = history.length
+  }, [history.length])
+
+  useEffect(() => {
+    roundStartRef.current = roundStart
+  }, [roundStart])
 
   /**
    * Ask the server for the next batch and append whatever is new. Returns how
@@ -226,12 +253,20 @@ export function useEndlessSession(
       })
   }, [])
 
-  /** Move on to the buffered question. Safe to call before the timer fires. */
+  /**
+   * Move on to the buffered question, or to the round summary once the round's
+   * last answer is in. Safe to call before the timer fires.
+   */
   const advance = useCallback(() => {
     setSelected(null)
     setFeedback(null)
     setQueue((previous) => previous.slice(1))
     setShown((value) => value + 1)
+    setPhase(answeredRef.current - roundStartRef.current >= ROUND_SIZE ? 'roundEnd' : 'playing')
+  }, [])
+
+  const nextRound = useCallback(() => {
+    setRoundStart(answeredRef.current)
     setPhase('playing')
   }, [])
 
@@ -253,7 +288,12 @@ export function useEndlessSession(
     return () => window.clearInterval(timer)
   }, [phase])
 
-  const stop = useCallback(() => setPhase('stopped'), [])
+  // Stopping from the round summary closes that round first, so the stop summary
+  // doesn't review it a second time.
+  const stop = useCallback(() => {
+    if (phaseRef.current === 'roundEnd') setRoundStart(answeredRef.current)
+    setPhase('stopped')
+  }, [])
 
   const restart = useCallback(async () => {
     seenRef.current = new Set()
@@ -265,6 +305,7 @@ export function useEndlessSession(
     setFeedback(null)
     setStats(EMPTY_STATS)
     setHistory([])
+    setRoundStart(0)
     setSeconds(0)
     setShown(0)
     await begin()
@@ -279,12 +320,15 @@ export function useEndlessSession(
     feedback,
     stats,
     history,
+    round: Math.floor(roundStart / ROUND_SIZE) + 1,
+    roundStart,
     progress,
     error,
     seconds,
     exhausted,
     selectOption,
     advance,
+    nextRound,
     stop,
     restart,
   }

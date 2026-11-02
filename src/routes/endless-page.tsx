@@ -41,7 +41,7 @@ import {
 } from '@/features/quiz/endless-progress'
 import { fetchTopics } from '@/features/quiz/api'
 import { TopicScopePicker } from '@/features/quiz/topic-scope-picker'
-import { useEndlessSession, type EndlessAnswered } from '@/features/quiz/use-endless-session'
+import { ROUND_SIZE, useEndlessSession, type EndlessAnswered } from '@/features/quiz/use-endless-session'
 import { useAuth } from '@/features/auth/auth-context'
 import { AdBreak } from '@/features/ads/ad-break'
 import { useShowAds } from '@/features/ads/adsense'
@@ -248,23 +248,35 @@ function EndlessPlayer({
     feedback,
     stats,
     history,
+    round,
+    roundStart,
     progress,
     error,
     seconds,
     exhausted,
     selectOption,
     advance,
+    nextRound,
     stop,
     restart,
   } = session
 
-  // A run that answered something ends on an ad break, unless the player is ad-free.
+  // Ad breaks, unless the player is ad-free: after every second finished round, and when the run
+  // stops with anything answered since the last one. `adShownAt` is how many answers had been
+  // given when the last break was dismissed.
   const showAds = useShowAds()
-  const [adPending, setAdPending] = useState(false)
-  const onStop = () => {
-    setAdPending(showAds && stats.answered > 0)
-    stop()
+  const [adShownAt, setAdShownAt] = useState(0)
+  const sinceAd = history.length - adShownAt
+  const adDue =
+    showAds && ((phase === 'roundEnd' && sinceAd >= ROUND_SIZE * ADS_EVERY_ROUNDS) || (phase === 'stopped' && sinceAd > 0))
+  const restartRun = () => {
+    setAdShownAt(0)
+    void restart()
   }
+
+  // Where the player is in the round. While a question waits for its answer it is already counted.
+  const roundAnswered = history.length - roundStart
+  const roundQuestion = Math.min(ROUND_SIZE, roundAnswered + (feedback || phase === 'roundEnd' ? 0 : 1))
 
   const grading = phase === 'grading'
   const accuracy = stats.answered === 0 ? 0 : (stats.correct / stats.answered) * 100
@@ -388,6 +400,22 @@ function EndlessPlayer({
               </StatPill>
             </div>
 
+            {/* The round's progress, along the bar's bottom edge. */}
+            <div
+              className="bg-ink-800/80 absolute inset-x-0 -bottom-px h-0.5 overflow-hidden"
+              role="progressbar"
+              aria-label={`Vòng ${round}`}
+              aria-valuemin={0}
+              aria-valuemax={ROUND_SIZE}
+              aria-valuenow={roundAnswered}
+              data-cy="endless-round-progress"
+            >
+              <div
+                className="from-neon-400 to-violet-glow-400 h-full bg-gradient-to-r transition-[width] duration-500"
+                style={{ width: `${(Math.min(roundAnswered, ROUND_SIZE) / ROUND_SIZE) * 100}%` }}
+              />
+            </div>
+
             {/* Just under the bar, well away from the answers: what is being practised on the left (a
                 long subject wraps rather than squeezing the bar), the clock and stop on the right. */}
             <div className="pointer-events-none absolute inset-x-4 top-full mt-3 flex items-start justify-between gap-3 sm:inset-x-5">
@@ -398,7 +426,9 @@ function EndlessPlayer({
                 title="Đổi chủ đề"
                 className="text-ink-200 hover:text-ink-50 pointer-events-auto mt-1 min-w-0 text-left text-sm leading-snug transition-colors"
               >
-                <span className="text-ink-400 block text-[0.65rem] font-medium tracking-[0.14em] uppercase">Đang luyện</span>
+                <span className="text-ink-400 block text-[0.65rem] font-medium tracking-[0.14em] uppercase" data-cy="endless-round">
+                  Vòng {round} · Câu {roundQuestion}/{ROUND_SIZE}
+                </span>
                 <span className="line-clamp-3 font-medium sm:line-clamp-2">
                   {scopeTopic ? (
                     <span aria-hidden className="mr-1">
@@ -411,7 +441,7 @@ function EndlessPlayer({
 
               <button
                 type="button"
-                onClick={onStop}
+                onClick={stop}
                 data-cy="endless-stop"
                 aria-label={`Dừng phiên luyện tập (${formatClock(seconds)})`}
                 className="border-ink-600/70 bg-ink-900/90 hover:border-ink-500 hover:bg-ink-800 text-ink-100 pointer-events-auto inline-flex shrink-0 items-center gap-2 rounded-full border py-2 pr-3.5 pl-3 text-sm sm:gap-2.5 sm:pr-4 sm:pl-3.5 font-medium shadow-lg shadow-black/40 backdrop-blur transition-colors"
@@ -456,7 +486,7 @@ function EndlessPlayer({
               }
               action={
                 <div className="flex flex-wrap justify-center gap-3">
-                  <Button onClick={() => void restart()}>
+                  <Button onClick={restartRun}>
                     <RotateCcw className="size-4" aria-hidden />
                     Chơi lại
                   </Button>
@@ -593,15 +623,28 @@ function EndlessPlayer({
       </div>
 
       {/* ── Ad break, then the stop summary ──────────────────────────── */}
-      {phase === 'stopped' && adPending ? (
-        <AdBreak continueLabel="Xem tổng kết" onContinue={() => setAdPending(false)} />
+      {adDue ? (
+        <AdBreak
+          continueLabel={phase === 'roundEnd' ? 'Xem kết quả vòng' : 'Xem tổng kết'}
+          onContinue={() => setAdShownAt(history.length)}
+        />
+      ) : phase === 'roundEnd' ? (
+        <RoundSummary
+          round={round}
+          answers={history.slice(roundStart)}
+          streak={stats.streak}
+          bestStreak={stats.bestStreak}
+          onNext={nextRound}
+          onStop={stop}
+        />
       ) : phase === 'stopped' ? (
         <StopSummary
           stats={stats}
-          history={history}
+          rounds={Math.floor(roundStart / ROUND_SIZE)}
+          unreviewed={history.slice(roundStart)}
           areas={areas}
           seconds={seconds}
-          onRestart={() => void restart()}
+          onRestart={restartRun}
         />
       ) : null}
 
@@ -613,7 +656,7 @@ function EndlessPlayer({
               {error}
             </Alert>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Button onClick={() => void restart()}>
+              <Button onClick={restartRun}>
                 <RotateCcw className="size-4" aria-hidden />
                 Thử lại
               </Button>
@@ -770,117 +813,168 @@ function StatPill({
 /** Topics the stop summary lists before "Xem tất cả". */
 const AREAS_SHOWN = 3
 
-function StopSummary({
-  stats,
-  history,
-  areas,
-  seconds,
-  onRestart,
-}: {
-  stats: { answered: number; correct: number; bestStreak: number }
-  history: EndlessAnswered[]
-  areas: EndlessTopicProgress[]
-  seconds: number
-  onRestart: () => void
-}) {
-  const accuracy = stats.answered === 0 ? 0 : (stats.correct / stats.answered) * 100
-  // The strongest few are enough to read the profile; the rest would push the review out of reach.
-  const [showAllAreas, setShowAllAreas] = useState(false)
+/** Ad breaks come after this many finished rounds. */
+const ADS_EVERY_ROUNDS = 2
 
+/**
+ * The frame both summaries share. Fits the screen: the header, stats and
+ * buttons stay put and only the middle scrolls. A full-screen sheet on a phone,
+ * a centred card from sm up.
+ */
+function SummarySheet({
+  dataCy,
+  wide,
+  icon: Icon,
+  title,
+  subtitle,
+  stats,
+  footer,
+  children,
+}: {
+  dataCy: string
+  /** Room for an answer review. */
+  wide: boolean
+  icon: typeof Sparkles
+  title: ReactNode
+  subtitle: ReactNode
+  stats: ReactNode
+  footer: ReactNode
+  children: ReactNode
+}) {
   return (
     <div className="bg-ink-950/85 fixed inset-0 z-50 flex items-center justify-center backdrop-blur sm:p-5">
-      {/* Fits the screen: the header, stats and buttons stay put and only the middle scrolls. A full-screen
-          sheet on a phone, a centred card from sm up. */}
       <Card
-        data-cy="endless-summary"
+        data-cy={dataCy}
         className={cn(
           'animate-pop flex h-full w-full flex-col rounded-none sm:h-auto sm:max-h-full sm:rounded-2xl',
-          history.length > 0 ? 'sm:max-w-2xl' : 'sm:max-w-lg',
+          wide ? 'sm:max-w-2xl' : 'sm:max-w-lg',
         )}
       >
         <div className="shrink-0 px-4 pt-[max(1rem,env(safe-area-inset-top))] sm:px-6 sm:pt-6">
           <div className="flex items-center gap-3">
             <span className="border-neon-400/40 bg-neon-400/10 text-neon-300 flex size-9 items-center justify-center rounded-xl border sm:size-11 sm:rounded-2xl">
-              <Sparkles className="size-4 sm:size-5" aria-hidden />
+              <Icon className="size-4 sm:size-5" aria-hidden />
             </span>
             <div>
-              <h2 className="font-display text-ink-50 text-lg font-semibold">Phiên luyện tập</h2>
-              <p className="text-ink-400 text-sm">Bạn đã dừng sau {formatClock(seconds)}.</p>
+              <h2 className="font-display text-ink-50 text-lg font-semibold">{title}</h2>
+              <p className="text-ink-400 text-sm">{subtitle}</p>
             </div>
           </div>
 
-          <dl className="mt-4 grid grid-cols-4 gap-2 sm:mt-6 sm:gap-3">
-            <SummaryStat label="Đã làm" value={stats.answered} />
-            <SummaryStat label="Đúng" value={stats.correct} tone="correct" />
-            <SummaryStat label="Chính xác" value={formatPercent(accuracy)} />
-            <SummaryStat label="Chuỗi dài nhất" value={stats.bestStreak} tone="spark" />
-          </dl>
+          <dl className="mt-4 grid grid-cols-4 gap-2 sm:mt-6 sm:gap-3">{stats}</dl>
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-1 sm:px-6" data-cy="endless-summary-scroll">
-          {areas.length > 0 ? (
-            <div className="border-ink-600/60 mt-4 border-t pt-4 sm:mt-6 sm:pt-5">
-              <p className="text-ink-400 text-[0.7rem] font-medium tracking-[0.16em] uppercase">
-                Hồ sơ năng lực
-              </p>
-              <p className="text-ink-400 mt-1 text-xs">
-                Số câu đúng trên số câu đã trả lời ở chế độ vô tận, tính từ trước đến nay. Cần ít nhất{' '}
-                {MIN_ANSWERED} câu để xếp loại.
-              </p>
-              <ul className="mt-3 space-y-3">
-                {(showAllAreas ? areas : areas.slice(0, AREAS_SHOWN)).map((area) => {
-                  const strength = areaStrength(area.accuracy, area.answered)
-                  return (
-                    <li key={area.topic_id} className="flex items-start gap-3">
-                      <span aria-hidden className="mt-0.5">
-                        {area.emoji}
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-start justify-between gap-2">
-                          <span className="text-ink-100 line-clamp-2 min-w-0 text-sm leading-snug sm:truncate">{area.name}</span>
-                          <span
-                            className={cn(
-                              'shrink-0 rounded-full border px-2 py-0.5 text-[0.7rem] font-medium whitespace-nowrap sm:text-xs',
-                              STRENGTH_CHIP[strength],
-                            )}
-                          >
-                            {AREA_LABELS[strength]}
-                          </span>
-                        </div>
-                        <div className="mt-1.5 flex items-center gap-3">
-                          <div className="bg-ink-800 h-1.5 flex-1 overflow-hidden rounded-full">
-                            <div
-                              className={cn('h-full rounded-full', STRENGTH_BAR[strength])}
-                              style={{ width: `${Math.max(area.accuracy, 3)}%` }}
-                            />
-                          </div>
-                          <span className="text-ink-400 shrink-0 text-xs tabular-nums">
-                            Đúng {area.correct}/{area.answered} câu
-                          </span>
-                        </div>
-                      </div>
-                    </li>
-                  )
-                })}
-              </ul>
-              {areas.length > AREAS_SHOWN ? (
-                <button
-                  type="button"
-                  onClick={() => setShowAllAreas((value) => !value)}
-                  aria-expanded={showAllAreas}
-                  className="text-neon-300 hover:text-neon-200 mt-3 text-xs font-medium"
-                  data-cy="endless-areas-toggle"
-                >
-                  {showAllAreas ? 'Thu gọn' : `Xem tất cả ${areas.length} chủ đề`}
-                </button>
-              ) : null}
-            </div>
-          ) : null}
-
-          {history.length > 0 ? <AnswerReview history={history} /> : null}
+          {children}
         </div>
 
         <div className="border-ink-600/60 flex shrink-0 items-center gap-2 border-t px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:gap-3 sm:px-6 sm:py-4">
+          {footer}
+        </div>
+      </Card>
+    </div>
+  )
+}
+
+/** A round's last answer is in: how it went, its answers, and on to the next. */
+function RoundSummary({
+  round,
+  answers,
+  streak,
+  bestStreak,
+  onNext,
+  onStop,
+}: {
+  round: number
+  answers: EndlessAnswered[]
+  streak: number
+  bestStreak: number
+  onNext: () => void
+  onStop: () => void
+}) {
+  const correct = answers.filter((item) => item.grade.is_correct).length
+  const accuracy = answers.length === 0 ? 0 : (correct / answers.length) * 100
+  const cheer =
+    accuracy >= 80 ? 'Xuất sắc!' : accuracy >= 50 ? 'Làm tốt lắm!' : 'Xem lại các câu sai rồi thử vòng tiếp nhé.'
+
+  return (
+    <SummarySheet
+      dataCy="endless-round-summary"
+      wide
+      icon={Trophy}
+      title={`Hoàn thành vòng ${round}`}
+      subtitle={cheer}
+      stats={
+        <>
+          <SummaryStat label="Đúng" value={`${correct}/${answers.length}`} tone="correct" />
+          <SummaryStat label="Chính xác" value={formatPercent(accuracy)} />
+          <SummaryStat label="Chuỗi hiện tại" value={streak} tone="spark" />
+          <SummaryStat label="Chuỗi dài nhất" value={bestStreak} tone="spark" />
+        </>
+      }
+      footer={
+        <>
+          <Button onClick={onNext} className="flex-1 sm:flex-none" data-cy="endless-next-round">
+            Vòng tiếp theo
+            <ArrowRight className="size-4" aria-hidden />
+          </Button>
+          <Button variant="outline" onClick={onStop} data-cy="endless-round-stop">
+            <Pause className="size-4" aria-hidden />
+            Dừng
+          </Button>
+        </>
+      }
+    >
+      <AnswerReview history={answers} title={`Xem lại vòng ${round}`} />
+    </SummarySheet>
+  )
+}
+
+/**
+ * The end of the run. The totals cover every round; the review only covers the
+ * unfinished one, since each finished round was reviewed in its own summary.
+ */
+function StopSummary({
+  stats,
+  rounds,
+  unreviewed,
+  areas,
+  seconds,
+  onRestart,
+}: {
+  stats: { answered: number; correct: number; bestStreak: number }
+  /** Rounds finished this run. */
+  rounds: number
+  /** Answers of the round the player stopped in. */
+  unreviewed: EndlessAnswered[]
+  areas: EndlessTopicProgress[]
+  seconds: number
+  onRestart: () => void
+}) {
+  const accuracy = stats.answered === 0 ? 0 : (stats.correct / stats.answered) * 100
+
+  return (
+    <SummarySheet
+      dataCy="endless-summary"
+      wide={unreviewed.length > 0}
+      icon={Sparkles}
+      title="Phiên luyện tập"
+      subtitle={
+        <>
+          Bạn đã dừng sau {formatClock(seconds)}
+          {rounds > 0 ? ` · hoàn thành ${rounds} vòng` : ''}.
+        </>
+      }
+      stats={
+        <>
+          <SummaryStat label="Đã làm" value={stats.answered} />
+          <SummaryStat label="Đúng" value={stats.correct} tone="correct" />
+          <SummaryStat label="Chính xác" value={formatPercent(accuracy)} />
+          <SummaryStat label="Chuỗi dài nhất" value={stats.bestStreak} tone="spark" />
+        </>
+      }
+      footer={
+        <>
           <Button onClick={onRestart} className="flex-1 sm:flex-none">
             <RotateCcw className="size-4" aria-hidden />
             Chơi tiếp
@@ -892,10 +986,80 @@ function StopSummary({
           <ButtonLink to="/explore" variant="ghost" className="px-3 sm:px-4">
             Thư viện đề
           </ButtonLink>
-        </div>
-      </Card>
-    </div>
+        </>
+      }
+    >
+      <SkillProfile areas={areas} />
+      {unreviewed.length > 0 ? (
+        <AnswerReview history={unreviewed} title={rounds > 0 ? `Xem lại vòng ${rounds + 1}` : undefined} />
+      ) : null}
+    </SummarySheet>
   )
+}
+
+/** Every topic touched in Endless, all-time; the strongest few, the rest behind a toggle. */
+function SkillProfile({ areas }: { areas: EndlessTopicProgress[] }) {
+  // The strongest few are enough to read the profile; the rest would push the review out of reach.
+  const [showAllAreas, setShowAllAreas] = useState(false)
+
+  return areas.length > 0 ? (
+    <div className="border-ink-600/60 mt-4 border-t pt-4 sm:mt-6 sm:pt-5">
+      <p className="text-ink-400 text-[0.7rem] font-medium tracking-[0.16em] uppercase">
+        Hồ sơ năng lực
+      </p>
+      <p className="text-ink-400 mt-1 text-xs">
+        Số câu đúng trên số câu đã trả lời ở chế độ vô tận, tính từ trước đến nay. Cần ít nhất{' '}
+        {MIN_ANSWERED} câu để xếp loại.
+      </p>
+      <ul className="mt-3 space-y-3">
+        {(showAllAreas ? areas : areas.slice(0, AREAS_SHOWN)).map((area) => {
+          const strength = areaStrength(area.accuracy, area.answered)
+          return (
+            <li key={area.topic_id} className="flex items-start gap-3">
+              <span aria-hidden className="mt-0.5">
+                {area.emoji}
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-start justify-between gap-2">
+                  <span className="text-ink-100 line-clamp-2 min-w-0 text-sm leading-snug sm:truncate">{area.name}</span>
+                  <span
+                    className={cn(
+                      'shrink-0 rounded-full border px-2 py-0.5 text-[0.7rem] font-medium whitespace-nowrap sm:text-xs',
+                      STRENGTH_CHIP[strength],
+                    )}
+                  >
+                    {AREA_LABELS[strength]}
+                  </span>
+                </div>
+                <div className="mt-1.5 flex items-center gap-3">
+                  <div className="bg-ink-800 h-1.5 flex-1 overflow-hidden rounded-full">
+                    <div
+                      className={cn('h-full rounded-full', STRENGTH_BAR[strength])}
+                      style={{ width: `${Math.max(area.accuracy, 3)}%` }}
+                    />
+                  </div>
+                  <span className="text-ink-400 shrink-0 text-xs tabular-nums">
+                    Đúng {area.correct}/{area.answered} câu
+                  </span>
+                </div>
+              </div>
+            </li>
+          )
+        })}
+      </ul>
+      {areas.length > AREAS_SHOWN ? (
+        <button
+          type="button"
+          onClick={() => setShowAllAreas((value) => !value)}
+          aria-expanded={showAllAreas}
+          className="text-neon-300 hover:text-neon-200 mt-3 text-xs font-medium"
+          data-cy="endless-areas-toggle"
+        >
+          {showAllAreas ? 'Thu gọn' : `Xem tất cả ${areas.length} chủ đề`}
+        </button>
+      ) : null}
+    </div>
+  ) : null
 }
 
 /**
@@ -903,7 +1067,7 @@ function StopSummary({
  * them: the pick, the right option and the explanation. "Câu sai" narrows it
  * to the misses, which is usually what is worth rereading.
  */
-function AnswerReview({ history }: { history: EndlessAnswered[] }) {
+function AnswerReview({ history, title = 'Xem lại câu trả lời' }: { history: EndlessAnswered[]; title?: string }) {
   const missed = history.filter((item) => !item.grade.is_correct).length
   const [onlyMissed, setOnlyMissed] = useState(false)
   const items = history
@@ -914,7 +1078,7 @@ function AnswerReview({ history }: { history: EndlessAnswered[] }) {
   return (
     <div className="border-ink-600/60 mt-6 border-t" data-cy="endless-review">
       <div className="bg-ink-900/95 sticky top-0 z-10 -mx-4 flex flex-wrap items-center justify-between gap-2 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6">
-        <p className="text-ink-400 text-[0.7rem] font-medium tracking-[0.16em] uppercase">Xem lại câu trả lời</p>
+        <p className="text-ink-400 text-[0.7rem] font-medium tracking-[0.16em] uppercase">{title}</p>
         <div className="flex gap-1.5" role="group" aria-label="Lọc câu trả lời">
           {[
             { value: false, label: `Tất cả (${history.length})` },

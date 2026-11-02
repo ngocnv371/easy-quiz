@@ -178,6 +178,11 @@ screen something worth celebrating.
 identity — an anonymous guest is fine — the first question is on screen, and every answer brings
 the next. "Dừng" ends the session with a summary at any point.
 
+- The stream is played in **rounds of 10** (`ROUND_SIZE` in `use-endless-session.ts`): a progress
+  bar under the top bar counts "Vòng 2 · Câu 3/10", and the tenth answer opens a round summary with
+  that round's review. "Vòng tiếp theo" carries on with the same run, streak included. Rounds are
+  client-side only; the server still sees one run (`endless_sessions`) until the player stops.
+
 - Questions are drawn from every published public quiz in **batches of 10**
   (`POST /api/endless/batch`), keyed by the quiz's topic as the "area of expertise", so there is no
   per-question tagging to maintain.
@@ -301,7 +306,8 @@ session**, and a **one-time purchase that removes it for good**.
 - **Where the break shows** (`src/features/ads/ad-break.tsx`):
   - **A quiz:** submitting navigates to the result page with `state.adBreak`; the break comes
     first, and continuing clears the flag, so a reload or a shared result link skips it.
-  - **Endless:** pressing stop after at least one answer shows the break, then the summary.
+  - **Endless:** after every second finished round (`ADS_EVERY_ROUNDS` in `endless-page.tsx`),
+    and when the run stops with anything answered since the last break.
   - Never while a question is on screen.
 - **The ad:** a full-screen stage (not a dialog) with one labelled AdSense display unit and a
   continue button that unlocks after 5 seconds. The publisher id and ad unit are in
