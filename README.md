@@ -322,8 +322,10 @@ session**, and a **one-time purchase that removes it for good**.
   continue button that unlocks after 5 seconds. The publisher id and ad unit are in
   `src/features/ads/adsense.ts` (production builds only; `VITE_ADSENSE_CLIENT` and
   `VITE_ADSENSE_SLOT` override them), and `public/ads.txt` names the same publisher. The script
-  loads on the first break only. In `npm run dev`, or with the script blocked, the unit is a house
-  ad for the pass.
+  loads on the first break only. When AdSense shows nothing — `npm run dev`, the script blocked, the
+  site not approved yet, or no ad to serve (the unit marked unfilled, or not filled within 3 s) — the
+  unit is one of our own house ads instead: the ad-free pass (40% of breaks), an account (guests
+  only), the topic boards, /progress or AiTechX. Their links open a new tab, so the run carries on.
 - **Who sees it:** everyone, guests included, except an account with `profiles.ad_free_at` set,
   and admins. `/api/me` reports that as `profile.ad_free`; `useShowAds()` reads it.
 - **The pass** costs 49.000đ once and is sold on `/no-ads`. Grant it by hand with SQL on
